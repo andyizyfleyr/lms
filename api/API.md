@@ -60,6 +60,17 @@ Variables d'environnement du paiement : `NOVA_SECRET_KEY` (`sk_live_…`), `NOVA
 
 Tables : `orders`, `course_access`, `subscriptions`, `payment_events`.
 
+## Activité et appareils
+
+| Méthode | Chemin | Description |
+|---|---|---|
+| GET | `/api/activite` | Activité réelle du compte : derniers messages des cours accessibles, dernière copie déposée (ou copies à corriger pour un formateur). Alimente le bloc « Activité récente » de l'accueil |
+| GET | `/api/auth/devices` | Sessions ouvertes : `{appareils:[{id, appareil, navigateur, ip, depuis, expire, actuel}], courant}`. L'`id` est une empreinte courte — le jeton n'est jamais renvoyé |
+| DELETE | `/api/auth/devices/{id}` | Fermer une session précise (empreinte ou jeton) |
+| DELETE | `/api/auth/devices` | Fermer **toutes les autres** sessions du compte et garder la sienne |
+
+Le champ `avatar` des réglages (`PATCH /api/settings`) porte l'avatar choisi : il est retrouvé sur les autres appareils.
+
 ## Temps réel
 
 | Méthode | Chemin | Description |

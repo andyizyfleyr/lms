@@ -1177,6 +1177,22 @@ main::-webkit-scrollbar{display:none}
   *{animation-duration:.001ms!important;transition-duration:.001ms!important}
 }
 /* ============================================================
+   PROFIL — avatars choisis, appareils, activité réelle
+   ============================================================ */
+.avatars{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:6px 6px 12px}
+.avatars__item{position:relative;background:none;border:0;padding:0;cursor:pointer;line-height:0}
+.avatars__item .avatar{width:56px;height:56px;margin:0 auto;transition:transform .18s var(--ease-emph),box-shadow .18s}
+.avatars__item:active .avatar{transform:scale(.94)}
+.avatars__item.is-on .avatar{box-shadow:0 0 0 3px var(--md-surface),0 0 0 6px var(--md-primary)}
+.avatars__on{position:absolute;right:6px;bottom:6px;width:20px;height:20px;border-radius:var(--r-full);
+  background:var(--md-primary);color:var(--md-on-primary);display:grid;place-items:center;line-height:0}
+.avatars__on .icon{width:13px;height:13px;stroke-width:2.6}
+.avatar .icon{width:48%;height:48%;stroke-width:1.7}
+.avatar-lg .icon,.profile-head .avatar .icon{stroke-width:1.6}
+#secActivite[hidden]{display:none}
+.hero[data-etat="vide"]{opacity:.98}
+
+/* ============================================================
    PAIEMENTS — cours à l'unité et abonnement (NOVA Checkout)
    ============================================================ */
 .pay-tag{
@@ -1335,23 +1351,23 @@ main::-webkit-scrollbar{display:none}
       </div>
 
       <!-- Hero : reprendre -->
-      <article class="hero ripple" data-page="cours" data-id="c1">
+      <article class="hero ripple" id="heroCard" data-page="cours" data-id="c1">
         <div class="hero__top">
-          <span class="hero__pill"><svg class="icon icon--16"><use href="#ic-play"/></svg> REPRENDRE</span>
-          <span class="hero__time"><svg class="icon icon--16"><use href="#ic-clock"/></svg> 18 min de vidéo</span>
+          <span class="hero__pill" id="heroPill"><svg class="icon icon--16"><use href="#ic-play"/></svg> REPRENDRE</span>
+          <span class="hero__time" id="heroTime"><svg class="icon icon--16"><use href="#ic-clock"/></svg></span>
         </div>
-        <h2 class="headline-small">Savonnerie à froid</h2>
-        <p class="body-medium" id="heroSub">Module 1 · Chimie du savon et sécurité</p>
+        <h2 class="headline-small" id="heroTitle">Vos formations</h2>
+        <p class="body-medium" id="heroSub"></p>
         <div class="hero__progress">
           <div class="lp" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Progression du cours">
             <div class="lp__track"></div>
             <div class="lp__bar" id="heroBar" data-prog="0"></div>
             <div class="lp__stop"></div>
           </div>
-          <span class="label-large" id="heroPct">62 %</span>
+          <span class="label-large" id="heroPct">0 %</span>
         </div>
         <button class="btn btn--invert ripple" data-act="continue">
-          Continuer la leçon <svg class="icon icon--18"><use href="#ic-arrow"/></svg>
+          <span id="heroCtaLabel">Continuer la leçon</span> <svg class="icon icon--18"><use href="#ic-arrow"/></svg>
         </button>
       </article>
 
@@ -1416,21 +1432,12 @@ main::-webkit-scrollbar{display:none}
         <div id="deadlines" class="stagger"></div>
       </div>
 
-      <!-- Activité / conseil -->
-      <div class="section">
-        <div class="section__head"><h2>Activité du formateur</h2></div>
-        <div class="card card--pad" style="display:flex;gap:14px;align-items:flex-start">
-          <span class="stat__ico acc-purple" style="width:40px;height:40px;border-radius:var(--r-full)">
-            <svg class="icon icon--20"><use href="#ic-chat"/></svg>
-          </span>
-          <div>
-            <p class="title-small">Nouveau retour sur votre projet</p>
-            <p class="body-small muted" style="margin-top:2px">Mme Adjovi a commenté « Maquette M3 » — 2 h</p>
-            <button class="text-btn ripple" style="margin:6px 0 0 -12px" data-page="cours" data-id="c2" data-tab="discussion">Lire le commentaire <svg class="icon icon--16"><use href="#ic-arrow"/></svg></button>
-          </div>
-        </div>
+      <!-- Activité réelle (discussions, copies) — masquée tant qu'il n'y a rien -->
+      <div class="section" id="secActivite" hidden>
+        <div class="section__head"><h2>Activité récente</h2></div>
+        <div id="activite" class="stagger"></div>
       </div>
-    </section>
+      </section>
 
     <!-- ==================== VUE : COURS ==================== -->
     <section class="view" id="view-cours" data-view="cours" role="tabpanel" aria-label="Mes cours">

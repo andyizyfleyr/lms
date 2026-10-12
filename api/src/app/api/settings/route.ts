@@ -13,6 +13,11 @@ export async function GET(req: Request) {
     if ('error' in a) return a.error;
     let row = await q1('select * from settings where user_id = $1', [a.session.user.id]);
     if (!row) row = await q1('insert into settings (user_id) values ($1) returning *', [a.session.user.id]);
+    /* colonne ajoutée après coup sur les bases existantes (migration douce) */
+    if (row && !('avatar' in (row as Record<string, unknown>))) {
+      await q1('alter table settings add column if not exists avatar text not null default $1'.replace('$1', "''"));
+      row = await q1('select * from settings where user_id = $1', [a.session.user.id]);
+    }
     return ok({ reglages: row });
   });
 }
@@ -25,6 +30,8 @@ export async function PATCH(req: Request) {
     const parsed = await parseBody(req, reglages);
     if ('error' in parsed) return parsed.error;
     const r = parsed.data;
+    /* colonne avatar ajoutée après coup (migration douce, base déjà en place) */
+    await q1("alter table settings add column if not exists avatar text not null default ''");
     const row = await q1(
       `insert into settings (user_id, theme, langue, notifications_email, notifications_push, rappels_sessions, donnees_mobiles)
        values ($1, coalesce($2,'clair'), coalesce($3,'fr'), coalesce($4,true), coalesce($5,true), coalesce($6,true), coalesce($7,false))
@@ -33,10 +40,11 @@ export async function PATCH(req: Request) {
          notifications_email = coalesce($4, settings.notifications_email),
          notifications_push = coalesce($5, settings.notifications_push),
          rappels_sessions = coalesce($6, settings.rappels_sessions),
-         donnees_mobiles = coalesce($7, settings.donnees_mobiles), updated_at = now()
+         donnees_mobiles = coalesce($7, settings.donnees_mobiles),
+         avatar = coalesce($8, settings.avatar), updated_at = now()
        returning *`,
       [a.session.user.id, r.theme ?? null, r.langue ?? null, r.notificationsEmail ?? null,
-       r.notificationsPush ?? null, r.rappelsSessions ?? null, r.donneesMobiles ?? null]
+       r.notificationsPush ?? null, r.rappelsSessions ?? null, r.donneesMobiles ?? null, r.avatar ?? null]
     );
     return ok({ reglages: row });
   });

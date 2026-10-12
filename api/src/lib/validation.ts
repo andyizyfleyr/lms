@@ -123,7 +123,8 @@ export const reglages = z.object({
   notificationsEmail: z.boolean().optional(),
   notificationsPush: z.boolean().optional(),
   rappelsSessions: z.boolean().optional(),
-  donneesMobiles: z.boolean().optional()
+  donneesMobiles: z.boolean().optional(),
+  avatar: z.string().max(24).optional()
 });
 
 export const telechargement = z.object({

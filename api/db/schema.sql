@@ -290,6 +290,7 @@ create table if not exists settings (
   notifications_push  boolean not null default true,
   rappels_sessions    boolean not null default true,
   donnees_mobiles     boolean not null default false,
+  avatar              text not null default '',          -- avatar choisi (suit le compte)
   updated_at          timestamptz not null default now()
 );
 

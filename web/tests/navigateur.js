@@ -286,6 +286,20 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
   await page.evaluate(() => { window.APPX.closeSheet(); });
   await dormir(300);
 
+  /* ---- Plus aucun contenu inventé sur l'accueil ----
+     (on lit le DOM de l'accueil sans quitter la fiche de cours ouverte) */
+  const accueil = await page.evaluate(() => {
+    const t = document.body.innerText || '';
+    const h = document.querySelector('#heroTitle');
+    const sec = document.querySelector('#secActivite');
+    return { titre: h ? h.textContent : '', inventé: /Mme Adjovi|Maquette M3|Activité du formateur|34 h DE FORMATION/i.test(t),
+             activiteMasquee: sec ? sec.hidden : null };
+  });
+  test('accueil : aucun contenu inventé (ni « Mme Adjovi », ni « Maquette M3 »)', !accueil.inventé,
+       'héros : ' + (accueil.titre || '').slice(0, 46));
+  test('accueil : le héros parle de l’accès réel du compte', /Débloquez|Commencer|Continuer|Revoir/.test(accueil.titre || ''),
+       accueil.titre || 'héros vide');
+
   /* ---- La suite a besoin d'un accès : on ouvre la session de démonstration
      (abonnement actif, donc tous les cours ouverts). Sans serveur indiqué,
      les contrôles de contenu sont ignorés — l'application reste utilisable
@@ -579,6 +593,73 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
     }, API);
     test('progression du serveur lue (hydratation)', !!serveur && serveur.cours >= 1,
          serveur ? serveur.cours + ' cours suivis · ' + serveur.lecons + ' leçons terminées' : 'aucune donnée');
+
+    /* ---------- ce qui était simulé est désormais réel ---------- */
+    await page.evaluate(() => { while (window.APPX.topPage()) window.APPX.popPage(); });
+    await dormir(400);
+
+    /* avatar : vrai sélecteur, gardé par le compte (et sur le serveur) */
+    await page.evaluate(() => window.APPX.pushPage('profil-edit', {}));
+    await dormir(700);
+    await page.evaluate(() => { const b = document.querySelector('[data-act="avatar"]'); if (b) b.click(); });
+    await dormir(600);
+    const nbAvatars = await page.evaluate(() => document.querySelectorAll('#choixAvatar [data-avatar]').length);
+    await page.evaluate(() => { const b = document.querySelector('#choixAvatar [data-avatar="drop"]'); if (b) b.click(); });
+    await dormir(700);
+    const av = await page.evaluate(async () => {
+      const j = await window.LHCOMPTE.api('/api/settings').then(r => r.json()).catch(() => null);
+      return { local: window.APPX.store.get('avatar', ''), distant: j && j.data && j.data.reglages ? j.data.reglages.avatar : null,
+               entete: !!document.querySelector('#avatarBtn svg') };
+    });
+    test('avatar : sélecteur réel (12 choix)', nbAvatars === 12, nbAvatars + ' avatars');
+    test('avatar : choisi, affiché et enregistré sur le compte', av.local === 'drop' && av.distant === 'drop' && av.entete,
+         'local = ' + av.local + ' · serveur = ' + av.distant);
+
+    /* mot de passe : vrai formulaire (on ne le change pas) */
+    await page.evaluate(() => { while (window.APPX.topPage()) window.APPX.popPage(); });
+    await dormir(400);
+    await page.evaluate(() => window.APPX.pushPage('parametres', {}));
+    await dormir(600);
+    await page.evaluate(() => { const b = document.querySelector('[data-act="pwd"]'); if (b) b.click(); });
+    await dormir(600);
+    const pwd = await page.evaluate(() => {
+      const f = document.querySelector('#fPwd');
+      return { present: !!f, champs: f ? f.querySelectorAll('input[type="password"]').length : 0 };
+    });
+    test('mot de passe : formulaire réel (actuel, nouveau, confirmation)', pwd.present && pwd.champs === 3,
+         pwd.champs + ' champ(s)');
+    await page.evaluate(() => { window.APPX.closeSheet(); });
+    await dormir(300);
+
+    /* appareils : liste réelle des sessions */
+    await page.evaluate(() => window.LHPROFIL.appareils());
+    await dormir(1500);
+    const app = await page.evaluate(() => {
+      const box = document.querySelector('#listeAppareils');
+      const txt = box ? box.innerText : '';
+      return { lignes: box ? box.querySelectorAll('.list-row').length : 0, actuel: /Actuel/.test(txt) };
+    });
+    test('appareils connectés : liste réelle avec le poste actuel', app.lignes >= 1 && app.actuel,
+         app.lignes + ' appareil(s)');
+    await page.evaluate(() => { window.APPX.closeSheet(); });
+    await dormir(300);
+
+    /* activité : alimentée par l'API, jamais inventée */
+    const act = await page.evaluate(async () => {
+      await window.LHPROFIL.chargerActivite();
+      const sec = document.querySelector('#secActivite'), z = document.querySelector('#activite');
+      return { masquee: sec.hidden, texte: z ? z.innerText.replace(/\s+/g, ' ').slice(0, 90) : '' };
+    });
+    test('activité réelle affichée sur l’accueil', !act.masquee && act.texte.length > 20, act.texte || 'aucune activité');
+
+    /* le héros suit le cours réellement commencé */
+    const hero = await page.evaluate(() => {
+      window.LHPROFIL.majHero();
+      const h = document.querySelector('#heroTitle'), c = document.querySelector('#heroCard');
+      return { titre: h ? h.textContent : '', cours: c ? c.dataset.id : '', pct: (document.querySelector('#heroPct') || {}).textContent };
+    });
+    test('héros : cours réellement en cours + son avancement', hero.titre.length > 3 && !!hero.cours,
+         hero.titre + ' · ' + hero.pct);
 
     /* le sens local → serveur : on termine une leçon dans l'app, puis on relit le serveur */
     await page.evaluate(() => { while (window.APPX.topPage()) window.APPX.popPage(); });

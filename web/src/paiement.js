@@ -459,7 +459,7 @@ function brancher(){
     const continuer0 = ACTIONS.continue;
     const f = function(btn){
       const pg = btn && btn.closest ? btn.closest('.page') : null;
-      const cid = (pg && pg.dataset.coursId) || 'c1';
+      const cid = (btn && btn.dataset && btn.dataset.cours) || (pg && pg.dataset.coursId) || 'c1';
       if (!estDebloque(cid)){ payerOuExpliquer(cid, 'lecon'); return; }
       return continuer0.apply(this, arguments);
     };

@@ -4,7 +4,7 @@ Backend complet du tableau de bord mobile **CosmétiLab** : authentification, co
 quiz corrigés côté serveur, devoirs et dépôts de fichiers, notes, agenda, notifications, badges,
 statistiques, recherche, réglages et téléchargements hors-ligne.
 
-**50 routes API** (dont 7 pour les paiements), base **PostgreSQL Neon** (30 tables), prêtes pour Vercel.
+**51 routes API** (dont 7 pour les paiements), base **PostgreSQL Neon** (30 tables), prêtes pour Vercel.
 
 Le projet Vercel qui héberge cette API sert aussi l'application mobile : `public/index.html` (copie du
 livrable `web/index.html`) est renvoyé sur `/`, l'API occupe `/api/*` et la documentation `/api-doc`.

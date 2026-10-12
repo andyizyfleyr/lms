@@ -292,7 +292,8 @@ const ACTIONS = {
   },
   continue(btn){
     const pg = btn.closest('.page');
-    const coursId = (pg && pg.dataset.coursId) ? pg.dataset.coursId : 'c1';
+    /* le bouton peut viser un cours précis (héros « Reprendre », cartes) */
+    const coursId = (btn.dataset && btn.dataset.cours) || (pg && pg.dataset.coursId) || 'c1';
     const cur = curLessonIdx(coursId);
     if (cur === -1){ toast('Ce cours est déjà terminé 🎉'); return; }
     const l = LESSONS[coursId][cur];

@@ -1094,17 +1094,24 @@ const ACTIONS = {
     dialog({title:'Profil mis à jour', text:'Vos informations ont bien été enregistrées.', confirmLabel:'Fermer', cancel:false, ico:'check-circle'})
       .then(() => popPage());
   },
-  avatar(){ toast('Sélecteur d\'avatar — fonctionnalité de démonstration'); },
+  avatar(){
+    /* vrai sélecteur d'avatar (module profil.js) — repli local si absent */
+    if (window.LHPROFIL && window.LHPROFIL.choisirAvatar) return window.LHPROFIL.choisirAvatar();
+    toast('Sélecteur d’avatar indisponible');
+  },
   shareProfile(){
     const url = 'https://cosmetilab.bj/@' + S.profile.nom.toLowerCase().replace(/\s+/g, '');
     if (navigator.clipboard) navigator.clipboard.writeText(url).catch(() => {});
     toast('Lien de profil copié');
   },
   pwd(){
-    dialog({title:'Modifier le mot de passe', text:'Un lien sécurisé vous sera envoyé par e-mail.', confirmLabel:'Envoyer', ico:'shield'})
-      .then(ok => { if (ok) toast('E-mail de réinitialisation envoyé'); });
+    /* vraie modification du mot de passe (POST /api/auth/password) */
+    if (window.LHPROFIL && window.LHPROFIL.changerMotDePasse) return window.LHPROFIL.changerMotDePasse();
+    toast('Modification du mot de passe indisponible');
   },
   devices(){
+    /* vraie liste des sessions ouvertes (GET /api/auth/devices) */
+    if (window.LHPROFIL && window.LHPROFIL.appareils) return window.LHPROFIL.appareils();
     openSheet(`<h3 class="title-medium">Appareils connectés</h3>
       <div class="list-row" style="margin-top:10px"><span class="list-row__ico acc-green">${svg('shield', 'icon icon--20')}</span>
         <div class="list-row__main"><h3>Ce téléphone</h3><p>Abomey-Calavi · actif maintenant</p></div><span class="pill pill--ok">Actuel</span></div>
@@ -1242,6 +1249,9 @@ function updateStats(){
   if (gl) gl.textContent = (sem ? sem.lecons : lecons) + ' leçons terminées · objectif 30';
 }
 function updateHero(){
+  /* le héros est calculé par profil.js à partir de l'état réel du compte
+     (cours commencé, progression, prochaine leçon, accès payé) */
+  if (window.LHPROFIL && window.LHPROFIL.majHero){ window.LHPROFIL.majHero(); return; }
   const c = coursById('c1');
   const p = progCours('c1');
   const sub = $('#heroSub'), pct = $('#heroPct'), bar = $('#heroBar');

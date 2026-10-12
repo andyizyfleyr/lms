@@ -3,7 +3,7 @@
 Tableau de bord **LMS mobile** (Material Design 3) livré sous forme de **fichier HTML unique**, accompagné de son **API Next.js + base Neon**.
 
 - **Le site** : `web/index.html` — 1 427 Ko, HTML + CSS + JavaScript + images (base64) + extrait vidéo intégré. Aucune dépendance externe (la seule exception est l'iframe YouTube du lecteur vidéo). Il se publie sur n'importe quel hébergeur statique.
-- **L'API** : `api/` — Next.js 15 (App Router) + TypeScript + Neon/PostgreSQL, **50 routes** (dont 7 pour le paiement) et **30 tables**. Elle sert la synchronisation de la progression (et tout le reste : cours, quiz, devoirs, ressources, notifications, recherche, statistiques).
+- **L'API** : `api/` — Next.js 15 (App Router) + TypeScript + Neon/PostgreSQL, **51 routes** (dont 7 pour le paiement) et **30 tables**. Elle sert la synchronisation de la progression (et tout le reste : cours, quiz, devoirs, ressources, notifications, recherche, statistiques).
 - **Le tout tient sur une seule adresse** : un seul projet Vercel sert l'application sur `/` et l'API sur `/api/*`
   (Next.js publie `api/public/index.html`, copie du livrable). Voir [`DEPLOIEMENT-GITHUB-VERCEL.md`](DEPLOIEMENT-GITHUB-VERCEL.md).
 
@@ -18,6 +18,8 @@ Dès qu'elle est configurée, la progression se retrouve sur tous les appareils 
 - **Chaque compte a son espace** : les données locales sont rangées sous `lh:u:<compte>:` et côté serveur sous l'identifiant du compte. Se déconnecter puis se reconnecter avec un autre compte ne mélange rien.
 - **L'identité affichée est celle du compte** : nom, initiales, profil, série de jours, heures de formation, badges et objectif de la semaine viennent du compte connecté (`/api/auth/me` et `/api/stats`). Un compte neuf part de zéro (0 j, 0 h, 0 badge) et « explorer sans compte » s'affiche sous « Invité » — aucun profil de démonstration n'est emprunté.
 - **Temps réel** : l'application interroge une révision légère (`GET /api/sync`, toutes les 4 s, 15 s en arrière-plan) ; dès qu'une action a été faite **ailleurs** (autre appareil, formateur, table d'administration), la progression est rechargée et l'écran se met à jour **sans rechargement**, avec un message et un indicateur « Synchronisé il y a … ». Toute action locale est envoyée aussitôt (`lh:pousse`).
+- **Avatar, mot de passe, appareils** : l'avatar se choisit parmi 12 visuels et **suit le compte** (enregistré côté serveur, retrouvé sur les autres appareils) ; le mot de passe se change pour de vrai (`POST /api/auth/password`, les autres sessions sont fermées) ; l'écran **Appareils connectés** liste les sessions réelles (`GET /api/auth/devices`) et permet d'en fermer une ou **toutes les autres** d'un coup.
+- **Accueil honnête** : le bloc « Reprendre » et l'« Activité récente » viennent des données du compte (cours commencé, progression, prochaine leçon, derniers messages de discussion, dernière copie déposée). Un compte neuf ne voit **aucun contenu inventé** : le bloc reste masqué tant qu'il n'y a rien (`GET /api/activite`).
 - **Espace formateur** : un compte créé en *formateur* voit l'entrée **Corrections** dans son profil, y lit les copies déposées par les apprenants (filtres par cours et par statut) et peut **les noter** (`PATCH /api/submissions/{id}`).
 
 ---
@@ -98,7 +100,7 @@ Depuis la **racine** (raccourcis, aucun paquet à installer à ce niveau) :
 | `npm run verifier-tout` | Contrôles du site + types de l'API + état de la base + test de fumée |
 
 Détail par projet : [`web/README.md`](web/README.md) et [`api/README.md`](api/README.md).
-Référence des 50 routes : [`api/API.md`](api/API.md).
+Référence des 51 routes : [`api/API.md`](api/API.md).
 
 ---
 
@@ -117,7 +119,7 @@ cosmetilab/
 │   └── tests/                 serveur.js (aperçu local) + navigateur.js (suite réelle)
 │
 ├── api/                       Le backend Next.js + TypeScript (projet Vercel unique)
-│   ├── src/app/api/**         50 routes (cours, leçons, quiz, devoirs, auth, progression, paiement…)
+│   ├── src/app/api/**         51 routes (cours, leçons, quiz, devoirs, auth, progression, paiement, activité…)
 │   ├── src/app/api-doc/       Page de documentation des routes (sur /api-doc)
 │   ├── src/lib/**             db.ts (Neon), auth.ts (scrypt + jetons), http.ts, validation.ts
 │   ├── public/index.html      Copie publiée du site, servie sur / (régénérée, ne pas éditer)
@@ -146,12 +148,12 @@ cosmetilab/
 |---|---|
 | Assemblage du site (`build.js`) | 12 contrôles d'intégrité · 1 427 Ko |
 | Contrôles statiques (`verify.js`) | **15 OK / 0** |
-| Suite navigateur (Chromium mobile) | **36 OK / 0** sans API · **58 OK / 0** avec l'API (paywall et accès abonné compris) |
+| Suite navigateur (Chromium mobile) | **36 OK / 0** sans API · **66 OK / 0** avec l'API (paywall, avatar, appareils, activité réelle) |
 | Suite comptes et temps réel | **26 OK / 0** (écran d'entrée, inscription, données séparées, mise à jour automatique, notation) |
 | Paiement de bout en bout (`npm --prefix api run paie:verif`) | **23 OK / 0** (catalogue, verrous, offre, abonnement, webhook signé, rejeu) |
 | Test de fumée de l'API (`npm run api:smoke`) | **38 OK / 0** |
 | Types de l'API (`tsc --noEmit`) | 0 erreur |
-| Build Next.js | 50 routes `ƒ Dynamic` |
+| Build Next.js | 51 routes `ƒ Dynamic` |
 | Base Neon (`db.js check`) | 30 tables, 6 cours, 59 leçons, 4 comptes |
 
 La suite navigateur vérifie ce qui doit rester vrai : navigation entre les quatre onglets, ouverture des fiches de cours, **retour** (bouton de l'app *et* bouton du téléphone), quiz, devoirs, **lecture vidéo dans le site** (YouTube en ligne, extrait intégré hors-ligne), thème, persistance, et **synchronisation dans les deux sens** avec l'API.
