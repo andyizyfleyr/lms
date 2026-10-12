@@ -108,7 +108,8 @@ Détail par projet : [`web/README.md`](web/README.md) et [`api/README.md`](api/R
 | Synchronisation | Tout ce qui est fait dans l'app est rangé sur le compte : notifications, discussions, agenda, téléchargements, notes, profil, réglages — et revient sur les autres appareils sans recharger |
 | Espace formateur | Créer/modifier un cours, ajouter ou retirer leçons, ressources et séances, suivre les apprenants (progression, dépôts à corriger) |
 | Apprentissage | Reprise de lecture à la seconde, historique des tentatives de quiz, recherche serveur, attestations imprimables, mode hors-ligne annoncé |
-| Qualité | 18 pages vérifiées, aucun contrôle mort, accessibilité contrôlée, images WebP (−18 % de poids : 1 242 Ko au total) |
+| Qualité | 18 pages vérifiées, aucun contrôle mort, accessibilité contrôlée, images WebP (−18 % de poids : 1 254 Ko au total) |
+| Adresses | **une adresse par écran** : `/cours/c1`, `/notifications`, `/quiz/c1`, `/certificats`, `/formateur/apprenants`… servies par le serveur, partageables et rechargeables ; adresse inconnue = vrai 404 |
 
 Référence des 56 routes : [`api/API.md`](api/API.md).
 
@@ -158,7 +159,7 @@ cosmetilab/
 |---|---|
 | Assemblage du site (`build.js`) | 12 contrôles d'intégrité · 1 427 Ko |
 | Contrôles statiques (`verify.js`) | **15 OK / 0** |
-| Suite navigateur (Chromium mobile) | **43 OK / 0** sans API · **93 OK / 0** avec l'API (paywall, avatar, appareils, synchronisation par compte, espace formateur, reprise de lecture, attestations, audit qualité) |
+| Suite navigateur (Chromium mobile) | **53 OK / 0** sans API · **104 OK / 0** avec l'API (paywall, avatar, appareils, synchronisation par compte, espace formateur, reprise de lecture, attestations, audit qualité) |
 | Suite comptes et temps réel | **26 OK / 0** (écran d'entrée, inscription, données séparées, mise à jour automatique, notation) |
 | Paiement de bout en bout (`npm --prefix api run paie:verif`) | **23 OK / 0** (catalogue, verrous, offre, abonnement, webhook signé, rejeu) |
 | Test de fumée de l'API (`npm run api:smoke`) | **38 OK / 0** |

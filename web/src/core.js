@@ -114,19 +114,34 @@ const pageHost = () => $('#pageStack');
    navigateur) doit revenir à la page précédente de l'application au lieu
    de quitter le site. Chaque page ouverte entre dans l'historique.
    ------------------------------------------------------------ */
-let histDepth = 0;        // entrées ajoutées par l'application
+let histDepth = 0;        // entrées ajoutées par l'application (pages et onglets)
 let histIgnore = 0;       // entrées à ignorer (remise à zéro)
-let histRestoring = false;// on réinstalle une page depuis l'historique (pas de nouvelle entrée)
+let histRestoring = false;// on réinstalle un écran depuis l'historique (pas de nouvelle entrée)
 let histEcho = 0;         // événements popstate attendus (échos de nos propres reculs)
-function histPush(id, arg){
-  if (histRestoring) return;
+
+const ROUTES = () => window.LHROUTES;
+const adresse = () => location.pathname + location.search;
+
+function poserAdresse(chemin, etat, remplacer){
   try {
-    history.pushState({ lh:id, arg:arg || '' }, '', location.pathname + location.search + '#' + id + (arg ? '/' + encodeURIComponent(arg) : ''));
-    histDepth++;
-  } catch (e) {}          // file:// ou contexte restreint : la navigation interne continue de fonctionner
+    if (remplacer) history.replaceState(etat || {}, '', chemin);
+    else history.pushState(etat || {}, '', chemin);
+  } catch (e) {}     // contexte restreint (file://) : la navigation interne continue de fonctionner
 }
-function histBack(){
-  if (histIgnore || !histDepth) return;
+function histPush(id, params){
+  if (histRestoring) return;
+  poserAdresse(ROUTES().cheminDe(id, params), { lh:id, params: params || {} });
+  histDepth++;
+}
+function histBack(id, params){
+  if (histIgnore) return;
+  /* adresse ouverte directement (lien partagé, rechargement) : l'entrée d'historique
+     est celle de l'arrivée — le « retour » mène donc à l'écran parent, pas hors du site. */
+  if (history.state && history.state.ancre){
+    if (id) allerVers(ROUTES().parentDe(id, params || {}), true);
+    return;
+  }
+  if (!histDepth) return;
   histDepth--;
   histEcho = Math.min(histEcho + 1, 4);   // le navigateur va nous renvoyer un popstate : à ignorer
   try { history.back(); } catch (e) { histEcho = Math.max(0, histEcho - 1); }
@@ -138,51 +153,138 @@ function histReset(){
   histIgnore = n;
   try { history.go(-n); } catch (e) { histIgnore = 0; }
 }
-function restorePage(id, arg){
-  if (!PAGES[id]) return false;
-  if (id === 'cours' || id === 'devoir') return !!pushPage(id, {id:arg || '', tab:''});
-  if (id === 'quiz') return !!pushPage('quiz', {quiz:arg || '', id:arg || ''});
-  return !!pushPage(id, {});
+
+/* ------------------------------------------------------------
+   3 bis. UNE ADRESSE PAR ÉCRAN
+   Chaque écran est adressable : /cours/c1, /notifications, /quiz/c1…
+   Le serveur répond à chacune de ces adresses (api/routes-site.json),
+   l'application ouvre l'écran correspondant, et la navigation met
+   l'adresse à jour. Un lien se partage, s'ouvre dans un nouvel onglet,
+   se recharge, et le bouton retour du téléphone suit l'historique.
+   ------------------------------------------------------------ */
+function montrerEntree(nom){
+  const C = window.LHCOMPTE;
+  if (!C || !C.ouvrirEntree) return false;
+  C.ouvrirEntree();
+  if (nom === 'connexion' && C.connexion) C.connexion();
+  else if (nom === 'inscription' && C.inscription) C.inscription();
+  else if (nom === 'invite' && C.invite) C.invite();
+  document.title = ROUTES().titreDe('', {}) + ' · CosmétiLab';
+  return true;
+}
+function setVue(nom, remplacer){
+  setView(nom, !!remplacer);
+  if (!remplacer) histDepth++;
+  document.title = ROUTES().titreDe(nom, {}) + ' · CosmétiLab';
+}
+/* l'entrée courante est-elle une arrivée directe (lien partagé, rechargement) ? */
+const surAncre = () => !!(history.state && history.state.ancre);
+/* Clic sur un lien : le navigateur gère les clics modifiés (nouvel onglet,
+   enregistrer la cible…) ; un clic normal suit la navigation interne. */
+function allerParLien(e, el){
+  if (!el || el.tagName !== 'A') return false;
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return true;
+  if (typeof e.button === 'number' && e.button !== 0) return true;
+  if (el.getAttribute('target') === '_blank') return true;
+  e.preventDefault();
+  return false;
+}
+/* Ouvre l'écran d'une adresse (utilisé au démarrage, au retour, au partage). */
+function allerVers(chemin, remplacer){
+  const cible = ROUTES().analyser(chemin || adresse());
+  if (!cible || cible.inconnu) return false;
+  if (cible.entree) return montrerEntree(cible.entree);
+  if (cible.vue){
+    setVue(cible.vue, !!remplacer);
+    if (remplacer) poserAdresse(ROUTES().cheminDe(cible.vue, {}), { vue: cible.vue, ancre: true }, true);
+    histDepth = 0;
+    return true;
+  }
+  if (cible.id === 'video'){                        // le lecteur vidéo : /video/{id}
+    const yt = (cible.params || {}).yt;
+    if (!yt || !VIDEOS.some(v => v.yt === yt)) return false;
+    poserAdresse(ROUTES().cheminDe('video', { yt: yt }), { video: yt }, true);
+    openVideo(yt, (window.APPX.vstate[yt] || {}).pos || 0);
+    document.title = 'Lecture · CosmétiLab';
+    return true;
+  }
+  const ouvert = pushPage(cible.id, cible.params || {});
+  /* `remplacer` = on vient d'arriver sur cette adresse : elle porte le drapeau « ancre » */
+  if (remplacer || !ouvert) poserAdresse(ROUTES().cheminDe(cible.id, cible.params), { lh:cible.id, params:cible.params || {}, ancre:true }, true);
+  return true;
 }
 window.addEventListener('popstate', e => {
   if (histIgnore){ histIgnore--; return; }
   if (histEcho){ histEcho--; return; }             // écho d'un recul déclenché par l'application
   const st = e.state || {};
-  const top = () => pageStack[pageStack.length - 1];
-  if (st.lh){
-    if (top() && top().id === st.lh) return;                  // déjà sur la bonne page
-    histRestoring = true;
-    if (pageStack.some(p => p.id === st.lh)){
-      while (pageStack.length && top().id !== st.lh) popPage(true);
+  const haut = () => pageStack[pageStack.length - 1];
+  if (window.LHPLAYER && window.LHPLAYER.ouvert()) window.LHPLAYER.fermer();   // retour depuis une vidéo
+  histRestoring = true;
+  try {
+    if (st.lh){
+      if (haut() && haut().id === st.lh) return;              // déjà sur le bon écran
+      if (pageStack.some(p => p.id === st.lh)){
+        while (pageStack.length && haut().id !== st.lh) popPage(true);
+      } else {
+        while (pageStack.length) popPage(true);               // retour « en avant » : on rouvre
+        pushPage(st.lh, st.params || {});
+      }
+    } else if (st.vue){
+      while (pageStack.length) popPage(true);
+      setVue(st.vue, false);
     } else {
-      restorePage(st.lh, st.arg);                             // bouton « suivant » : on rouvre la page
+      /* entrée sans état : adresse collée ou partagée, on la lit telle quelle */
+      while (pageStack.length) popPage(true);
+      allerVers(location.pathname + location.search, true);
     }
-    histRestoring = false;
-    histDepth = Math.max(histDepth, pageStack.length);
-    return;
-  }
-  if (pageStack.length){                                      // retour demandé par le téléphone
-    popPage(true);
-    histDepth = Math.max(0, histDepth - 1);
-  }
+  } finally { histRestoring = false; }
+  histDepth = st.lh ? pageStack.length : 0;      // une adresse d'onglet n'a pas de « retour » interne
 });
-/* le hash change sans rechargement (lien collé, ancre cliquée) : on suit */
-window.addEventListener('hashchange', () => {
-  if (histIgnore || histEcho || histRestoring) return;
-  const st = history.state || {};
-  const top = pageStack[pageStack.length - 1];
-  if (st.lh && top && top.id === st.lh) return;          // déjà sur la bonne page
-  if (!(location.hash || '').replace(/^#/, '') && !pageStack.length) return;
-  openFromHash();
-});
-/* lien partagé : #cours/c1, #videos, #devoir/d2, #quiz/c1… */
-function openFromHash(){
+/* ancien format de lien (#cours/c1) : on réécrit l'adresse proprement */
+function gererAncienHash(){
   const h = decodeURIComponent((location.hash || '').replace(/^#/, ''));
   if (!h) return false;
   const p = h.split('/'), id = p[0], arg = p[1] || '';
-  if (!PAGES[id]) return false;
-  return restorePage(id, arg);
+  const chemins = { cours:'/cours', devoir:'/devoir', quiz:'/quiz', videos:'/videos', aide:'/aide',
+                    notifications:'/notifications', recherche:'/recherche', telechargements:'/telechargements',
+                    badges:'/badges', parametres:'/parametres', abonnement:'/abonnement', compte:'/compte' };
+  if (!chemins[id]) return false;
+  const chemin = chemins[id] + (arg && id !== 'videos' ? '/' + encodeURIComponent(arg) : '');
+  poserAdresse(chemin, null, true);
+  return allerVers(chemin, true);
 }
+/* Écran d'ouverture : on lit l'adresse. */
+function ouvrirAdresse(){
+  if (gererAncienHash()) { setTimeout(() => { if (!pageStack.length) allerVers(location.pathname + location.search, true); }, 60); return true; }
+  const cible = ROUTES().analyser(location.pathname, location.search);
+  const connecte = !!(S.logged && !$('#loginScreen'));
+  const voulu = () => { try { return sessionStorage.getItem('lh_cible') || '/'; } catch (e) { return '/'; } };
+  if (cible.entree){
+    /* la session vient d'être ouverte : on file vers l'écran demandé avant la connexion */
+    if (connecte){
+      const vers = voulu();
+      try { sessionStorage.removeItem('lh_cible'); } catch (e) {}
+      poserAdresse(vers, null, true);
+      return allerVers(vers, true);
+    }
+    return montrerEntree(cible.entree);
+  }
+  if (!connecte){
+    /* pas encore de session : l'écran d'entrée d'abord, l'adresse demandée est mise de côté */
+    const demandee = adresse();
+    if (!/^\/(connexion|inscription|invite)/.test(demandee)){
+      try { sessionStorage.setItem('lh_cible', demandee); } catch (e) {}
+      poserAdresse('/connexion', { entree:'connexion' }, true);
+    }
+    return false;
+  }
+  try { sessionStorage.removeItem('lh_cible'); } catch (e) {}
+  const ouvert = allerVers(adresse(), true);
+  /* adresse ouverte directement : le « retour » de l'écran mène à son écran parent */
+  histDepth = 0;
+  return ouvert;
+}
+
 function pushPage(id, params){
   const def = PAGES[id];
   if (!def) return null;
@@ -207,18 +309,21 @@ function pushPage(id, params){
     }, {passive:true});
   }
   if (def.mount) def.mount(el, params);
-  histPush(id, params.id || params.quiz || '');
+  histPush(id, params);
+  document.title = ROUTES().titreDe(id, params) + ' · CosmétiLab';
   return el;
 }
 function popPage(fromHistory){
   const top = pageStack.pop();
   if (!top) return false;
-  if (!fromHistory) histBack();          // la flèche « retour » consomme aussi l'entrée d'historique
+  if (!fromHistory) histBack(top.id, top.params);   // la flèche « retour » consomme aussi l'entrée d'historique
   if (top.def.unmount) top.def.unmount(top.el, top.params);
   top.el.classList.remove('is-open');
   top.el.classList.add('is-closing');
   setTimeout(() => top.el.remove(), 330);
   if (top.def.onBack) top.def.onBack(top.el, top.params);
+  const revenu = pageStack[pageStack.length - 1];
+  document.title = (revenu ? ROUTES().titreDe(revenu.id, revenu.params) : ROUTES().titreDe(currentView, {})) + ' · CosmétiLab';
   return true;
 }
 function refreshPages(){
@@ -1188,6 +1293,7 @@ document.addEventListener('click', e => {
   const go = e.target.closest('[data-page]:not(.page)');
   if (go){
     if (go.dataset.act) return;
+    if (allerParLien(e, go)) return;
     pushPage(go.dataset.page, {id:go.dataset.id || '', tab:go.dataset.tab || ''});
     return;
   }
@@ -1381,7 +1487,9 @@ setTimeout(() => { if (!window.LHCOMPTE || !window.LHCOMPTE.compte()) showLogin(
    Lien partagé : index.html#cours/c1, #videos, #devoir/d2, #quiz/c1…
    (sinon on arrive normalement sur l'accueil)
    ------------------------------------------------------------ */
-setTimeout(() => { if (S.logged && !pageStack.length) openFromHash(); }, 500);
+setTimeout(() => { if (S.logged && !pageStack.length) ouvrirAdresse(); }, 450);
+/* les liens du bandeau et des cartes portent leur adresse (clic droit, nouvel onglet…) */
+if (window.LHROUTES) { window.LHROUTES.lieniser(document); window.LHROUTES.lieniser($('#pageStack')); }
 
 /* ------------------------------------------------------------
    21 bis. SYNCHRONISATION SERVEUR (voir LHSYNC plus bas)
@@ -1681,8 +1789,30 @@ setTimeout(() => LHSYNC.amorcer(), 600);          // ?api=… puis vérification
 /* ------------------------------------------------------------
    22. EXPOSITION (utilisée par les pages LMS)
    ------------------------------------------------------------ */
+/* ------------------------------------------------------------
+   3 quater. ADRESSE INCONNUE
+   Le serveur répond déjà 404 sur ces adresses ; cet écran couvre les
+   hébergements qui renvoient l'application pour tout (copie locale).
+   ------------------------------------------------------------ */
+PAGES.introuvable = {
+  single: true,
+  render(){
+    return barPage('Adresse inconnue', '', `
+      <div style="text-align:center;padding:28px 12px">
+        <span class="list-row__ico acc-purple" style="width:64px;height:64px;margin:0 auto 16px">${svg('info', 'icon icon--28')}</span>
+        <h2 class="headline-small">Cette adresse ne mène à aucun écran</h2>
+        <p class="body-medium muted" style="margin-top:10px">L'adresse « ${esc(location.pathname)} » n'existe pas (ou plus). Revenez à l'accueil, ou utilisez la recherche.</p>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:22px">
+          <a class="btn btn--filled ripple" href="/">Revenir à l'accueil</a>
+          <a class="btn btn--outlined ripple" href="/recherche">Chercher</a>
+        </div>
+      </div>`);
+  }
+};
+
 window.APPX = {
-  svg: svg, IC: IC, PAGES: PAGES, pushPage: pushPage, popPage: popPage, topPage: topPage, openFromHash: openFromHash,
+  svg: svg, IC: IC, PAGES: PAGES, pushPage: pushPage, popPage: popPage, topPage: topPage,
+  ouvrirAdresse: ouvrirAdresse, allerVers: allerVers, setVue: setVue, adresse: adresse, ROUTES: ROUTES,
   dialog: dialog, openSheet: openSheet, closeSheet: closeSheet, barPage: barPage, emptyBox: emptyBox,
   S: S, persist: persist, refreshUI: refreshUI, refreshPages: refreshPages,
   LESSONS: LESSONS, PROGRAMMES: PROGRAMMES, QUIZZES: QUIZZES, DEVOIRS: DEVOIRS, RESSOURCES: RESSOURCES, SESS: SESS,

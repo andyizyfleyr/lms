@@ -169,7 +169,9 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
 
   await taper(page, '#view-cours [data-course="' + carte + '"]', { delai: 900 });
   test('ouverture de la fiche de cours', (await dessus(page)) === 'cours', 'page du dessus : ' + (await dessus(page)));
-  test('URL partageable (#cours/…)', /cours/.test(await page.evaluate(() => location.hash)), await page.evaluate(() => location.hash));
+  test('adresse partageable de la fiche (/cours/{id})',
+       /^\/cours\/.+/.test(await page.evaluate(() => location.pathname)),
+       await page.evaluate(() => location.pathname));
 
   const texteCours = await page.evaluate(() => {
     const el = document.querySelector('section.page[data-page="cours"]');
@@ -1030,6 +1032,133 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
     const poids = fs.statSync(PAGE).size;
     test('le site reste un fichier unique autonome de taille maîtrisée', poids < 1_400_000,
          (poids / 1024).toFixed(0) + ' Ko (tout inclus : images, extrait vidéo, contenu)');
+  }
+
+
+  /* ============ ADRESSES : UNE ADRESSE PAR ÉCRAN ============ */
+  {
+    titre('Adresses (une par écran, servies par le serveur)');
+    const adresses = JSON.parse(fs.readFileSync(path.join(WEB, 'src', 'routes.json'), 'utf8'));
+    /* l'API en ligne si elle est fournie, sinon le serveur local (mêmes adresses) */
+    const base = API || SITE_EXTERNE || site.url;
+
+    {
+      let servies = 0, manquantes = [];
+      for (const a of adresses) {
+        const r = await fetch(base + a.exemple, { redirect: 'manual' });
+        if (r.status === 200) servies++; else manquantes.push(a.exemple + ' → ' + r.status);
+      }
+      test('le serveur répond à chaque adresse d\'écran', manquantes.length === 0,
+           servies + '/' + adresses.length + (manquantes.length ? ' — échecs : ' + manquantes.join(', ') : ' adresses en 200'));
+
+      const inconnue = await fetch(base + '/adresse-qui-nexiste-pas', { redirect: 'manual' });
+      test('une adresse inconnue renvoie un vrai 404', inconnue.status === 404, 'statut ' + inconnue.status);
+      if (API || SITE_EXTERNE){
+        const apiToujours = await fetch(base + '/api/health');
+        test('l\'API garde son adresse /api/*', apiToujours.status === 200, '/api/health → ' + apiToujours.status);
+      }
+    }
+
+    /* ouverture directe de chaque adresse : le bon écran s'affiche, l'adresse est conservée */
+    const ouvertes = await page.evaluate(async liste => {
+      const resultats = [];
+      for (const a of liste) {
+        history.replaceState(null, '', a.exemple);
+        window.APPX.allerVers(a.exemple, true);
+        await new Promise(r => setTimeout(r, 260));
+        const t = window.APPX.topPage();
+        resultats.push({ chemin: a.exemple, url: location.pathname + location.search,
+                         page: t ? t.id : null, vue: (document.querySelector('.view.is-active') || {}).dataset.view || null });
+        while (window.APPX.topPage()) window.APPX.popPage();
+      }
+      return resultats;
+    }, adresses.filter(a => !/connexion|inscription|invite|^\/$|\/cours$|\/agenda$|\/profil$/.test(a.exemple)));
+    const mauvaises = ouvertes.filter(r => !r.page && !r.vue || r.url !== r.chemin);
+    test('chaque adresse ouvre le bon écran et reste affichée dans la barre d\'adresse',
+         mauvaises.length === 0,
+         ouvertes.length + ' adresses testées' + (mauvaises.length ? ' — ' + JSON.stringify(mauvaises.slice(0, 3)) : ''));
+
+    /* les onglets sont des adresses */
+    const vues = await page.evaluate(async () => {
+      const res = {};
+      for (const [nom, attendu] of [['cours', '/cours'], ['agenda', '/agenda'], ['profil', '/profil'], ['accueil', '/']]) {
+        window.APPX.setVue(nom, false);
+        await new Promise(r => setTimeout(r, 220));
+        res[nom] = location.pathname === attendu;
+      }
+      return res;
+    });
+    test('les quatre onglets ont chacun leur adresse', Object.values(vues).every(Boolean), JSON.stringify(vues));
+
+    /* navigation interne : l'adresse change sans recharger la page */
+    await page.evaluate(() => { window.__marque = 'en-cours'; });
+    await page.evaluate(() => window.APPX.allerVers('/notifications', true));
+    await dormir(1000);
+    const apresCharge = await page.evaluate(() => ({ url: location.pathname, entete: document.title, memo: window.__marque || null }));
+    test('la navigation met l\'adresse à jour sans recharger la page',
+         apresCharge.url === '/notifications' && apresCharge.memo === 'en-cours',
+         apresCharge.url + ' · ' + apresCharge.entete + (apresCharge.memo ? ' · page conservée' : ' · PAGE RECHARGÉE'));
+
+    /* le retour de l'écran mène à l'écran parent quand l'adresse a été ouverte directement */
+    await page.goto(base + '/quiz/c1', { waitUntil: 'load' });
+    await dormir(2400);
+    await page.evaluate(() => {
+      const pages = document.querySelectorAll('.page');
+      const haut = pages[pages.length - 1];
+      /* la sortie d'un quiz est « Quitter » (data-act), les autres écrans ont « Retour » */
+      const b = haut && (haut.querySelector('[data-back]') || haut.querySelector('[data-act="quitQuiz"]'));
+      if (b) b.click();
+    });
+    await dormir(500);
+    /* un quiz en cours demande confirmation avant de sortir */
+    await page.evaluate(() => {
+      const boite = document.querySelector('#dialog');
+      if (boite && boite.classList.contains('is-open')){
+        const oui = boite.querySelector('[data-d="1"]');
+        if (oui) oui.click();
+      }
+    });
+    await dormir(1600);
+    const parent = await page.evaluate(() => ({ url: location.pathname, page: window.APPX.topPage() ? window.APPX.topPage().id : null }));
+    test('« retour » depuis une adresse ouverte directement mène à l\'écran parent',
+         parent.url === '/cours/c1' && parent.page === 'cours', parent.url + ' → ' + parent.page);
+
+    /* liens réels : clic droit / nouvel onglet possibles */
+    const liens = await page.evaluate(() => {
+      const liste = Array.from(document.querySelectorAll('a[data-page], a[data-nav], a[data-video]'));
+      return { total: liste.length, exemples: liste.slice(0, 4).map(a => a.getAttribute('href')),
+               sansHref: liste.filter(a => !a.getAttribute('href')).length };
+    });
+    test('les contrôles de navigation sont de vrais liens', liens.total > 5 && liens.sansHref === 0,
+         liens.total + ' lien(s) · ex. ' + liens.exemples.join(', '));
+
+    /* rechargement sur une adresse profonde : on retrouve le même écran */
+    await page.goto(base + '/cours/c1?onglet=ressources', { waitUntil: 'load' });
+    await dormir(2400);
+    await page.reload({ waitUntil: 'load' });
+    await dormir(2600);
+    const apresRechargement = await page.evaluate(() => {
+      const t = window.APPX.topPage();
+      return { page: t ? t.id : null, onglet: t ? (t.params.tab || '') : '', url: location.pathname + location.search };
+    });
+    test('un rechargement sur une adresse profonde rouvre le même écran',
+         apresRechargement.page === 'cours' && apresRechargement.onglet === 'ressources',
+         apresRechargement.url + ' → ' + apresRechargement.page + ' / ' + apresRechargement.onglet);
+
+    /* le bouton retour du navigateur ramène à l'écran précédent */
+    await page.evaluate(() => window.APPX.allerVers('/', true));
+    await dormir(900);
+    await page.evaluate(() => window.APPX.allerVers('/badges', true));
+    await dormir(900);
+    await page.goBack();
+    await dormir(1000);
+    test('le bouton retour du navigateur suit l\'historique des adresses',
+         (await page.evaluate(() => location.pathname)) === '/',
+         await page.evaluate(() => location.pathname));
+
+    /* aucune trace d'adresse en dièse */
+    const avecDiesel = await page.evaluate(() => location.hash);
+    test('plus d\'adresse en dièse (#page)', avecDiesel === '', 'hash : ' + (avecDiesel || 'vide'));
   }
 
   /* ============ fin ============ */

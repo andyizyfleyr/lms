@@ -24,6 +24,7 @@ future reste compatible avec le déploiement (Vercel, Netlify, GitHub Pages) et 
 | Chemin servi | D'où il vient | Rôle |
 |---|---|---|
 | `/` et `/index.html` | `api/public/index.html` ← copie de `web/index.html` | l'application (HTML + CSS + JS + images + extrait vidéo) |
+| `/`, `/cours`, `/cours/c1`… | `api/public/index.html` (réécritures de `next.config.mjs`) | l'application, servie **à chaque adresse d'écran** |
 | `/api/*` | `api/src/app/api/**/route.ts` | l'API JSON (56 routes) |
 | `/api-doc` | `api/src/app/api-doc/page.tsx` | documentation des routes |
 | — | `web/src/**` | sources du fichier unique (assemblées par `web/build.js`) |
@@ -153,6 +154,8 @@ sans toucher aux sources, le contrôle échoue.
 
 ```
 api/
+├── routes-site.json            adresses du site (copie de web/src/routes.json) — lues par next.config.mjs
+├── src/app/not-found.tsx       page 404 (statut 404 réel) pour les adresses inconnues
 ├── src/app/api/**/route.ts     56 routes, toutes en runtime Node.js et `dynamic = force-dynamic`
 ├── src/lib/db.ts               client Neon (@neondatabase/serverless) + helpers q / q1 / exec
 ├── src/lib/auth.ts             mots de passe scrypt, jetons signés valables 30 jours
@@ -207,6 +210,7 @@ identique en deux commandes (`npm run db:reset`), sans dépendre d'un fichier lo
 | Types de l'API | `cd api && npm run typecheck` | 0 erreur |
 | Test de fumée de l'API | `cd api && npm run smoke` | 38 OK / 0 |
 | Build Next.js | `cd api && npm run build` | 56 routes |
+| Adresses du site | `web/src/routes.json` | 27 adresses, servies telles quelles |
 | Base | `cd api && npm run db:check` | 30 tables, contenus présents |
 | Tout d'un coup | `npm run verifier-tout` | vert (site + types + base + API) |
 
@@ -232,3 +236,34 @@ envoi d'une leçon terminée dans l'app, relecture côté serveur).
 | Copie publiée oubliée après une modification du site | la racine sert une version périmée | `npm run build` (ou `site:sync`) puis commit ; `site:verifier` détecte la divergence |
 | Route `/` encore occupée par une page Next | la racine n'affiche pas l'application | la page de documentation vit sur `/api-doc`, `/` est renvoyé vers `public/index.html` |
 | Sonde `/api/health` sur un hébergeur statique | aucun effet : l'app reste en mode local | comportement voulu, aucune erreur affichée à l'utilisateur |
+
+
+## Adresses des écrans (v2)
+
+Chaque écran de l'application a une adresse propre, servie par le serveur :
+
+| Adresse | Écran |
+| --- | --- |
+| `/` · `/cours` · `/agenda` · `/profil` | les quatre onglets |
+| `/cours/{id}` · `?onglet=discussion\|notes\|ressources\|quiz\|devoirs` | fiche de cours et ses onglets |
+| `/quiz/{cours}` · `/devoir/{id}` · `/video/{youtubeId}` | quiz, devoir, lecteur vidéo |
+| `/notifications` · `/recherche` · `/videos` · `/telechargements` · `/badges` · `/aide` | écrans du quotidien |
+| `/parametres` · `/profil/modifier` · `/compte` · `/corrections` · `/abonnement` | réglages, compte, corrections, abonnement |
+| `/tentatives` · `/certificats` · `/hors-ligne` · `/formateur/{onglet}` | apprentissage, attestations, espace formateur |
+| `/connexion` · `/inscription` · `/invite` | écrans d'entrée |
+
+Règles :
+
+1. `web/src/routes.json` est la **source unique** : `sync-site.js` la copie en
+   `api/routes-site.json`, que `next.config.mjs` transforme en réécritures vers
+   `public/index.html`. L'application utilise le même fichier (intégré par `build.js`
+   sous le nom `ADRESSES`) pour construire ses liens et lire l'adresse ouverte.
+2. Une adresse **inconnue** n'est pas réécrite : Next.js renvoie un vrai `404`
+   (`src/app/not-found.tsx`), statut correct pour les moteurs et les liens partagés.
+3. La navigation met l'adresse à jour (`history.pushState`) sans recharger : un clic
+   est instantané, mais un **clic droit / nouvel onglet / copier le lien** fonctionne,
+   car chaque contrôle de navigation est un vrai `<a href>`.
+4. Le **retour** utilise l'historique du navigateur ; lorsqu'une adresse a été ouverte
+   directement (lien partagé, rechargement), il mène à l'écran parent (drapeau `ancre`).
+5. `/api/*` et `/api-doc` gardent leurs adresses : les réécritures sont évaluées après
+   les routes réelles (`rewrites` de type *afterFiles*).

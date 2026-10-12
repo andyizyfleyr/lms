@@ -42,4 +42,12 @@ if (verifier) {
 fs.mkdirSync(path.dirname(CIBLE), { recursive: true });
 fs.writeFileSync(CIBLE, source);
 console.log('✅ api/public/index.html ← web/index.html (' + ko(source.length) + ')');
-console.log('   Le site sera servi sur / et l\'API sur /api/* au même domaine.');
+
+/* Les adresses des écrans sont la source unique partagée avec le serveur :
+   next.config.js s'en sert pour répondre à chaque adresse, et les tests aussi. */
+const ADRESSES = path.join(__dirname, '..', '..', 'web', 'src', 'routes.json');
+const CIBLE_ADRESSES = path.join(__dirname, '..', 'routes-site.json');
+fs.copyFileSync(ADRESSES, CIBLE_ADRESSES);
+const liste = JSON.parse(fs.readFileSync(ADRESSES, 'utf8'));
+console.log('✅ api/routes-site.json ← web/src/routes.json (' + liste.length + ' adresses)');
+console.log('   Le site sera servi sur chaque adresse (/cours/c1, /notifications…) et l\'API sur /api/*.');

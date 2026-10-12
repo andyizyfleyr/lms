@@ -183,7 +183,14 @@ A.PAGES.recherche = {
       const chip = e.target.closest('[data-q]');
       if (chip){ input.value = chip.dataset.q; dernier = ''; chercher(input.value); return; }
       const yt = e.target.closest('[data-yt]');
-      if (yt){ A.openVideo(yt.dataset.yt, A.vstate[yt.dataset.yt] ? A.vstate[yt.dataset.yt].pos : 0); return; }
+      if (yt){
+        if (yt.tagName === 'A'){
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || (typeof e.button === 'number' && e.button !== 0)) return;
+          e.preventDefault();
+        }
+        A.openVideo(yt.dataset.yt, A.vstate[yt.dataset.yt] ? A.vstate[yt.dataset.yt].pos : 0);
+        return;
+      }
       const t = e.target.closest('[data-tent]');
       if (t && t.dataset.tent === 'recharger') chargerTentatives(el);
     });

@@ -38,7 +38,7 @@ LEARNHUB_API_URL=http://127.0.0.1:3000 npm run test   # pour inclure le test de 
 | `app.js` | données de démonstration, utilitaires, lecteur vidéo, module de synchronisation `LHSYNC` |
 | `core.js` | état persistant (`localStorage`), routeur de pages (`pushPage` / `popPage`), tableau de bord, paramètres |
 | `lms.js` | pages pédagogiques : fiche de cours, quiz, devoirs |
-| `profil.js · sync2.js · prof.js · apprendre.js` | avatar (12 choix), mot de passe, appareils connectés, héros « Reprendre » et activité réelle de l'accueil |
+| `profil.js · sync2.js · prof.js · apprendre.js · routes.js` | avatar (12 choix), mot de passe, appareils connectés, héros « Reprendre » et activité réelle de l'accueil |
 | `paiement.js` | cours payants et abonnements : cadenas et prix sur les cartes, bandeau et feuille d'achat, écran « Abonnement & achats », parcours NOVA Checkout (session → redirection → vérification au retour) |
 | `images.json` | `const IMG = { … }` — 7 visuels en base64 |
 | `clip.json` | `const CLIP_MP4` / `const CLIP_WEBM` — extrait vidéo 24 s (640 × 360, muet) |
@@ -57,7 +57,7 @@ compare octet par octet avec `index.html` : **toute modification manuelle du liv
   thème, persistance, écran de synchronisation, puis — si `LEARNHUB_API_URL` est défini — connexion,
   hydratation et envoi d'une leçon terminée vers l'API.
 
-Résultat de référence : **93 OK / 0** avec l'API (**43 OK / 0** sans API). La suite vérifie aussi les
+Résultat de référence : **104 OK / 0** avec l'API (**53 OK / 0** sans API). La suite vérifie aussi les
 cours payants : bandeau et bouton « Débloquer » sur une fiche fermée, feuille d'achat au toucher d'une
 leçon, lecteur vidéo qui reste fermé, page de quiz réservée, puis accès complet une fois l'abonnement
 actif (connexion par l'écran de compte).

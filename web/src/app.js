@@ -39,6 +39,8 @@ function hydrate(root = document){
     const src = IMG[el.dataset.img];
     if (src && !el.getAttribute('src')) el.setAttribute('src', src);
   });
+  /* chaque bouton de navigation devient un vrai lien vers son adresse */
+  if (window.LHROUTES && root) window.LHROUTES.lieniser(root);
 }
 /* localStorage tolérant : l'aperçu Arena tourne en origine opaque.
    Chaque compte possède son propre espace : les clés sont préfixées par
@@ -494,10 +496,25 @@ function renderQueue(v){
   animateProgress($('#playerQueue'));
 }
 
+/* l'adresse suit la vidéo lue : /video/{id} */
+let etatAvantVideo = null;
+function marquerAdresseVideo(yt){
+  if (!window.LHROUTES) return;
+  if (!etatAvantVideo) etatAvantVideo = { chemin: location.pathname + location.search, etat: history.state || null };
+  try { history.replaceState({ video: yt }, '', '/video/' + encodeURIComponent(yt)); } catch (e) {}
+}
+function rendreAdresseAvantVideo(){
+  if (!etatAvantVideo || !window.LHROUTES) return;
+  const a = etatAvantVideo;
+  etatAvantVideo = null;
+  try { history.replaceState(a.etat || {}, '', a.chemin || '/'); } catch (e) {}
+}
+
 function openVideo(id, depart){
   const v = VIDEOS.find(x => x.yt === id);
   if (!v) return false;
   curVid = v; ytFailed = false; ytReady = false;
+  marquerAdresseVideo(id);
   /* reprise de lecture : la position est mémorisée sur le compte (positionS) */
   curVid.depart = Math.max(0, Math.round(depart || vstate[v.yt].pos || 0));
   if (curVid.depart) vstate[v.yt].pos = curVid.depart;
@@ -787,8 +804,21 @@ $('#mpClose').addEventListener('click', () => {
   stopYt();
   mini.classList.remove('is-open');
   appEl.classList.remove('mp-on');
+  rendreAdresseAvantVideo();
   toast('Lecture arrêtée');
 });
+/* le lecteur est aussi un écran : on peut l'ouvrir, le fermer et revenir */
+window.LHPLAYER = {
+  ouvert: () => player.classList.contains('is-open') || mini.classList.contains('is-open'),
+  fermer(){
+    stopYt();
+    player.classList.remove('is-open');
+    mini.classList.remove('is-open');
+    appEl.classList.remove('mp-on');
+    rendreAdresseAvantVideo();
+  },
+  adresse: yt => marquerAdresseVideo(yt)
+};
 $('#mpToggle').addEventListener('click', () => {
   const vid = $('#offlineVid');
   if (vid && !vid.hidden){                    // lecture de l'extrait intégré
@@ -884,7 +914,7 @@ $('#actDl').addEventListener('click', () => {
 /* --- ouvrir une vidéo depuis n'importe quelle carte / ligne --- */
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-video]');
-  if (el) openVideo(el.dataset.video);
+  if (el){ if (el.tagName === 'A' && e && e.preventDefault) e.preventDefault(); openVideo(el.dataset.video); }
 });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && player.classList.contains('is-open')) minimizePlayer();
@@ -906,7 +936,7 @@ document.addEventListener('keydown', e => {
    NAVIGATION (bottom nav + liens)
    ============================================================ */
 let currentView = 'accueil';
-function setView(name){
+function setView(name, remplacer){
   if (!name || !$('#view-' + name)) return;
   currentView = name;
   $$('.view').forEach(v => v.classList.toggle('is-active', v.dataset.view === name));
@@ -914,9 +944,31 @@ function setView(name){
   $('#main').scrollTop = 0;
   $('#fab').classList.toggle('is-hidden', name !== 'accueil' && name !== 'cours');
   animateProgress($('#view-' + name));
+  /* l'adresse affichée suit l'onglet ouvert */
+  if (window.LHROUTES){
+    const chemin = window.LHROUTES.cheminDe(name, {});
+    if (location.pathname + location.search !== chemin){
+      try {
+        if (remplacer) history.replaceState({ vue: name }, '', chemin);
+        else history.pushState({ vue: name }, '', chemin);
+      } catch (e) {}
+    }
+    document.title = window.LHROUTES.titreDe(name, {}) + ' · CosmétiLab';
+  }
 }
-$$('[data-nav]').forEach(el => el.addEventListener('click', () => setView(el.dataset.nav)));
-$('#avatarBtn').addEventListener('click', () => setView('profil'));
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-nav]');
+  if (el){
+    if (el.tagName === 'A'){
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || (typeof e.button === 'number' && e.button !== 0)) return;
+      e.preventDefault();
+    }
+    setView(el.dataset.nav);
+    return;
+  }
+  const av = e.target.closest('#avatarBtn');
+  if (av && window.APPX) window.APPX.allerVers('/profil');
+});
 
 /* ============================================================
    ANIMATION DES BARRES ET ANNEAUX DE PROGRESSION

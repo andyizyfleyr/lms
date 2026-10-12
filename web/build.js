@@ -14,7 +14,9 @@
      3b. src/content.js   cours, vidéos, quiz, devoirs (contenu cosmétique)
      4. src/app.js        données, utilitaires, lecteur vidéo, synchronisation
         (tout ce qui précède sa dernière balise </script>)
-     5. src/core.js       noyau : état persistant, routeur de pages, tableaux de bord
+     4b. src/routes.json  adresses : une adresse par écran (source unique, partagée avec le serveur)
+    4c. src/routes.js    construction des liens et lecture de l'adresse ouverte
+    5. src/core.js       noyau : état persistant, routeur de pages, tableaux de bord
      6. src/lms.js        pages pédagogiques : cours, quiz, devoirs
     6b. src/paiement.js  cours payants, abonnements, paiement NOVA Checkout
     6c. src/profil.js    avatar, mot de passe, appareils, héros et activité réels
@@ -46,6 +48,8 @@ const profil = lire('profil.js');
 const sync2 = lire('sync2.js');
 const prof = lire('prof.js');
 const apprendre = lire('apprendre.js');
+const routes = lire('routes.js');
+const adresses = lire('routes.json').trim();
 
 const iFin = app.lastIndexOf('</script>');
 if (iFin < 0) throw new Error('src/app.js : balise </script> introuvable');
@@ -56,6 +60,7 @@ const html =
   shell + images + '\n' + clip + '\n' +
   '\n/* ==================== CONTENU (cours, vidéos, quiz) ==================== */\n' + contenu +
   '\n/* ==================== APPLICATION (données, lecteur, synchronisation) ==================== */\n' + appAvant +
+  '\n/* ==================== ADRESSES DES PAGES (une adresse par écran) ==================== */\nconst ADRESSES = ' + adresses + ';\n' + routes +
   '\n/* ==================== NOYAU (état, routeur de pages) ==================== */\n' + core +
   '\n/* ==================== PAGES PÉDAGOGIQUES (cours, quiz, devoirs) ==================== */\n' + lms +
   '\n/* ==================== COMPTES (inscription, espaces séparés, temps réel) ==================== */\n' + comptes +
@@ -71,7 +76,7 @@ fs.writeFileSync(SORTIE, html);
 const controles = [
   ['structure HTML', /<html[\s>]/i], ['sprite d’icônes', /id="ic-home"/],
   ['images intégrées', /const IMG\s*=/], ['contenu cosmétique', /const COURS\s*=/], ['extrait vidéo intégré', /const CLIP_MP4\s*=/],
-  ['noyau applicatif', /window\.APPX\s*=/], ['pages LMS', /PAGES\.quiz\s*=/],
+  ['noyau applicatif', /window\.APPX\s*=/], ['adresses des pages', /window\.LHROUTES\s*=/], ['pages LMS', /PAGES\.quiz\s*=/],
   ['synchronisation serveur', /window\.LHSYNC\s*=/], ['comptes et temps réel', /window\.LHCOMPTE\s*=/], ['paiements et abonnements', /window\.LHPAIE\s*=/], ['profil réel', /window\.LHPROFIL\s*=/], ['synchronisation complète', /window\.LHSYNC2\s*=/], ['espace formateur', /window\.LHPROF\s*=/], ['expérience d\'apprentissage', /window\.LHAPPRENDRE\s*=/], ['écran abonnement', /PAGES\.abonnement\s*=/], ['fin de document', /<\/html>\s*$/]
 ];
 const manquants = controles.filter(([, motif]) => !motif.test(html)).map(([nom]) => nom);

@@ -17,6 +17,22 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
+/* Adresses des écrans (mêmes motifs que le serveur de production : api/routes-site.json) */
+const ADRESSES = (() => {
+  try { return JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'src', 'routes.json'), 'utf8')); }
+  catch (e) { return []; }
+})();
+const MOTIFS = ADRESSES.map(a => ({
+  cible: a.titre || a.cible,
+  regex: new RegExp('^' + a.motif.replace(/:[^/]+/g, '[^/]+').replace(/\//g, '\\/') + '/?$')
+}));
+/** L'application répond-elle à cette adresse ? (comme les réécritures de Next.js) */
+function adresseConnue(chemin){
+  const propre = chemin.replace(/\/+$/, '') || '/';
+  if (propre === '/') return true;
+  return MOTIFS.some(m => m.regex.test(propre));
+}
+
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8',
@@ -31,6 +47,8 @@ function demarrer(racine, port = 0, hote = '127.0.0.1') {
   return new Promise((resoudre, rejeter) => {
     const serveur = http.createServer((req, rep) => {
       let chemin = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+      /* une adresse d'écran renvoie l'application (comme Vercel) */
+      if (adresseConnue(chemin) && !/\.[a-z0-9]+$/i.test(chemin)) chemin = '/index.html';
       if (chemin.endsWith('/')) chemin += 'index.html';
       const fichier = path.join(racine, path.normalize(chemin).replace(/^(\.\.[/\\])+/, ''));
       if (!fichier.startsWith(racine)) { rep.writeHead(403).end('Interdit'); return; }
@@ -65,4 +83,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { demarrer };
+module.exports = { demarrer, adresseConnue, motifs: () => MOTIFS.map(m => m.regex.source) };

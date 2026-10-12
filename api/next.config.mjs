@@ -1,3 +1,9 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const ICI = dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
@@ -15,9 +21,14 @@ const config = {
   // (régénérée par : node api/scripts/sync-site.js).
   // La documentation de l'API reste disponible sur /api-doc.
   async rewrites() {
-    return [
-      { source: '/', destination: '/index.html' }
-    ];
+    /* Chaque écran de l'application a sa propre adresse : /cours/c1, /notifications,
+       /quiz/c1, /formateur/apprenants… Le serveur répond à chacune d'elles avec
+       l'application (public/index.html), qui ouvre l'écran demandé. La liste vit
+       dans web/src/routes.json → api/routes-site.json (copiée par sync-site.js) :
+       le serveur et l'application ne peuvent donc pas diverger.
+       Les adresses inconnues ne sont pas réécrites : Next.js renvoie un vrai 404. */
+    const adresses = JSON.parse(readFileSync(join(ICI, 'routes-site.json'), 'utf8'));
+    return adresses.map(a => ({ source: a.motif, destination: '/index.html' }));
   },
   async headers() {
     return [

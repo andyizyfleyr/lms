@@ -542,15 +542,34 @@ window.LHCOMPTE = {
   pageCompte: corpsCompte, chargerCopies: chargerCopies, dire: dire
 };
 
-/* Écoute des vues de l'écran d'accueil */
+/* ------------------------------------------------------------
+   Vues de l'écran d'entrée : chacune a son adresse
+   (/connexion, /inscription, /invite) — un lien se partage, se
+   recharge et le bouton retour du téléphone fonctionne.
+   ------------------------------------------------------------ */
+const ADRESSE_CT = { connexion: '/connexion', inscription: '/inscription', invite: '/invite' };
+function poserAdresseEntree(chemin, remplacer){
+  if (!window.LHROUTES) return;
+  if (location.pathname + location.search === chemin) return;
+  try {
+    if (remplacer) history.replaceState({ entree: chemin }, '', chemin);
+    else history.pushState({ entree: chemin }, '', chemin);
+  } catch (e) {}
+}
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-ct]');
   if (!b) return;
   const v = b.dataset.ct;
+  if (v === 'invite-go') return continuerSansCompte();
+  if (!ADRESSE_CT[v]) return;
+  if (b.tagName === 'A'){
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || (typeof e.button === 'number' && e.button !== 0)) return;
+    e.preventDefault();
+  }
+  poserAdresseEntree(ADRESSE_CT[v]);
   if (v === 'connexion') return vueConnexion();
   if (v === 'inscription') return vueInscription();
   if (v === 'invite') return vueInvite();
-  if (v === 'invite-go') return continuerSansCompte();
 });
 
 demarrer();
