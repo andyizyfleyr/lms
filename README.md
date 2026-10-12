@@ -17,6 +17,7 @@ L'application fonctionne **toute seule** (progression dans le navigateur) : l'AP
 
 - **Écran d'entrée** dès le premier lancement : *Se connecter*, *Créer un compte* (apprenant **ou** formateur), *Explorer sans compte*.
 - **Chaque compte a son espace** : les données locales sont rangées sous `lh:u:<compte>:` et côté serveur sous l'identifiant du compte. Se déconnecter puis se reconnecter avec un autre compte ne mélange rien.
+- **L'identité affichée est celle du compte** : nom, initiales, profil, série de jours, heures de formation, badges et objectif de la semaine viennent du compte connecté (`/api/auth/me` et `/api/stats`). Un compte neuf part de zéro (0 j, 0 h, 0 badge) et « explorer sans compte » s'affiche sous « Invité » — aucun profil de démonstration n'est emprunté.
 - **Temps réel** : l'application interroge une révision légère (`GET /api/sync`, toutes les 4 s, 15 s en arrière-plan) ; dès qu'une action a été faite **ailleurs** (autre appareil, formateur, table d'administration), la progression est rechargée et l'écran se met à jour **sans rechargement**, avec un message et un indicateur « Synchronisé il y a … ». Toute action locale est envoyée aussitôt (`lh:pousse`).
 - **Espace formateur** : un compte créé en *formateur* voit l'entrée **Corrections** dans son profil, y lit les copies déposées par les apprenants (filtres par cours et par statut) et peut **les noter** (`PATCH /api/submissions/{id}`).
 

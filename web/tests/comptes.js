@@ -138,6 +138,20 @@ const leconsFaites = page => page.evaluate(() =>
        entrees.includes('connexion') && entrees.includes('inscription') && entrees.includes('invite'), entrees.join(', '));
   test('l’écran indique le serveur utilisé', /Serveur détecté|mode local/.test(await page.innerText('#ctServeur')), (await page.innerText('#ctServeur')).slice(0, 60));
 
+  /* l'espace « sans compte » ne doit pas emprunter l'identité d'une démo */
+  await page.evaluate(() => document.querySelector('[data-ct="invite"]').click());
+  await page.waitForTimeout(500);
+  await page.evaluate(() => { const b = document.querySelector('[data-ct="invite-go"]'); if (b) b.click(); });
+  await page.waitForFunction(() => !!(window.APPX && window.LHCOMPTE && window.LHCOMPTE.compte() && window.LHCOMPTE.compte().id === 'invite'), null, { timeout: 15000 });
+  await page.waitForTimeout(900);
+  const invite = await page.evaluate(() => document.querySelector('#topBar h1').textContent);
+  test('sans compte, l’en-tête affiche « Invité »', invite === 'Invité', invite);
+
+  /* retour à l'écran d'entrée pour la suite */
+  await page.evaluate(() => { try { localStorage.clear(); } catch (e) {} });
+  await page.goto(base + '/', { waitUntil: 'load' });
+  await page.waitForSelector('#loginScreen', { timeout: 15000 });
+
   /* ---------- B. inscription d'un nouvel apprenant ---------- */
   titre('B. Inscription d’un nouvel apprenant');
   const neuf = 'eleve-' + Date.now() + '@cosmetilab.bj';
@@ -153,6 +167,18 @@ const leconsFaites = page => page.evaluate(() =>
   const nouveau = await page.evaluate(() => window.LHCOMPTE.compte());
   test('compte créé et session ouverte', !!nouveau && nouveau.email === neuf && !!nouveau.token, nouveau ? nouveau.email + ' · ' + nouveau.role : 'aucun');
   test('jeton serveur reçu (compte réel, pas local)', !!(nouveau && nouveau.token && nouveau.token.length > 20));
+  await page.waitForTimeout(2500);            // identité + statistiques du compte
+  const ident = await page.evaluate(() => ({
+    nom: document.querySelector('#topBar h1').textContent,
+    initiales: document.querySelector('#avatarBtn').textContent,
+    serie: document.querySelector('#statSerie').textContent,
+    heures: document.querySelector('#statHeures').textContent,
+    amina: /Amina/.test(document.body.innerText)
+  }));
+  test('l’en-tête affiche le nom de CE compte', ident.nom === 'Aïcha Test' && ident.initiales === 'AT',
+       ident.nom + ' · ' + ident.initiales);
+  test('aucune trace du profil de démonstration', ident.amina === false && ident.serie === '0 j',
+       'série ' + ident.serie + ' · ' + ident.heures);
   const debut = await leconsFaites(page);
   test('le nouvel apprenant démarre à zéro', debut === 0, debut + ' leçon(s)');
   const serveurZero = await page.evaluate(async u => {

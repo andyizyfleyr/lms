@@ -378,22 +378,21 @@ const ECHEANCES = [
    8. NOTIFICATIONS, TÉLÉCHARGEMENTS, DISCUSSIONS
    ============================================================ */
 const NOTIFS_SEED = [
-  {id:'n1', type:'devoir',  t:'Formule de savon à rendre aujourd’hui',   b:'Clôture à 18:00 — 20 points.',                                  min:6,    lu:0, go:['devoir','d1']},
-  {id:'n2', type:'message', t:'Nouveau message de Awa Sossou',           b:'« Votre surgraissage est un peu haut, corrigez la soude. »',    min:48,   lu:0, go:['cours','c1',{tab:'discussion'}]},
-  {id:'n3', type:'cours',   t:'Nouvelle leçon disponible',               b:'Crème de visage — « Que faire quand la crème déphase ? ».',      min:170,  lu:0, go:['cours','c3']},
-  {id:'n4', type:'badge',   t:'Badge débloqué : Premier savon 🎉',       b:'Votre première leçon de savonnerie est terminée.',              min:400,  lu:1, go:['badges','']},
-  {id:'n5', type:'quiz',    t:'Résultat du quiz Savonnerie',             b:'Score : 83 % — attention à la leçon sur la cure.',              min:1440, lu:1, go:['quiz','c1']},
-  {id:'n6', type:'systeme', t:'Téléchargement terminé',                  b:'Savonnerie à froid disponible hors-ligne.',                     min:1700, lu:1, go:['telechargements','']},
-  {id:'n7', type:'message', t:'Dr. Chabi a répondu à votre question',    b:'« Un déphasage se rattrape en réchauffant doucement l’émulsion. »', min:2500, lu:1, go:['cours','c3',{tab:'discussion'}]},
-  {id:'n8', type:'cours',   t:'Session live demain à 10:30',             b:'Émulsions et actifs — salle virtuelle B.',                      min:3000, lu:1, go:['session','s3']}
+  /* Annonces de la plateforme : elles ne parlent jamais « d’un » apprenant
+     en particulier, un compte neuf ne voit donc aucune fausse historique. */
+  {id:'n1', type:'devoir',  t:'Formule de savon à rendre aujourd’hui',            b:'Clôture à 18:00 — 20 points.',                                   min:6,    lu:0, go:['devoir','d1']},
+  {id:'n2', type:'message', t:'Awa Sossou a répondu dans « Savonnerie à froid »', b:'« Un surgraissage à 5 % convient à une peau sensible. »',        min:48,   lu:0, go:['cours','c1',{tab:'discussion'}]},
+  {id:'n3', type:'cours',   t:'Nouvelle leçon disponible',                        b:'Crème de visage — « Que faire quand la crème déphase ? ».',      min:170,  lu:0, go:['cours','c3']},
+  {id:'n4', type:'cours',   t:'Nouvelle ressource : fiche de traçabilité',        b:'Étiquetage, sécurité & vente — modèle à télécharger.',            min:400,  lu:1, go:['cours','c6']},
+  {id:'n5', type:'quiz',    t:'Correction du quiz Savonnerie disponible',         b:'Comparez vos réponses avec la correction commentée.',             min:1440, lu:1, go:['quiz','c1']},
+  {id:'n6', type:'systeme', t:'Astuce hors-ligne',                                b:'Téléchargez un cours pour le suivre sans connexion.',             min:1700, lu:1, go:['telechargements','']},
+  {id:'n7', type:'message', t:'Dr. Chabi a répondu dans « Crème de visage »',     b:'« Un déphasage se rattrape en réchauffant doucement l’émulsion. »', min:2500, lu:1, go:['cours','c3',{tab:'discussion'}]},
+  {id:'n8', type:'cours',   t:'Session live demain à 10:30',                      b:'Émulsions et actifs — salle virtuelle B.',                        min:3000, lu:1, go:['session','s3']}
 ];
 
-const DL_SEED = [
-  {id:'dl1', ref:'c1', t:'Savonnerie à froid',            s:'3 leçons · 180 Mo',        p:100, st:'done',  size:180},
-  {id:'dl2', ref:'c3', t:'Crème de visage : émulsions',   s:'Module 2 · 140 Mo',        p:52,  st:'pause', size:140},
-  {id:'dl3', ref:'v',  t:'Saponification à froid : le tutoriel complet', s:'Vidéo · 42 Mo', p:100, st:'done', size:42, v:'Ka6h2cM2Vrw'},
-  {id:'dl4', ref:'v',  t:'Formuler une émulsion : crème hydratante visage', s:'Vidéo · 13 min · 38 Mo', p:18, st:'dl', size:38, v:'bEToJO9DpFY'}
-];
+/* Aucun téléchargement au départ : ils appartiennent à l’appareil et à
+   l’apprenant, un compte neuf doit voir la page vide (elle a son état vide). */
+const DL_SEED = [];
 
 const DISC_SEED = {
   c1: [
@@ -403,7 +402,7 @@ const DISC_SEED = {
   ],
   c2: [
     {id:'m4', a:'Bénédicte Ahouan', role:'Formatrice', ini:'BA', acc:'blue', min:150, txt:"Pour un gel douche doux, visez pH 5,5 et moins de 10 % de tensioactif moussant. Le reste : eau, actifs et conservateur.", likes:5},
-    {id:'m5', a:'Amina D.',         role:'Vous',       ini:'AD', acc:'amber', min:70,  txt:"J’ai testé le coco glucoside : mousse plus fine mais beaucoup plus douce sur ma peau. Merci pour le conseil !", likes:3, me:1},
+    {id:'m5', a:'Ibrahim S.',       role:'Apprenant',  ini:'IS', acc:'green',  min:70,  txt:"J’ai testé le coco glucoside : mousse plus fine mais beaucoup plus douce sur ma peau. Merci pour le conseil !", likes:3},
     {id:'m6', a:'Bénédicte Ahouan', role:'Formatrice', ini:'BA', acc:'blue', min:40,  txt:"Parfait 👏 Notez bien le pH dans votre fiche de fabrication, c’est ce qui garantit la stabilité du lot.", likes:2}
   ],
   c3: [

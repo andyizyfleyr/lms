@@ -19,10 +19,13 @@ const IC = {
    2. ÉTAT PERSISTANT
    ------------------------------------------------------------ */
 const S = {
-  profile : store.get('profile', {nom:'Amina Dossou', email:'amina.dossou@mail.bj', tel:'+229 97 12 34 56', ville:'Abomey-Calavi', promo:'Licence 3 · Informatique', bio:"Passionnée de design d'interface et de développement web."}),
+  /* Le profil affiché est TOUJOURS celui du compte ouvert. Ce socle est vide :
+     l’identité est posée au démarrage (compte local) puis confirmée par
+     /api/auth/me. Aucune identité de démonstration n’est préremplie. */
+  profile : store.get('profile', {nom:'', email:'', tel:'', ville:'', promo:'', bio:''}),
   settings: Object.assign({theme:'light', reminders:true, messages:true, weekly:false, animations:true, wifi:true}, store.get('settings', {})),
   lessons : store.get('lessons', {}),
-  favs    : store.get('favs', ['c1','c2','c5']),
+  favs    : store.get('favs', []),
   quiz    : store.get('quiz', {}),
   devoirs : store.get('devoirs', {}),
   notifs  : store.get('notifs', NOTIFS_SEED),
@@ -31,9 +34,13 @@ const S = {
   disc    : store.get('disc', DISC_SEED),
   recent  : store.get('recent', []),
   liked   : store.get('liked', {}),
-  streak  : store.get('streak', 12),
+  streak  : store.get('streak', 0),
   logged  : store.get('logged', true)
 };
+/* Statistiques du compte connecté (GET /api/stats) : dès qu’elles sont
+   connues, c’est elles qui alimentent le tableau de bord — jamais des
+   chiffres de démonstration. */
+let STATS = null;
 function persist(){ ['profile','settings','lessons','favs','quiz','devoirs','notifs','dl','notes','disc','recent','liked','streak','logged']
   .forEach(k => store.set(k, S[k]));
   if (window.LHSYNC) window.LHSYNC.changed();     // synchronisation serveur (si configurée)
@@ -60,7 +67,7 @@ const toggleFav = cid => { S.favs = isFav(cid) ? S.favs.filter(x => x !== cid) :
 const coursSuivis = () => COURS.filter(c => progCours(c.id) > 0).length;
 const leconsTotalesFaites = () => COURS.reduce((n, c) => n + leconsFaites(c.id), 0);
 const badgeStats = () => ({
-  streak  : S.streak,
+  streak  : (STATS && STATS.serie !== undefined) ? STATS.serie : S.streak,
   assidu  : leconsTotalesFaites(),
   premier : leconsTotalesFaites() >= 1 ? 1 : 0,
   regulier: leconsTotalesFaites(),
@@ -942,15 +949,66 @@ PAGES['profil-edit'] = {
        <button class="btn btn--filled btn--block ripple" data-act="saveProfile">${svg('check', 'icon icon--18')} Enregistrer les modifications</button>`);
   }
 };
-const initials = n => n.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+const initials = n => (n || '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
 function applyProfileUI(){
-  $$('.avatar').forEach(a => { a.textContent = initials(S.profile.nom); });
-  const t = $('#topBar .top-bar__titles h1'); if (t) t.textContent = S.profile.nom;
+  const p = S.profile || {};
+  $$('.avatar').forEach(a => { a.textContent = initials(p.nom) || '·'; });
+  const t = $('#topBar .top-bar__titles h1'); if (t) t.textContent = p.nom || 'Mon espace';
   const ph = $('#profileHead');
   if (ph){
-    ph.querySelector('h2').textContent = S.profile.nom;
-    ph.querySelector('p').textContent = S.profile.email + ' · ' + S.profile.promo;
+    ph.querySelector('h2').textContent = p.nom || 'Mon espace';
+    const sous = ph.querySelector('p');
+    if (sous) sous.textContent = [p.email, p.promo].filter(Boolean).join(' · ') || 'Compte local';
   }
+}
+
+/* ------------------------------------------------------------
+   14 bis. IDENTITÉ DU COMPTE (jamais celle d’un autre)
+   ------------------------------------------------------------ */
+function definirProfil(valeurs){
+  const p = S.profile = S.profile || {};
+  let change = false;
+  Object.keys(valeurs).forEach(k => {
+    if (valeurs[k] !== undefined && p[k] !== valeurs[k]){ p[k] = valeurs[k]; change = true; }
+  });
+  if (change){ persist(); applyProfileUI(); }
+}
+/* Réponse de /api/auth/me : la fiche du compte connecté fait foi */
+function appliquerUtilisateur(u){
+  if (!u) return;
+  definirProfil({ nom:u.nom || '', email:u.email || '', tel:u.tel || '', ville:u.ville || '',
+                  promo:u.promo || '', bio:u.bio || '' });
+}
+/* Au démarrage : le compte local (jeton conservé) donne tout de suite le bon
+   nom, même hors connexion ; « explorer sans compte » affiche « Invité ». */
+function appliquerIdentiteLocale(){
+  const c = window.LHCOMPTE && window.LHCOMPTE.compte && window.LHCOMPTE.compte();
+  if (!c) return;
+  if (c.id === 'invite') definirProfil({ nom:'Invité', email:'', tel:'', ville:'', promo:'', bio:'' });
+  else definirProfil({ nom:c.nom || '', email:c.email || '' });
+}
+/* Heures de formation : somme des durées des leçons terminées (hors-ligne) */
+const dureeMin = t => {
+  const m = /(\d+)\s*h(?:\s*(\d+))?/.exec(t || '');
+  if (m) return Number(m[1]) * 60 + Number(m[2] || 0);
+  const n = /(\d+)/.exec(t || '');
+  return n ? Number(n[1]) : 0;
+};
+function heuresFormation(){
+  let min = 0;
+  COURS.forEach(c => (LESSONS[c.id] || []).forEach((l, i) => { if (S.lessons[c.id + ':' + i]) min += dureeMin(l.d); }));
+  return Math.round(min / 6) / 10;
+}
+const heuresFmt = v => {
+  const n = Math.round((v || 0) * 10) / 10;
+  return (String(n).indexOf('.') > -1 ? String(n).replace('.', ',') : String(n)) + ' h';
+};
+/* Statistiques du compte (serveur) → tableau de bord */
+async function rafraichirStats(){
+  if (!window.LHSYNC || !LHSYNC.actif || !LHSYNC.actif()) return false;
+  const r = await LHSYNC.req('GET', '/api/stats');
+  if (r && r.data){ STATS = r.data; updateStats(); return true; }
+  return false;
 }
 
 /* ------------------------------------------------------------
@@ -1103,23 +1161,32 @@ document.addEventListener('keydown', e => {
    ------------------------------------------------------------ */
 function updateStats(){
   const set = (id, v) => { const el = $('#' + id); if (el) el.textContent = v; };
-  const heures = S.heuresBase !== undefined ? S.heuresBase : 34 + Math.round((leconsTotalesFaites() - 24) * 0.5);
-  set('statSerie', S.streak + ' j');
-  set('statHeures', heures + ' h');
-  set('statBadges', BADGES_DEF.filter(badgeUnlocked).length);
+  const lecons = leconsTotalesFaites();
+  const serveur = STATS || {};
+  const serie   = serveur.serie !== undefined ? serveur.serie : S.streak;
+  const heures  = serveur.heures !== undefined ? serveur.heures : heuresFormation();
+  const badges  = serveur.badges && serveur.badges.obtenus !== undefined ? serveur.badges.obtenus : BADGES_DEF.filter(badgeUnlocked).length;
+  set('statSerie', serie + ' j');
+  set('statHeures', heuresFmt(heures));
+  set('statBadges', badges);
   set('statCours', coursSuivis());
-  set('statHeures2', heures + ' h');
-  set('statBadges2', BADGES_DEF.filter(badgeUnlocked).length);
+  set('statHeures2', heuresFmt(heures));
+  set('statBadges2', badges);
+  /* objectif de la semaine : minutes réelles du compte (0 tant qu’on ne sait pas) */
+  const sem = serveur.semaine;
+  const gs = $('#goalSemaine');
+  if (gs) gs.textContent = (sem ? heuresFmt(sem.heures) : '0 h') + ' sur ' + ((sem && sem.objectifH) || 8) + " h d'apprentissage";
+  const pctSem = sem && sem.pourcent !== undefined ? sem.pourcent : 0;
   const ring = $('.ring__val');
   if (ring){
-    const p = Math.min(100, Math.round(leconsTotalesFaites() / Math.max(1, 30) * 100));
     const C = 2 * Math.PI * 42;
-    ring.dataset.prog = p;
+    ring.dataset.prog = pctSem;
     ring.style.strokeDasharray = C;
-    ring.style.strokeDashoffset = C * (1 - p / 100);
-    const lbl = $('.ring-wrap__label strong'); if (lbl) lbl.textContent = p + '%';
+    ring.style.strokeDashoffset = C * (1 - pctSem / 100);
+    const lbl = $('.ring-wrap__label strong'); if (lbl) lbl.textContent = pctSem + '%';
   }
-  const gl = $('#goalText'); if (gl) gl.textContent = leconsTotalesFaites() + ' leçons terminées · objectif 30';
+  const gl = $('#goalText');
+  if (gl) gl.textContent = (sem ? sem.lecons : lecons) + ' leçons terminées · objectif 30';
 }
 function updateHero(){
   const c = coursById('c1');
@@ -1241,6 +1308,7 @@ if (typeof renderCourses === 'function') renderCourses();
     p.insertAdjacentHTML('afterend', `<p class="body-small muted" id="goalText" style="margin-top:8px">${leconsTotalesFaites()} leçons terminées · objectif 30</p>`);
   }
 })();
+setTimeout(appliquerIdentiteLocale, 0);                 // le compte local donne le bon nom tout de suite
 setTimeout(() => { if (!window.LHCOMPTE || !window.LHCOMPTE.compte()) showLogin(true); }, 400);
 
 /* ------------------------------------------------------------
@@ -1328,7 +1396,11 @@ window.LHSYNC = (function(){
   async function verifier(){
     if (!base) return { ok:false, code:'non_configure' };
     const r = await req('GET', '/api/auth/me');
-    if (r.data){ utilisateur = r.data.user; return { ok:true, user:utilisateur, settings:r.data.settings }; }
+    if (r.data){
+      utilisateur = r.data.user;
+      if (window.APPX && window.APPX.appliquerUtilisateur) window.APPX.appliquerUtilisateur(utilisateur);
+      return { ok:true, user:utilisateur, settings:r.data.settings };
+    }
     if (r.erreur && r.erreur.code === 'non_authentifie'){ token = ''; ecrire(CLE_TOKEN, ''); }
     return { ok:false, code:r.erreur && r.erreur.code };
   }
@@ -1354,9 +1426,13 @@ window.LHSYNC = (function(){
       const q = r.data.lh_quiz[cid];
       S.quiz[cid] = { best:q.best, last:(S.quiz[cid] || {}).last || q.best, attempts:q.attempts };
     });
-    (r.data.cours || []).forEach(c => { if (c.favori) S.favs[c.id] = 1; });
+    /* favoris : pour un compte connecté, l’état du serveur fait foi */
+    if (r.data.cours && r.data.cours.length){
+      S.favs = r.data.cours.filter(c => c.favori).map(c => c.id);
+    }
     persist();
     refreshUI();
+    rafraichirStats();                       // série, heures, badges, objectif de la semaine
     return true;
   }
 
@@ -1542,6 +1618,9 @@ window.APPX = {
   notification: notification, addDownload: addDownload, openSession: openSession, renderMonth: renderMonth,
   renderSessions: renderSessions, renderTimeline: renderSessions, renderDevoirs: renderDevoirs,
   initials: initials, showLogin: showLogin, applySettings: applySettings, syncProfileSwitches: syncProfileSwitches,
-  applyProfileUI: applyProfileUI, openVideo: openVideo, vstate: vstate, store: store
+  applyProfileUI: applyProfileUI, appliquerIdentiteLocale: appliquerIdentiteLocale,
+  definirProfil: definirProfil, appliquerUtilisateur: appliquerUtilisateur,
+  rafraichirStats: rafraichirStats, updateStats: updateStats, stats: () => STATS,
+  openVideo: openVideo, vstate: vstate, store: store
 };
 })();
