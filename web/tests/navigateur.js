@@ -758,6 +758,280 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
     console.log('\nℹ️  Synchronisation par compte ignorée (définissez LEARNHUB_API_URL pour l\'activer).');
   }
 
+
+  /* ============ ESPACE FORMATEUR (V2) ============ */
+  if (API) {
+    titre('Espace formateur (cours, leçons, ressources, séances, suivi)');
+    const apiJSON = async (chemin, jeton, opts) => {
+      const r = await fetch(API + chemin, Object.assign({
+        headers: Object.assign({ 'Content-Type': 'application/json' }, jeton ? { Authorization: 'Bearer ' + jeton } : {}),
+        cache: 'no-store'
+      }, opts || {}));
+      return r.json().catch(() => ({}));
+    };
+    const prof = await apiJSON('/api/auth/login', '', { method: 'POST', body: JSON.stringify({ email: FORMATEUR.email, motDePasse: FORMATEUR.mdp }) });
+    const admin = await apiJSON('/api/auth/login', '', { method: 'POST', body: JSON.stringify({ email: process.env.LEARNHUB_ADMIN || 'admin@cosmetilab.bj', motDePasse: process.env.LEARNHUB_ADMIN_MDP || 'admin1234' }) });
+    const jetonProf = prof && prof.data ? prof.data.token : '';
+    const jetonAdmin = admin && admin.data ? admin.data.token : '';
+    const avant = await page.evaluate(() => localStorage.getItem('lh:compte'));
+
+    if (!jetonProf || !jetonAdmin) {
+      test('connexion des comptes formateur et administrateur', false, 'jeton manquant');
+    } else {
+      await page.evaluate(({ u }) => {
+        localStorage.setItem('lh:compte', JSON.stringify({ id: u.user.id, nom: u.user.nom, email: u.user.email, role: u.user.role, token: u.token, depuis: Date.now() }));
+        localStorage.setItem('lh_token', u.token);
+      }, { u: prof.data });
+      await page.reload({ waitUntil: 'load' });
+      await dormir(2500);
+
+      await page.evaluate(() => window.APPX.pushPage('compte', {}));
+      await dormir(600);
+      const acces = await page.locator('[data-page="espace-formateur"]').count();
+      test('l\'accès « Espace formateur » est proposé au formateur', acces > 0, acces + ' entrée(s) dans le compte');
+      await page.locator('[data-page="espace-formateur"]').first().click();
+      await dormir(2500);
+      test('l\'espace formateur s\'ouvre avec ses cinq onglets',
+           (await page.evaluate(() => document.querySelectorAll('.pf-tabs .tab').length)) === 5,
+           (await page.evaluate(() => document.querySelectorAll('.pf-tabs .tab').length)) + ' onglet(s)');
+      test('les cours à gérer sont listés', (await page.evaluate(() => window.LHPROF.etat.cours.length)) >= 6,
+           (await page.evaluate(() => window.LHPROF.etat.cours.length)) + ' cours');
+
+      /* création d'un cours complet : cours → leçon → ressource → séance, puis nettoyage */
+      const titreCours = 'Contrôle suite ' + Date.now().toString().slice(-6);
+      await page.fill('#pfTitre', titreCours);
+      await page.fill('#pfCat', 'Contrôle');
+      await page.fill('#pfProf', 'Awa Sossou');
+      await page.fill('#pfDuree', '2 h');
+      await page.locator('[data-pf="creer-cours"]').click();
+      await dormir(3200);
+      const idCours = await page.evaluate(() => window.LHPROF.etat.coursId);
+      const coursCree = await apiJSON('/api/courses/' + idCours, jetonProf);
+      test('créer un cours depuis l\'application', !!(coursCree.data && coursCree.data.cours && coursCree.data.cours.titre === titreCours),
+           'cours ' + idCours + ' : ' + ((coursCree.data && coursCree.data.cours) || {}).titre);
+
+      await page.fill('#pfModTitre', 'Module 1 — Contrôle');
+      await page.fill('#pfLecTitre', 'Leçon de contrôle');
+      await page.fill('#pfLecDuree', '12 min');
+      await page.locator('[data-pf="ajouter-lecon"]').click();
+      await dormir(3000);
+      await page.locator('[data-pf="onglet"][data-onglet="ressources"]').click();
+      await dormir(2200);
+      await page.fill('#pfResTitre', 'Fiche de contrôle');
+      await page.fill('#pfResType', 'PDF, 200 Ko');
+      await page.locator('[data-pf="ajouter-ressource"]').click();
+      await dormir(2800);
+      const detail = await apiJSON('/api/courses/' + idCours, jetonProf);
+      const lecons = (detail.data && detail.data.modules || []).reduce((n, m) => n + (m.lecons || []).length, 0);
+      const ressources = (detail.data && detail.data.ressources || []).length;
+      test('ajouter une leçon et une ressource au cours', lecons === 1 && ressources === 1,
+           lecons + ' leçon(s) · ' + ressources + ' ressource(s)');
+
+      await page.locator('[data-pf="onglet"][data-onglet="seances"]').click();
+      await dormir(2200);
+      await page.fill('#pfSeTitre', 'Atelier de contrôle');
+      await page.fill('#pfSeDate', new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10));
+      await page.fill('#pfSeHeure', '15:30');
+      await page.locator('[data-pf="creer-seance"]').click();
+      await dormir(3000);
+      const seances = await apiJSON('/api/sessions', jetonProf);
+      const mienne = ((seances.data && seances.data.seances) || []).find(x => x.titre === 'Atelier de contrôle');
+      test('programmer une séance depuis l\'application', !!mienne,
+           mienne ? mienne.date_session + ' ' + mienne.heure : 'séance absente');
+
+      await page.locator('[data-pf="onglet"][data-onglet="apprenants"]').click();
+      await dormir(2000);
+      await page.evaluate(() => { const s = document.querySelector('#pfCours'); if (s) { s.value = 'c1'; s.dispatchEvent(new Event('change', { bubbles: true })); } });
+      await dormir(2500);
+      const suivi = await page.evaluate(() => window.LHPROF.etat.apprenants);
+      test('suivi des apprenants : progression, leçons et dépôts', suivi.length > 0 && 'progress' in (suivi[0] || {}) && 'lecons_faites' in (suivi[0] || {}),
+           suivi.length + ' apprenant(s) · ' + (suivi[0] ? suivi[0].nom + ' ' + suivi[0].progress + ' %' : ''));
+
+      /* nettoyage : le cours de contrôle et sa séance disparaissent, la base reste telle quelle */
+      if (mienne) await apiJSON('/api/sessions/' + mienne.id, jetonProf, { method: 'DELETE' });
+      const sup = await apiJSON('/api/courses/' + idCours, jetonAdmin, { method: 'DELETE' });
+      test('suppression du cours de contrôle (base inchangée)', !!(sup && sup.ok), sup && sup.error ? sup.error.message : 'cours ' + idCours + ' retiré');
+
+      await page.evaluate(a => { try { localStorage.setItem('lh:compte', a); } catch (e) {} }, avant);
+      await page.reload({ waitUntil: 'load' });
+      await dormir(2500);
+    }
+  } else {
+    console.log('\nℹ️  Espace formateur ignoré (définissez LEARNHUB_API_URL pour l\'activer).');
+  }
+
+
+  /* ============ EXPÉRIENCE D'APPRENTISSAGE (V2) ============ */
+  if (API) {
+    titre('Expérience d\'apprentissage (reprise, historique, recherche, attestations, hors-ligne)');
+    const apiJSON2 = async (chemin, jeton, opts) => {
+      const r = await fetch(API + chemin, Object.assign({
+        headers: Object.assign({ 'Content-Type': 'application/json' }, jeton ? { Authorization: 'Bearer ' + jeton } : {}),
+        cache: 'no-store'
+      }, opts || {}));
+      return r.json().catch(() => ({}));
+    };
+    const avantAppr = await page.evaluate(() => localStorage.getItem('lh:compte'));
+    const mail = 'suite-appr-' + Date.now() + '@cosmetilab.bj';
+    const creation = await apiJSON2('/api/auth/register', '', {
+      method: 'POST', body: JSON.stringify({ nom: 'Contrôle Apprentissage', email: mail, motDePasse: 'test1234', ville: 'Porto-Novo' })
+    });
+    const nouveau = creation && creation.data;
+    const admin2 = await apiJSON2('/api/auth/login', '', { method: 'POST', body: JSON.stringify({ email: process.env.LEARNHUB_ADMIN || 'admin@cosmetilab.bj', motDePasse: process.env.LEARNHUB_ADMIN_MDP || 'admin1234' }) });
+    const jetonAdmin2 = admin2 && admin2.data ? admin2.data.token : '';
+
+    if (!nouveau || !nouveau.token) {
+      test('compte de contrôle créé pour l\'expérience d\'apprentissage', false, JSON.stringify(creation && creation.error));
+    } else {
+      await apiJSON2('/api/acces/offrir', jetonAdmin2, { method: 'POST', body: JSON.stringify({ email: mail, cours: ['c2'], jours: 30 }) });
+      const detailC2 = await apiJSON2('/api/courses/c2', nouveau.token);
+      const toutes = ((detailC2.data && detailC2.data.modules) || []).reduce((n, m) => n.concat(m.lecons || []), []);
+      for (const l of toutes) await apiJSON2('/api/lessons/' + l.id + '/complete', nouveau.token, { method: 'POST', body: JSON.stringify({ done: true, minutes: 3 }) });
+
+      await page.evaluate(({ u }) => {
+        localStorage.setItem('lh:compte', JSON.stringify({ id: u.user.id, nom: u.user.nom, email: u.user.email, role: u.user.role, token: u.token, depuis: Date.now() }));
+        localStorage.setItem('lh_token', u.token);
+      }, { u: nouveau });
+      await page.reload({ waitUntil: 'load' });
+      await dormir(3500);
+
+      /* reprise de lecture */
+      const video = await apiJSON2('/api/videos?courseId=c2', nouveau.token)
+        .then(j => (j.data && j.data.videos && j.data.videos[0]) || null);
+      await page.evaluate(({ yt, sec }) => window.LHAPPRENDRE.ouvrir(yt, sec), { yt: video.id, sec: 245 });
+      await dormir(1200);
+      await page.evaluate(({ yt }) => window.onPositionLue(yt, 245), { yt: video.id });
+      await dormir(2200);
+      const etatVideo = await apiJSON2('/api/progress?format=app', nouveau.token)
+        .then(j => ((j.data && j.data.lh_videos) || {})[video.id] || {});
+      test('la position de lecture part sur le compte', Number(etatVideo.pos) === 245,
+           'position enregistrée : ' + etatVideo.pos + ' s');
+      await page.evaluate(({ yt, sec }) => window.LHAPPRENDRE.ouvrir(yt, sec), { yt: video.id, sec: 120 });
+      await dormir(1000);
+      const reprise = await page.evaluate(() => { const b = document.querySelector('.resume-btn'); return b ? b.textContent.trim() : ''; });
+      test('le lecteur propose de reprendre où l\'on s\'était arrêté', /Reprendre à \d/.test(reprise), reprise || 'bouton absent');
+
+      /* historique des tentatives */
+      const questions = await apiJSON2('/api/quizzes/c2', nouveau.token).then(j => (j.data && j.data.questions) || []);
+      await apiJSON2('/api/quizzes/c2/attempts', nouveau.token, { method: 'POST',
+        body: JSON.stringify({ reponses: questions.map(q => ({ questionId: q.id, optionId: q.options[0].id })), dureeS: 90 }) });
+      await page.evaluate(() => { let n = 0; while (window.APPX.topPage() && n++ < 20) window.APPX.popPage(); window.APPX.pushPage('tentatives', {}); });
+      await dormir(2500);
+      const histo = await page.evaluate(() => ({ lignes: document.querySelectorAll('#tentats .list-row').length, texte: ((document.querySelector('#tentats') || {}).innerText || '') }));
+      test('l\'historique des tentatives vient du compte', histo.lignes >= 1, histo.lignes + ' tentative(s) · ' + histo.texte.split('\n').slice(0, 3).join(' / '));
+
+      /* recherche serveur */
+      await page.evaluate(() => { window.APPX.pushPage('recherche', {}); });
+      await dormir(1000);
+      await page.fill('.q-input', 'karité');
+      await dormir(2600);
+      const rech = await page.evaluate(() => ({
+        lignes: document.querySelectorAll('.q-body .list-row').length,
+        local: /hors connexion/i.test((document.querySelector('.q-body') || {}).innerText || '')
+      }));
+      test('la recherche interroge le serveur (cours, leçons, vidéos…)', rech.lignes >= 5 && !rech.local,
+           rech.lignes + ' résultat(s)' + (rech.local ? ' (repli local)' : ' depuis le serveur'));
+
+      /* attestations */
+      await page.evaluate(() => { let n = 0; while (window.APPX.topPage() && n++ < 20) window.APPX.popPage(); window.LHAPPRENDRE.certificats(); });
+      await dormir(3000);
+      const certs = await page.evaluate(() => ({ cartes: document.querySelectorAll('[data-certificat]').length,
+        texte: ((document.querySelector('#certs') || {}).innerText || '').split('\n').slice(0, 5).join(' / ') }));
+      test('l\'attestation du cours terminé est délivrée et datée', certs.cartes >= 1, certs.cartes + ' attestation(s) · ' + certs.texte);
+
+      /* hors-ligne */
+      await page.context().setOffline(true);
+      await page.evaluate(() => window.dispatchEvent(new Event('offline')));
+      await dormir(1500);
+      const bandeau = await page.evaluate(() => { const b = document.querySelector('#hlBandeau'); return b ? getComputedStyle(b).display : 'absent'; });
+      test('le mode hors-ligne est annoncé sans bloquer la lecture', bandeau === 'block', 'bandeau : ' + bandeau);
+      await page.context().setOffline(false);
+      await page.evaluate(() => window.dispatchEvent(new Event('online')));
+
+      /* le compte de contrôle est retiré : rien ne reste dans la base */
+      const menage = await apiJSON2('/api/auth/me', nouveau.token, { method: 'DELETE' });
+      test('le compte de contrôle est supprimé après vérification', !!(menage && menage.ok), menage && menage.error ? menage.error.message : 'compte ' + mail + ' retiré');
+
+      await page.evaluate(a => { try { localStorage.setItem('lh:compte', a); } catch (e) {} }, avantAppr);
+      await page.reload({ waitUntil: 'load' });
+      await dormir(2000);
+    }
+  } else {
+    console.log('\nℹ️  Expérience d\'apprentissage ignorée (définissez LEARNHUB_API_URL pour l\'activer).');
+  }
+
+
+  /* ============ AUDIT QUALITÉ (chaque page, chaque contrôle) ============ */
+  {
+    titre('Audit qualité (toutes les pages, tous les contrôles)');
+    const actionsNoyau = await page.evaluate(() => {
+      /* les actions du noyau ne sont pas exposées : on les relève dans le code chargé */
+      const src = Array.from(document.scripts).map(s => s.textContent).join('\n');
+      const bloc = src.slice(src.indexOf('const ACTIONS = {'), src.indexOf('/* ============', src.indexOf('const ACTIONS = {')));
+      return Array.from(bloc.matchAll(/^\s{2}([a-zA-Z][\w]*)\s*\(/gm)).map(m => m[1]);
+    });
+    const liste = await page.evaluate(() => Object.keys(window.APPX.PAGES));
+    const enEchec = [], videsTrouvees = [];
+    const actionsVues = new Set(), pagesVues = new Set();
+    for (const id of liste) {
+      const r = await page.evaluate(async pid => {
+        try {
+          window.APPX.pushPage(pid, {});
+          await new Promise(r => setTimeout(r, 240));
+          const el = document.querySelector('.page[data-page="' + pid + '"]');
+          const texte = el ? el.innerText.trim() : '';
+          const act = el ? Array.from(el.querySelectorAll('[data-act]')).map(b => b.dataset.act) : [];
+          const pg = el ? Array.from(el.querySelectorAll('[data-page]')).map(b => b.dataset.page) : [];
+          window.APPX.popPage();
+          return { texte: texte.length, act, pg };
+        } catch (e) { return { erreur: String(e.message) }; }
+      }, id);
+      if (r.erreur) enEchec.push(id);
+      if (!r.erreur && r.texte < 20) videsTrouvees.push(id);
+      (r.act || []).forEach(a => actionsVues.add(a));
+      (r.pg || []).forEach(p => pagesVues.add(p));
+    }
+    test('chaque page enregistrée s\'ouvre et affiche du contenu',
+         enEchec.length === 0 && videsTrouvees.length === 0,
+         liste.length + ' pages · en échec : ' + (enEchec.join(', ') || 'aucune') + ' · vides : ' + (videsTrouvees.join(', ') || 'aucune'));
+
+    const orphelins = await page.evaluate(({ noyau, act, pg }) => {
+      const connues = new Set(Object.keys(window.APPX.PAGES));
+      const externes = window.APPX.ACTIONS || {};
+      return {
+        act: act.filter(a => !noyau.includes(a) && !externes[a]),
+        pg: pg.filter(p => !connues.has(p))
+      };
+    }, { noyau: actionsNoyau, act: Array.from(actionsVues), pg: Array.from(pagesVues) });
+    /* certains boutons portent l'action de leur écran directement (onclick ou écoute dédiée) */
+    const gereesAilleurs = ['quitQuiz', 'retryQuiz', 'ctQuitter', 'ctRecharger', 'ctSync', 'backCourse', 'fav'];
+    const restants = orphelins.act.filter(a => !gereesAilleurs.includes(a));
+    test('aucun contrôle mort : chaque action est branchée', restants.length === 0,
+         actionsVues.size + ' action(s) utilisées sur ' + liste.length + ' pages' + (restants.length ? ' — sans effet : ' + restants.join(', ') : ''));
+    test('chaque lien interne pointe vers une page existante', orphelins.pg.length === 0,
+         pagesVues.size + ' lien(s) vérifiés' + (orphelins.pg.length ? ' — inconnus : ' + orphelins.pg.join(', ') : ''));
+
+    const a11y = await page.evaluate(() => {
+      const sansNom = [], petits = [];
+      document.querySelectorAll('.page').forEach(pg => {
+        pg.querySelectorAll('button, [role="switch"]').forEach(b => {
+          const nom = (b.innerText || '').trim() || b.getAttribute('aria-label') || b.getAttribute('title') || '';
+          if (!nom) sansNom.push(pg.dataset.page + ':' + (b.dataset.act || b.className.split(' ')[0]));
+          const r = b.getBoundingClientRect();
+          if (r.width && r.height && (r.width < 28 || r.height < 28)) petits.push(pg.dataset.page + ' ' + Math.round(r.width) + '×' + Math.round(r.height));
+        });
+      });
+      return { sansNom, petits, lang: document.documentElement.lang };
+    });
+    test('accessibilité : boutons nommés et cibles tactiles suffisantes',
+         a11y.sansNom.length === 0 && a11y.petits.length === 0 && a11y.lang === 'fr',
+         a11y.sansNom.length + ' bouton(s) sans nom · ' + a11y.petits.length + ' cible(s) trop petite(s) · langue : ' + a11y.lang);
+
+    const poids = fs.statSync(PAGE).size;
+    test('le site reste un fichier unique autonome de taille maîtrisée', poids < 1_400_000,
+         (poids / 1024).toFixed(0) + ' Ko (tout inclus : images, extrait vidéo, contenu)');
+  }
+
   /* ============ fin ============ */
   titre('Bilan');
   test('aucune erreur JavaScript sur l\'ensemble du parcours', erreurs.length === 0, erreurs.slice(0, 3).join(' | '));

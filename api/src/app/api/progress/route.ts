@@ -39,8 +39,8 @@ export async function GET(req: Request) {
     if (url.searchParams.get('format') === 'app') {
       const leconsObj: Record<string, number> = {};
       for (const l of lecons) leconsObj[l.id] = 1;
-      const videoEtat: Record<string, { prog: number; like: boolean; save: boolean }> = {};
-      for (const v of videos) videoEtat[v.id] = { prog: v.progress, like: v.liked, save: v.saved };
+      const videoEtat: Record<string, { prog: number; like: boolean; save: boolean; pos: number }> = {};
+      for (const v of videos) videoEtat[v.id] = { prog: v.progress, like: v.liked, save: v.saved, pos: v.position_s };
       const quizEtat: Record<string, { best: number; attempts: number }> = {};
       for (const z of quiz) {
         const cur = quizEtat[z.quiz_id] ?? { best: 0, attempts: 0 };

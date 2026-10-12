@@ -375,12 +375,32 @@ function pageCompte(){
       <span class="list-row__ico acc-purple">${window.APPX.svg('cloud', 'icon icon--20')}</span>
       <div class="list-row__main"><h3>Mes données</h3><p data-ctresume>Comptage en cours…</p></div>
     </div>
+    <button class="list-row ripple" data-page="tentatives" style="text-align:left">
+      <span class="list-row__ico acc-amber">${window.APPX.svg('chart', 'icon icon--20')}</span>
+      <div class="list-row__main"><h3>Mes tentatives de quiz</h3><p>Scores, dates et moyennes sur votre compte</p></div>
+      ${window.APPX.IC.chev}
+    </button>
+    <button class="list-row ripple" data-page="certificats" style="text-align:left">
+      <span class="list-row__ico acc-green">${window.APPX.svg('medal', 'icon icon--20')}</span>
+      <div class="list-row__main"><h3>Mes attestations</h3><p>Certificats des cours terminés, imprimables</p></div>
+      ${window.APPX.IC.chev}
+    </button>
+    <button class="list-row ripple" data-page="hors-ligne" style="text-align:left">
+      <span class="list-row__ico acc-blue">${window.APPX.svg('cloud', 'icon icon--20')}</span>
+      <div class="list-row__main"><h3>Mode hors-ligne</h3><p>Ce qui reste accessible sans réseau</p></div>
+      ${window.APPX.IC.chev}
+    </button>
     ${c.role === 'enseignant' || c.role === 'admin' ? `
-    <div class="list-row">
+    <button class="list-row ripple" data-page="espace-formateur" style="text-align:left">
+      <span class="list-row__ico acc-purple">${window.APPX.svg('bullhorn', 'icon icon--20')}</span>
+      <div class="list-row__main"><h3>Espace formateur</h3><p>Créer un cours, ses leçons, ses ressources et ses séances</p></div>
+      ${window.APPX.IC.chev}
+    </button>
+    <button class="list-row ripple" data-page="corrections" style="text-align:left">
       <span class="list-row__ico acc-blue">${window.APPX.svg('upload', 'icon icon--20')}</span>
       <div class="list-row__main"><h3>Corrections des apprenants</h3><p>Copies déposées sur vos cours</p></div>
       ${window.APPX.IC.chev}
-    </div>` : ''}
+    </button>` : ''}
     <button class="btn btn--outlined btn--block ripple" style="margin-top:14px" data-act="ctQuitter">
       ${window.APPX.svg('logout', 'icon icon--18')} ${connecte ? 'Se déconnecter' : 'Quitter le mode local'}
     </button>

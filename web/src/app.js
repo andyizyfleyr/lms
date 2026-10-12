@@ -393,6 +393,61 @@ const vstate = {};
   });
 })();
 const persist = () => store.set('videos', vstate);
+
+/* ---------- reprise de lecture : bouton visible + suivi de la position ---------- */
+function majBoutonReprise(st){
+  const zone = $('#watchInfo');
+  if (!zone) return;
+  const parent = zone.parentNode;
+  if (!parent) return;
+  let bouton = parent.querySelector('.resume-btn');
+  const utile = st && st.pos > 0 && st.prog < 100;
+  if (!utile){ if (bouton) bouton.remove(); return; }
+  if (!bouton){
+    bouton = document.createElement('button');
+    bouton.type = 'button';
+    bouton.className = 'resume-btn btn btn--sm btn--tonal ripple';
+    bouton.style.margin = '8px 16px 0';
+    bouton.addEventListener('click', () => { if (typeof startYt === 'function') startYt(); });
+    parent.insertBefore(bouton, zone.nextSibling);
+  }
+  bouton.textContent = 'Reprendre à ' + fmtDur(st.pos);
+}
+
+/* ce que le lecteur a réellement joué est mémorisé (localement puis sur le compte) */
+let tickLecture = null;
+function suivrePosition(){
+  if (!curVid) return;
+  try {
+    if (ytPlayer && ytPlayer.getCurrentTime){
+      const t = Math.round(ytPlayer.getCurrentTime() || 0);
+      if (t > 1){
+        const st = vstate[curVid.yt];
+        st.pos = t;
+        st.prog = Math.max(st.prog || 0, Math.min(100, Math.round(t / Math.max(1, (t + (ytPlayer.getDuration ? ytPlayer.getDuration() : 0) || curVid.duree)) * 100)) || st.prog || 0);
+        persist();
+        majBoutonReprise(st);
+        const info = $('#watchInfo');
+        if (info) info.textContent = 'Lecture en cours — ' + fmtDur(t) + (curVid.duree ? ' / ' + fmtDur(curVid.duree) : '');
+        if (typeof onPositionLue === 'function') onPositionLue(curVid.yt, t);
+      }
+    } else {
+      const vid = $('#offlineVid');
+      if (vid && !vid.hidden && vid.currentTime > 1){
+        const st = vstate[curVid.yt];
+        st.pos = Math.round(vid.currentTime);
+        persist();
+        majBoutonReprise(st);
+        if (typeof onPositionLue === 'function') onPositionLue(curVid.yt, st.pos);
+      }
+    }
+  } catch (e) {}
+}
+function demarrerSuiviPosition(){
+  if (tickLecture) return;
+  tickLecture = setInterval(suivrePosition, 5000);
+}
+
 renderVideoScroll();
 renderVideoList();
 
@@ -439,10 +494,13 @@ function renderQueue(v){
   animateProgress($('#playerQueue'));
 }
 
-function openVideo(id){
+function openVideo(id, depart){
   const v = VIDEOS.find(x => x.yt === id);
   if (!v) return false;
   curVid = v; ytFailed = false; ytReady = false;
+  /* reprise de lecture : la position est mémorisée sur le compte (positionS) */
+  curVid.depart = Math.max(0, Math.round(depart || vstate[v.yt].pos || 0));
+  if (curVid.depart) vstate[v.yt].pos = curVid.depart;
   stopYt();
   hideLocal();
   setStatus(null);
@@ -461,12 +519,15 @@ function openVideo(id){
   $('#playerYt').href = ytLink(v.yt);
 
   const st = vstate[v.yt];
+  demarrerSuiviPosition();
   $('#watchPct').textContent = Math.round(st.prog) + ' %';
   $('#watchBar').style.width = st.prog + '%';
   $('#watchBarWrap').setAttribute('aria-valuenow', Math.round(st.prog));
   $('#watchInfo').textContent = st.prog >= 100
     ? 'Vidéo terminée — bien joué !'
+    : st.pos > 0 ? `Reprise à ${fmtDur(st.pos)} — relancez pour continuer`
     : st.prog > 0 ? `Reprise possible à ${fmtDur(v.duree * st.prog / 100)}` : 'Première lecture';
+  majBoutonReprise(st);
   toggleAct('#actLike', st.like);
   toggleAct('#actSave', st.save);
 
@@ -537,7 +598,8 @@ function playLocal(msg){
   vid.hidden = false;
   vid.muted = true;
   try {
-    vid.currentTime = rndTime() % Math.max(1, vid.duration || 24);
+    const reprise = Math.max(0, Math.round((curVid && curVid.depart) || vstate[curVid.yt].pos || 0));
+    vid.currentTime = reprise ? Math.min(reprise, Math.max(0, (vid.duration || 24) - 1)) : rndTime() % Math.max(1, vid.duration || 24);
   } catch (e) {}
   const go = () => safePlay(vid);
   if (vid.readyState >= 2) go(); else vid.addEventListener('canplay', go, {once:true});
@@ -613,7 +675,8 @@ function startYt(){
     if (!curVid || curVid.yt !== v.yt || ytFailed) return;
     try {
       if (ytPlayer && ytPlayer.loadVideoById){
-        ytPlayer.loadVideoById(v.yt);
+        const depart = Math.max(0, Math.round((curVid && curVid.depart) || vstate[v.yt].pos || 0));
+        ytPlayer.loadVideoById({ videoId: v.yt, startSeconds: depart });
         ytPlayer.playVideo();
         return;
       }

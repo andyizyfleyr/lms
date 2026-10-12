@@ -34,6 +34,10 @@ Authentification : en-tête `Authorization: Bearer <jeton>` (jeton renvoyé par 
 | POST | `/api/courses/{id}/lessons` | Ajouter une leçon (enseignant/admin) |
 | GET | `/api/courses/{id}/resources` | Supports de cours |
 | POST | `/api/courses/{id}/resources` | Ajouter un support (enseignant/admin) |
+| PATCH | `/api/resources/{id}` | Modifier une ressource (enseignant, admin) |
+| DELETE | `/api/resources/{id}` | Retirer une ressource (enseignant, admin) |
+| GET | `/api/courses/{id}/apprenants` | Suivi des apprenants d'un cours : progression, leçons terminées, dépôts, copies à corriger (enseignant, admin) |
+| GET | `/api/certificats` | Attestations de l'apprenant : cours achevés, date d'achèvement, numéro stable (`?cours=c1` pour une seule) |
 | GET | `/api/courses/{id}/messages` | Fil de discussion (`?limite=`) |
 | POST | `/api/courses/{id}/messages` | Publier un message |
 | POST | `/api/courses/{id}/enroll` | S'inscrire au cours |
@@ -85,6 +89,8 @@ Le champ `avatar` des réglages (`PATCH /api/settings`) porte l'avatar choisi : 
 | DELETE | `/api/progress` | Remet la progression à zéro |
 | POST | `/api/lessons/{id}/complete` | Marque la leçon terminée `{done:true, minutes?}` → recalcule le % du cours |
 | DELETE | `/api/lessons/{id}/complete` | Décoche la leçon |
+| PATCH | `/api/lessons/{id}` | Renommer / redéplacer une leçon (enseignant, admin) |
+| DELETE | `/api/lessons/{id}` | Retirer une leçon du cours (enseignant, admin) |
 | GET | `/api/videos` | Bibliothèque. Filtres : `q`, `courseId`, `filtre=tout\|encours\|termine\|fav`, `tri=vues\|recent\|duree` |
 | GET | `/api/videos/{id}` | Détail d'une vidéo + mon état de visionnage |
 | POST | `/api/videos` | Ajouter un tutoriel (enseignant/admin) |

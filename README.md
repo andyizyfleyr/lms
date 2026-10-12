@@ -3,7 +3,7 @@
 Tableau de bord **LMS mobile** (Material Design 3) livré sous forme de **fichier HTML unique**, accompagné de son **API Next.js + base Neon**.
 
 - **Le site** : `web/index.html` — 1 427 Ko, HTML + CSS + JavaScript + images (base64) + extrait vidéo intégré. Aucune dépendance externe (la seule exception est l'iframe YouTube du lecteur vidéo). Il se publie sur n'importe quel hébergeur statique.
-- **L'API** : `api/` — Next.js 15 (App Router) + TypeScript + Neon/PostgreSQL, **51 routes** (dont 7 pour le paiement) et **30 tables**. Elle sert la synchronisation de la progression (et tout le reste : cours, quiz, devoirs, ressources, notifications, recherche, statistiques).
+- **L'API** : `api/` — Next.js 15 (App Router) + TypeScript + Neon/PostgreSQL, **56 routes** (dont 7 pour le paiement) et **30 tables**. Elle sert la synchronisation de la progression (et tout le reste : cours, quiz, devoirs, ressources, notifications, recherche, statistiques).
 - **Le tout tient sur une seule adresse** : un seul projet Vercel sert l'application sur `/` et l'API sur `/api/*`
   (Next.js publie `api/public/index.html`, copie du livrable). Voir [`DEPLOIEMENT-GITHUB-VERCEL.md`](DEPLOIEMENT-GITHUB-VERCEL.md).
 
@@ -100,7 +100,17 @@ Depuis la **racine** (raccourcis, aucun paquet à installer à ce niveau) :
 | `npm run verifier-tout` | Contrôles du site + types de l'API + état de la base + test de fumée |
 
 Détail par projet : [`web/README.md`](web/README.md) et [`api/README.md`](api/README.md).
-Référence des 51 routes : [`api/API.md`](api/API.md).
+### Ce que la v2 apporte
+
+| Domaine | Ce qui a changé |
+| --- | --- |
+| Profil | 12 avatars, mot de passe (révoque les autres sessions), appareils connectés, accueil calculé sur le cours réellement commencé |
+| Synchronisation | Tout ce qui est fait dans l'app est rangé sur le compte : notifications, discussions, agenda, téléchargements, notes, profil, réglages — et revient sur les autres appareils sans recharger |
+| Espace formateur | Créer/modifier un cours, ajouter ou retirer leçons, ressources et séances, suivre les apprenants (progression, dépôts à corriger) |
+| Apprentissage | Reprise de lecture à la seconde, historique des tentatives de quiz, recherche serveur, attestations imprimables, mode hors-ligne annoncé |
+| Qualité | 18 pages vérifiées, aucun contrôle mort, accessibilité contrôlée, images WebP (−18 % de poids : 1 242 Ko au total) |
+
+Référence des 56 routes : [`api/API.md`](api/API.md).
 
 ---
 
@@ -119,7 +129,7 @@ cosmetilab/
 │   └── tests/                 serveur.js (aperçu local) + navigateur.js (suite réelle)
 │
 ├── api/                       Le backend Next.js + TypeScript (projet Vercel unique)
-│   ├── src/app/api/**         51 routes (cours, leçons, quiz, devoirs, auth, progression, paiement, activité…)
+│   ├── src/app/api/**         56 routes (cours, leçons, quiz, devoirs, auth, progression, paiement, activité…)
 │   ├── src/app/api-doc/       Page de documentation des routes (sur /api-doc)
 │   ├── src/lib/**             db.ts (Neon), auth.ts (scrypt + jetons), http.ts, validation.ts
 │   ├── public/index.html      Copie publiée du site, servie sur / (régénérée, ne pas éditer)
@@ -148,12 +158,12 @@ cosmetilab/
 |---|---|
 | Assemblage du site (`build.js`) | 12 contrôles d'intégrité · 1 427 Ko |
 | Contrôles statiques (`verify.js`) | **15 OK / 0** |
-| Suite navigateur (Chromium mobile) | **38 OK / 0** sans API · **73 OK / 0** avec l'API (paywall, avatar, appareils, activité réelle, synchronisation par compte) |
+| Suite navigateur (Chromium mobile) | **43 OK / 0** sans API · **93 OK / 0** avec l'API (paywall, avatar, appareils, synchronisation par compte, espace formateur, reprise de lecture, attestations, audit qualité) |
 | Suite comptes et temps réel | **26 OK / 0** (écran d'entrée, inscription, données séparées, mise à jour automatique, notation) |
 | Paiement de bout en bout (`npm --prefix api run paie:verif`) | **23 OK / 0** (catalogue, verrous, offre, abonnement, webhook signé, rejeu) |
 | Test de fumée de l'API (`npm run api:smoke`) | **38 OK / 0** |
 | Types de l'API (`tsc --noEmit`) | 0 erreur |
-| Build Next.js | 51 routes `ƒ Dynamic` |
+| Build Next.js | 56 routes `ƒ Dynamic` |
 | Base Neon (`db.js check`) | 30 tables, 6 cours, 59 leçons, 4 comptes |
 
 La suite navigateur vérifie ce qui doit rester vrai : navigation entre les quatre onglets, ouverture des fiches de cours, **retour** (bouton de l'app *et* bouton du téléphone), quiz, devoirs, **lecture vidéo dans le site** (YouTube en ligne, extrait intégré hors-ligne), thème, persistance, et **synchronisation dans les deux sens** avec l'API.

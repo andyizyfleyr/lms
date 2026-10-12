@@ -1487,7 +1487,15 @@ window.LHSYNC = (function(){
     Object.keys(r.data.lh_videos || {}).forEach(yt => {
       const v = r.data.lh_videos[yt];
       if (v.like || v.save) S.liked[yt] = true;
+      /* reprise de lecture : la position du compte reprend la main */
+      const etatVideo = window.APPX.vstate[yt];
+      if (etatVideo){
+        const pos = typeof v.pos === 'number' ? v.pos : v.position_s;
+        if (typeof pos === 'number' && pos > 0) etatVideo.pos = pos;
+        if (typeof v.progress === 'number' && v.progress > (etatVideo.prog || 0)) etatVideo.prog = v.progress;
+      }
     });
+    try { store.set('videos', window.APPX.vstate); } catch (e) {}
     Object.keys(r.data.lh_quiz || {}).forEach(cid => {
       const q = r.data.lh_quiz[cid];
       S.quiz[cid] = { best:q.best, last:(S.quiz[cid] || {}).last || q.best, attempts:q.attempts };
