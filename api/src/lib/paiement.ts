@@ -90,7 +90,7 @@ const msgNova = (body: any, defaut: string) => (body && body.error && body.error
 /** Crée une session de paiement. `idempotency` évite les doublons (double-clic, reprise réseau). */
 export async function novaCreerSession(p: {
   amount: number; description: string; metadata: Record<string, string>; idempotency: string; secondes?: number;
-}): Promise<{ session?: NovaSession; erreur?: string }> {
+}): Promise<{ session?: NovaSession; erreur?: string; statut?: number }> {
   if (!novaConfigure()) return { erreur: 'Paiement non configuré sur le serveur (clé NOVA absente).' };
   if (!Number.isInteger(p.amount) || p.amount < MONTANT_MIN || p.amount > MONTANT_MAX)
     return { erreur: `Montant invalide (${MONTANT_MIN} à ${MONTANT_MAX} F CFA).` };
@@ -109,7 +109,7 @@ export async function novaCreerSession(p: {
   });
 
   if (!r.ok || !r.body || !r.body.id) {
-    return { erreur: msgNova(r.body, `Paiement indisponible (NOVA ${r.status}).`) };
+    return { erreur: msgNova(r.body, `Paiement indisponible (NOVA ${r.status}).`), statut: r.status };
   }
   return { session: r.body as NovaSession };
 }
@@ -240,7 +240,16 @@ export async function creerCommande(uid: string, p: { type: 'cours' | 'abonnemen
 
   if (!r.session) {
     await exec(`update orders set status = 'failed', updated_at = now() where id = $1`, [order.id]);
-    return { ok: false, error: fail(r.erreur || 'Paiement indisponible', 502, 'nova_indisponible') };
+    /* NOVA distingue un refus de requête (400 : adresse non HTTPS, montant hors
+       bornes…) d'une panne (401 clé révoquée, 5xx indisponible) : le message
+       remonte tel quel pour que la cause soit lisible sans les journaux. */
+    const st = r.statut || 502;
+    const cle = st === 401 || st === 403;
+    return {
+      ok: false,
+      error: fail(r.erreur || 'Paiement indisponible', st === 400 ? 400 : 502,
+                  st === 400 ? 'paiement_refuse' : cle ? 'nova_cle_invalide' : 'nova_indisponible')
+    };
   }
 
   const maj = await q1<Order>(

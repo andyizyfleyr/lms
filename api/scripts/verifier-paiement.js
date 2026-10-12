@@ -42,9 +42,19 @@ const ok = (cond, txt, extra) => { if (!cond) ko++; console.log((cond ? '✅' : 
   const v0 = await api('/api/videos/wLv3geJ3Rv0', { headers: H });
   ok(v0.s === 402, 'vidéo verrouillée (cours non acheté)', v0.s + ' ' + (v0.j.error ? v0.j.error.code : ''));
 
-  /* 4. session de paiement sans clé NOVA → 502 propre */
+  /* 4. session de paiement : réelle si les clés NOVA sont posées, sinon 502 propre */
   const s0 = await api('/api/paiements/session', { method: 'POST', headers: H, body: JSON.stringify({ type: 'cours', courseId: 'c1' }) });
-  ok(s0.s === 502, 'session sans clé NOVA → 502', s0.s + ' ' + (s0.j.error ? s0.j.error.code : ''));
+  if (cat.j.data.paiementActif){
+    ok(s0.s === 201 && /^https:\/\//.test((s0.j.data && s0.j.data.url) || ''), 'session NOVA réelle ouverte (clés configurées)',
+       s0.s + ' · ' + ((s0.j.data && s0.j.data.url) || ''));
+    /* on annule la session de test pour ne rien laisser traîner */
+    const cle = fs.readFileSync('.env.local', 'utf8').match(/NOVA_SECRET_KEY\s*=\s*(.+)/);
+    const cs = s0.j.data && s0.j.data.commande && s0.j.data.commande.session;
+    if (cle && cs) await fetch('https://nova-azure-psi.vercel.app/api/v1/checkout/sessions/' + cs + '/expire',
+      { method: 'POST', headers: { Authorization: 'Bearer ' + cle[1].trim() } }).catch(() => {});
+  } else {
+    ok(s0.s === 502, 'session sans clé NOVA → 502', s0.s + ' ' + (s0.j.error ? s0.j.error.code : ''));
+  }
 
   /* 5. admin offre l'accès c1 */
   const ad = await api('/api/auth/login', { method: 'POST', headers: J(), body: JSON.stringify({ email: 'admin@cosmetilab.bj', motDePasse: 'admin1234' }) });

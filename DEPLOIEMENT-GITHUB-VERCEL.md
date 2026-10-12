@@ -102,6 +102,12 @@ npm run db:check               # volumes attendus
    (événements `checkout.session.paid` et `checkout.session.expired`) et recopie le `whsec_…` affiché.
    ⚠️ NOVA **n'a pas de mode test** : la première session ouverte est un **vrai paiement**.
 
+   Après avoir posé les clés, tu peux les vérifier sans rien payer :
+   `npm run api:nova` (ou `npm --prefix api run nova:verif`) crée une session de test, relit son état
+   auprès de NOVA puis **l'annule** — aucune somme n'est débitée. Les adresses de retour devant être
+   en **HTTPS**, garde bien `SITE_URL=https://<projet>.vercel.app` (une adresse `http://localhost` est
+   refusée par NOVA : `success_url : HTTPS obligatoire`).
+
 4. **Deploy**. Une minute plus tard :
 
    - `https://<projet>.vercel.app/` → **l'application** (titre d'onglet « CosmétiLab · Tableau de bord ») ;

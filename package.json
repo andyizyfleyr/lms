@@ -22,7 +22,9 @@
     "site:verifier": "node api/scripts/sync-site.js --verifier",
     "test:comptes": "npm --prefix web run test:comptes",
     "test:tout": "npm --prefix web run test && npm --prefix web run test:comptes",
-    "api:comptes": "npm --prefix api run comptes"
+    "api:comptes": "npm --prefix api run comptes",
+    "api:nova": "npm --prefix api run nova:verif",
+    "api:paie": "npm --prefix api run paie:verif"
   },
   "engines": {
     "node": ">=20"
