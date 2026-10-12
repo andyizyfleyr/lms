@@ -1,0 +1,31 @@
+{
+  "name": "learnhub-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API Next.js + Neon pour LearnHub (LMS mobile)",
+  "scripts": {
+    "dev": "next dev -H 0.0.0.0 -p 3000",
+    "build": "next build",
+    "start": "next start -H 0.0.0.0 -p 3000",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "node scripts/db.js migrate",
+    "db:seed": "node scripts/db.js seed",
+    "db:reset": "node scripts/db.js reset",
+    "db:check": "node scripts/db.js check",
+    "smoke": "node scripts/smoke.js"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
+    "next": "^15.5.27",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.0.2",
+    "pg": "^8.23.1",
+    "typescript": "^5.7.2"
+  }
+}

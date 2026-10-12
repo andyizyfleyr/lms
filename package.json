@@ -1,0 +1,25 @@
+{
+  "name": "learnhub",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LearnHub — tableau de bord LMS mobile (fichier HTML unique) + API Next.js sur base Neon",
+  "license": "MIT",
+  "scripts": {
+    "build": "npm --prefix web run build",
+    "verifier": "npm --prefix web run verify",
+    "test": "npm --prefix web run test",
+    "apercu": "npm --prefix web run serve",
+    "api:dev": "npm --prefix api run dev",
+    "api:build": "npm --prefix api run build",
+    "api:typecheck": "npm --prefix api run typecheck",
+    "db:migrate": "npm --prefix api run db:migrate",
+    "db:seed": "npm --prefix api run db:seed",
+    "db:check": "npm --prefix api run db:check",
+    "db:reset": "npm --prefix api run db:reset",
+    "verifier-tout": "npm run verifier && npm --prefix api run typecheck && npm --prefix api run db:check && npm --prefix api run smoke",
+    "api:smoke": "npm --prefix api run smoke"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

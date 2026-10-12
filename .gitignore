@@ -1,0 +1,25 @@
+# Dépendances
+node_modules/
+
+# Builds et caches
+.next/
+out/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+.vercel/
+.turbo/
+
+# Secrets — ne jamais committer (voir api/.env.example)
+.env
+.env.local
+.env.*.local
+
+# Système
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/

@@ -1,0 +1,12 @@
+{
+  "name": "learnhub-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LearnHub — application mobile LMS en un seul fichier (HTML+CSS+JS) et son outillage d'assemblage",
+  "scripts": {
+    "build": "node build.js",
+    "verify": "node verify.js",
+    "test": "node tests/navigateur.js",
+    "serve": "node tests/serveur.js"
+  }
+}
