@@ -24,7 +24,7 @@ export async function GET(req: Request) {
 
     const row = await q1<{
       revision: string; lecons: number; videos: number; quiz: number;
-      depots: number; cours: number; jour: string;
+      depots: number; cours: number; notifs: number; jour: string;
     }>(
       `select
          (select coalesce(count(*), 0) from lesson_progress where user_id = $1)::text || ':' ||
@@ -33,12 +33,15 @@ export async function GET(req: Request) {
          (select coalesce(count(*), 0) from submissions     where user_id = $1)::text || ':' ||
          (select coalesce(max(updated_at), '1970-01-01')::text from lesson_progress where user_id = $1) || ':' ||
          (select coalesce(max(updated_at), '1970-01-01')::text from video_state     where user_id = $1) || ':' ||
-         (select coalesce(max(created_at), '1970-01-01')::text from quiz_attempts   where user_id = $1) as revision,
+         (select coalesce(max(created_at), '1970-01-01')::text from quiz_attempts   where user_id = $1) || ':' ||
+         (select coalesce(count(*), 0) from notifications where user_id = $1)::text || ':' ||
+         (select coalesce(count(*), 0) from messages where user_id = $1)::text as revision,
          (select count(*) from lesson_progress where user_id = $1)::int as lecons,
          (select count(*) from video_state     where user_id = $1)::int as videos,
          (select count(*) from quiz_attempts   where user_id = $1)::int as quiz,
          (select count(*) from submissions     where user_id = $1)::int as depots,
          (select count(*) from enrollments     where user_id = $1)::int as cours,
+         (select count(*) from notifications   where user_id = $1)::int as notifs,
          to_char(now(), 'YYYY-MM-DD"T"HH24:MI:SS') as jour`,
       [id]
     );
@@ -50,6 +53,7 @@ export async function GET(req: Request) {
       quiz: row ? row.quiz : 0,
       depots: row ? row.depots : 0,
       cours: row ? row.cours : 0,
+      notifs: row ? row.notifs : 0,
       serveur: (row && row.jour) || '',
       utilisateur: a.session.user.email
     });

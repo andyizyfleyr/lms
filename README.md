@@ -148,7 +148,7 @@ cosmetilab/
 |---|---|
 | Assemblage du site (`build.js`) | 12 contrôles d'intégrité · 1 427 Ko |
 | Contrôles statiques (`verify.js`) | **15 OK / 0** |
-| Suite navigateur (Chromium mobile) | **36 OK / 0** sans API · **66 OK / 0** avec l'API (paywall, avatar, appareils, activité réelle) |
+| Suite navigateur (Chromium mobile) | **38 OK / 0** sans API · **73 OK / 0** avec l'API (paywall, avatar, appareils, activité réelle, synchronisation par compte) |
 | Suite comptes et temps réel | **26 OK / 0** (écran d'entrée, inscription, données séparées, mise à jour automatique, notation) |
 | Paiement de bout en bout (`npm --prefix api run paie:verif`) | **23 OK / 0** (catalogue, verrous, offre, abonnement, webhook signé, rejeu) |
 | Test de fumée de l'API (`npm run api:smoke`) | **38 OK / 0** |

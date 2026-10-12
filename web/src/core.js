@@ -833,8 +833,11 @@ PAGES.badges = {
   refresh(el){ paintBadges($('.b-grid', el)); }
 };
 function notification(type, t, b, go){
-  S.notifs.unshift({id:'n' + Date.now(), type:type, t:t, b:b, min:0, lu:0, go:go || []});
+  const n = {id:'n' + Date.now(), type:type, t:t, b:b, min:0, lu:0, go:go || []};
+  S.notifs.unshift(n);
   persist(); updateNotifBadge();
+  /* la même notification est enregistrée sur le compte (tous les appareils) */
+  if (window.LHSYNC2 && window.LHSYNC2.pousserNotification) window.LHSYNC2.pousserNotification(n);
 }
 
 /* ------------------------------------------------------------

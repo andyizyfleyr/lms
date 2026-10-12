@@ -318,6 +318,8 @@ const ACTIONS = {
       id:'m' + Date.now(), a:S.profile.nom, role:'Vous', ini:initials(S.profile.nom), acc:'amber', min:0, txt:txt, likes:0, me:1
     }]);
     persist();
+    /* le message rejoint la discussion du compte : tous les appareils le voient */
+    if (window.LHSYNC2 && window.LHSYNC2.publierMessage) window.LHSYNC2.publierMessage(cid, txt);
     notification('message', 'Message publié', 'Votre message sur « ' + (coursById(cid) || {}).titre + ' » a été envoyé.', ['cours', cid, {tab:'discussion'}]);
     refreshUI();
     const el = $('.page[data-page="cours"]');

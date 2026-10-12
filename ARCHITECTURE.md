@@ -179,7 +179,7 @@ sert de filet. Quatre tables : `orders`, `course_access`, `subscriptions`, `paym
 définitif, un abonnement ouvre tous les cours jusqu'à `current_period_end`. Les rôles `admin` et `enseignant`
 sont exemptés. Côté application : `web/src/paiement.js` (cadenas, prix, écran « Abonnement & achats »).
 
-**Profil et accueil (v2).** `web/src/profil.js` remplace ce qui était simulé : sélecteur d'avatar (12 visuels,
+**Profil et accueil (v2).** `web/src/profil.js · src/sync2.js` remplace ce qui était simulé : sélecteur d'avatar (12 visuels,
 gardés par compte et synchronisés via `settings.avatar`), vrai changement de mot de passe, liste réelle des
 appareils connectés (fermeture à distance, `DELETE /api/auth/devices`), héros « Reprendre » calculé sur le cours
 réellement commencé, bloc « Activité récente » alimenté par `GET /api/activite`. Aucun texte de démonstration

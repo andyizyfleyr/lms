@@ -1,6 +1,6 @@
 import { q, q1, exec } from '@/lib/db';
 import { sessionFrom } from '@/lib/auth';
-import { auth, ok, parseBody, OPTIONS, handler } from '@/lib/http';
+import { auth, ok, parseBody, fail, forbidden, OPTIONS, handler } from '@/lib/http';
 import { notification } from '@/lib/validation';
 
 export const runtime = 'nodejs';
@@ -28,18 +28,26 @@ export async function GET(req: Request) {
   });
 }
 
-/** POST /api/notifications — publier une notification (enseignant / admin). */
+/** POST /api/notifications — publier une notification.
+ *  Enseignant/admin : peut viser tout le monde ou un élève précis.
+ *  Tout compte connecté : enregistre la notification sur SON propre compte
+ *  (c'est ainsi que l'historique reste identique sur tous ses appareils). */
 export async function POST(req: Request) {
   return handler(async () => {
-    const a = await auth(req, ['enseignant', 'admin']);
+    const a = await auth(req);
     if ('error' in a) return a.error;
     const parsed = await parseBody(req, notification);
     if ('error' in parsed) return parsed.error;
     const n = parsed.data;
+    const moi = a.session.user.id;
+    const encadre = a.session.user.role === 'enseignant' || a.session.user.role === 'admin';
+    const pourQui = n.toutLeMonde ? null : (n.userId ?? null);
+    if (!encadre && (n.toutLeMonde || (pourQui !== null && pourQui !== moi))) return forbidden();
+    const cible = encadre ? pourQui : moi;
     const row = await q1(
       `insert into notifications (user_id, titre, texte, ico, kind, ref_id)
        values ($1, $2, $3, $4, $5, $6) returning *`,
-      [n.toutLeMonde ? null : (n.userId ?? null), n.titre, n.texte, n.ico, n.kind, n.refId]
+      [cible, n.titre, n.texte, n.ico, n.kind, n.refId]
     );
     return ok({ notification: row }, 201);
   });

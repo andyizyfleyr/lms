@@ -104,7 +104,7 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
   /* hôtes autorisés : le site testé lui-même (origine courante) et le serveur local des tests */
   const HOTES_LOCAUX = new Set(['127.0.0.1', 'localhost', (() => { try { return new URL(site.url).hostname; } catch (e) { return ''; } })()]);
   const erreurs = [], externes = new Set(), requetes = [];
-  page.on('pageerror', e => erreurs.push(String(e.message || e)));
+  page.on('pageerror', e => { erreurs.push(String((e && e.message) || e)); if (process.env.LEARNHUB_TRACE) console.log('\n   ⛔ JS : ' + e.message + '\n      ' + String(e.stack || '').split('\n').slice(1,4).join('\n      ')); });
   page.on('console', m => {
     if (m.type() !== 'error') return;
     const t = m.text();
@@ -131,6 +131,8 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
   titre('A. Chargement (fichier unique)');
   await page.goto(SITE_EXTERNE ? site.url + '/' : site.url + '/index.html', { waitUntil: 'load' });
   await page.waitForFunction(() => !!(window.APPX && window.LHSYNC), null, { timeout: 20000 });
+  /* le site de test répond sur un port aléatoire : l'API réelle est branchée explicitement */
+  if (API) await page.evaluate(u => { try { localStorage.setItem('lh_api', u); } catch (e) {} }, API);
 
   test('titre de la page', /CosmétiLab/i.test(await page.title()), await page.title());
   test('modules applicatifs exposés', await page.evaluate(() => !!(window.APPX && window.LHSYNC && window.APPX.PAGES.cours)));
@@ -689,6 +691,71 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
     }
   } else {
     console.log('\nℹ️  Test de synchronisation ignoré (définissez LEARNHUB_API_URL pour l\'activer).');
+  }
+
+
+  /* ============ SYNCHRONISATION PAR COMPTE (V2) ============ */
+  if (API) {
+    titre('Synchronisation par compte');
+    const lire = (chemin, jeton) => page.evaluate(async ({ u, c, j }) => {
+      const r = await fetch(u + c, { headers: j ? { Authorization: 'Bearer ' + j } : {}, cache: 'no-store' });
+      const x = await r.json();
+      return x;
+    }, { u: API, c: chemin, j: jeton });
+
+    /* ce que l'utilisateur fait dans l'application doit exister sur son compte */
+    const jeton = await page.evaluate(() => localStorage.getItem('lh_token'));
+    const cours = await page.evaluate(() => {
+      const premier = (window.APPX.COURS || [])[0];
+      return premier ? premier.id : 'c1';
+    });
+
+    await page.evaluate(c => window.APPX.notification('cours', 'Contrôle de synchro', 'Créée pendant la suite de tests', ['cours', c]), cours);
+    await dormir(2200);
+    const notifs = await lire('/api/notifications', jeton);
+    const listeNotifs = (notifs && notifs.data && notifs.data.notifications) || [];
+    test('notification créée dans l\'app enregistrée sur le compte',
+         listeNotifs.some(n => n.titre === 'Contrôle de synchro'),
+         listeNotifs.length + ' notification(s) sur le compte');
+
+    const texteTest = 'Message de contrôle ' + Date.now();
+    await page.evaluate(async ({ c, t }) => { await window.LHSYNC2.publierMessage(c, t); }, { c: cours, t: texteTest });
+    await dormir(2000);
+    const fil = await lire('/api/courses/' + cours + '/messages', jeton);
+    const messages = (fil && fil.data && fil.data.messages) || [];
+    test('message publié dans l\'application visible sur le compte',
+         messages.some(m => m.contenu === texteTest),
+         messages.length + ' message(s) dans la discussion');
+
+    await page.evaluate(async c => { await window.LHSYNC2.enregistrerNote(c, 'Note de contrôle de synchro.'); }, cours);
+    await dormir(1600);
+    const notes = await lire('/api/notes', jeton);
+    const mesNotes = (notes && notes.data && notes.data.notes) || [];
+    test('note de cours enregistrée sur le compte',
+         mesNotes.some(n => /Note de contrôle de synchro/.test(n.contenu || '')),
+         mesNotes.length + ' note(s) sur le compte');
+
+    await page.evaluate(async () => { await window.LHSYNC2.enregistrerReglages({ theme: 'sombre' }); });
+    await dormir(1500);
+    const reglages = await lire('/api/settings', jeton);
+    test('préférence de thème enregistrée sur le compte',
+         !!(reglages && reglages.data && reglages.data.reglages && reglages.data.reglages.theme === 'sombre'),
+         'thème serveur : ' + ((reglages.data && reglages.data.reglages) || {}).theme);
+
+    await page.evaluate(async c => { await window.LHSYNC2.envoyerTelechargement({ id: 'dl-test', ref: c, t: 'Contrôle hors-ligne', st: 'done' }); }, cours);
+    await dormir(1600);
+    const dl = await lire('/api/downloads', jeton);
+    const listeDl = (dl && dl.data && dl.data.telechargements) || [];
+    test('téléchargement enregistré sur le compte', listeDl.length >= 1, listeDl.length + ' téléchargement(s)');
+
+    const avantFil = await page.evaluate(async c => {
+      window.APPX.S.disc[c] = [];
+      await window.LHSYNC2.tirerDiscussion(c);
+      return (window.APPX.S.disc[c] || []).length;
+    }, cours);
+    test('discussion rapatriée depuis le serveur sans recharger', avantFil >= 1, avantFil + ' message(s) rapatrié(s)');
+  } else {
+    console.log('\nℹ️  Synchronisation par compte ignorée (définissez LEARNHUB_API_URL pour l\'activer).');
   }
 
   /* ============ fin ============ */
