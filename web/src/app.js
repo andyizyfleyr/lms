@@ -1,62 +1,19 @@
 ;
 
-const COURS = [
-  {id:'c1', titre:'Développement Web Full-Stack', cat:'Développement', prof:'M. Kouassi', lecon:12, total:24, prog:62, ico:'code',     img:'code',      acc:'purple', statut:'encours', fav:true,  duree:'12 min'},
-  {id:'c2', titre:'UI/UX Design & Material 3',    cat:'Design',       prof:'Mme Adjovi',  lecon:8,  total:18, prog:44, ico:'layers',   img:'design',    acc:'blue',   statut:'encours', fav:true,  duree:'25 min'},
-  {id:'c3', titre:'Data Science avec Python',     cat:'Data',         prof:'Dr. Bio',     lecon:15, total:20, prog:75, ico:'chart',    img:'data',      acc:'green',  statut:'encours', fav:false, duree:'18 min'},
-  {id:'c4', titre:'Marketing Digital & Réseaux',  cat:'Business',     prof:'M. Tossou',   lecon:4,  total:16, prog:25, ico:'bullhorn', img:'marketing', acc:'amber',  statut:'encours', fav:false, duree:'9 min'},
-  {id:'c5', titre:'Anglais professionnel B2',     cat:'Langues',      prof:'Ms. Clark',   lecon:20, total:20, prog:100,ico:'globe',    img:'anglais',   acc:'pink',   statut:'termine', fav:true,  duree:'—'},
-  {id:'c6', titre:'Cybersécurité — Fondamentaux', cat:'Sécurité',     prof:'M. Sanni',    lecon:0,  total:12, prog:0,  ico:'shield',   img:'cyber',     acc:'teal',   statut:'avenir',  fav:false, duree:'30 min'}
-];
-
-/* ============================================================
-   TUTORIELS YOUTUBE — ID, durées, vues et chaînes vérifiés
-   (API oEmbed + pages publiques YouTube)
-   ============================================================ */
-const VIDEOS = [
-  {yt:'5IcZPL-zJYc', cours:'c4', titre:'Formation Marketing Digital : le cours complet',       chaine:'Ludo Salenne',              duree:6371,  vues:853817, img:'marketing', prog:0},
-  {yt:'VLr0mTzYfRE', cours:'c6', titre:'Cybersécurité : guide complet pour démarrer',           chaine:'Techno',                    duree:1057,  vues:503575, img:'cyber',     prog:0},
-  {yt:'iyoXejosxGg', cours:'c5', titre:'Learn Business English — conversation & vocabulary',    chaine:'Shaw English Online',       duree:6325,  vues:411346, img:'anglais',   prog:100},
-  {yt:'zZkNOdBWgFQ', cours:'c3', titre:'Pandas Python — introduction et analyse du Titanic',    chaine:'Machine Learnia',           duree:1049,  vues:296829, img:'data',      prog:70},
-  {yt:'h_JYW2hdI8U', cours:'c2', titre:'Everything you need to know about Material Design 3',  chaine:'Stevdza-San',               duree:1465,  vues:134508, img:'design',    prog:0},
-  {yt:'7nrhTdS7dHg', cours:'c2', titre:'Material 3 : du design au déploiement',                 chaine:'Flutter',                   duree:970,   vues:106907, img:'design',    prog:0},
-  {yt:'syb15o27GEE', cours:'c6', titre:'Débuter le hacking éthique et la cybersécurité',        chaine:'Fransosiche',               duree:1214,  vues:63762,  img:'cyber',     prog:0},
-  {yt:'agj8_3xpuYI', cours:'c1', titre:'Les bases de JavaScript — tuto débutant',               chaine:'Bertrand . Tech',           duree:3754,  vues:44254,  img:'code',      prog:12},
-  {yt:'LwkWwxg10IU', cours:'c3', titre:'Python, NumPy et Pandas pour la Data Science',          chaine:'J.A DATATECH CONSULTING',   duree:21916, vues:40411,  img:'data',      prog:0},
-  {yt:'asN3B33wOzo', cours:'c2', titre:'Prototyper un FAB Material 3 sur Figma',                chaine:'The indieDev',              duree:1409,  vues:19967,  img:'design',    prog:0},
-  {yt:'ldxt9FNUc50', cours:'c1', titre:'Apprendre JavaScript en 1 h — cours complet débutant',  chaine:'Comment Coder',             duree:3740,  vues:12304,  img:'code',      prog:45},
-  {yt:'vzIEBqBexf4', cours:'c5', titre:"18 mots d'anglais des affaires à connaître",            chaine:'Anglais Avec un Anglophone',duree:1247,  vues:9927,   img:'anglais',   prog:0},
-  {yt:'3WFYTiHi5TU', cours:'c4', titre:'Construire une stratégie réseaux sociaux en 7 étapes',  chaine:'Metricool en français',     duree:531,   vues:2919,   img:'marketing', prog:30}
-];
-
-const ECHEANCES = [
-  {titre:'Quiz — Les composants Material 3', cours:'UI/UX Design & Material 3', quand:"Aujourd'hui", heure:'18:00', niveau:'urgent', ico:'task', acc:'purple', offset:0},
-  {titre:'Projet — Portfolio responsive',    cours:'Développement Web Full-Stack', quand:'Demain', heure:'23:59', niveau:'soon', ico:'upload', acc:'blue', offset:1},
-  {titre:'Devoir — Régression linéaire',     cours:'Data Science avec Python', quand:'Vendredi', heure:'12:00', niveau:'normal', ico:'chart', acc:'green', offset:4}
-];
-
-const SESSIONS = [
-  {jour:0, heure:'09:00', titre:'Live — Composants Material 3', type:'Visioconférence', duree:'1 h 30', salle:'Salle virtuelle A', tags:['Live','UI/UX'], acc:'purple', ico:'video'},
-  {jour:0, heure:'14:00', titre:'Atelier — Maquette responsive', type:'Présentiel', duree:'2 h', salle:'Amphi 2 · Calavi', tags:['Atelier'], acc:'blue', ico:'grid'},
-  {jour:1, heure:'10:30', titre:'Cours — Hooks React avancés', type:'Live', duree:'1 h', salle:'Salle virtuelle B', tags:['Dev','React'], acc:'green', ico:'code'},
-  {jour:2, heure:'16:00', titre:'Tutorat Data Science', type:'Tutorat', duree:'45 min', salle:'Visio individuelle', tags:['Tutorat'], acc:'amber', ico:'chart'},
-  {jour:4, heure:'11:00', titre:'Examen blanc — Anglais B2', type:'Évaluation', duree:'2 h', salle:"Centre d'examen", tags:['Examen'], acc:'pink', ico:'globe'},
-  {jour:6, heure:'18:30', titre:'Q&A communauté LearnHub', type:'Discussion', duree:'1 h', salle:'Discord LearnHub', tags:['Communauté'], acc:'teal', ico:'chat'}
-];
-
-const BADGES = [
-  {nom:'Marathonien', desc:"7 jours d'affilée", ico:'fire',   acc:'amber',  obt:true},
-  {nom:'Perfectionniste', desc:'5 quiz parfaits', ico:'star',   acc:'blue',   obt:true},
-  {nom:'Assidu', desc:'20 leçons ce mois', ico:'school', acc:'green',  obt:false},
-  {nom:'Mentor', desc:'10 réponses forum', ico:'chat',   acc:'purple', obt:false}
-];
-
 const JOURS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 const MOIS  = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
 
 /* ============================================================
    HELPERS
    ============================================================ */
+/* Statistiques de cours calculées en direct depuis la progression réelle */
+const coursStats = cid => {
+  const A = window.APPX;
+  if (!A) return {fait:0, total:0, pct:0};
+  const total = A.totalLecons(cid), fait = A.leconsFaites(cid);
+  return {fait:fait, total:total, pct:total ? Math.round(fait / total * 100) : 0};
+};
+
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -83,10 +40,16 @@ function hydrate(root = document){
     if (src && !el.getAttribute('src')) el.setAttribute('src', src);
   });
 }
-/* localStorage tolérant : l'aperçu Arena tourne en origine opaque */
+/* localStorage tolérant : l'aperçu Arena tourne en origine opaque.
+   Chaque compte possède son propre espace : les clés sont préfixées par
+   l'identifiant du compte actif (lh:u:<id>:<clé>) — deux personnes sur le
+   même téléphone ne partagent donc jamais leurs données. */
+const COMPTE_ACTIF = (() => { try { return JSON.parse(localStorage.getItem('lh:compte') || 'null'); } catch (e) { return null; } })();
+const PREFIXE_COMPTE = 'lh:u:' + ((COMPTE_ACTIF && COMPTE_ACTIF.id) || 'invite') + ':';
 const store = {
-  get(k, d){ try { const v = localStorage.getItem('lh_' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
-  set(k, v){ try { localStorage.setItem('lh_' + k, JSON.stringify(v)); } catch (e) {} }
+  prefixe: PREFIXE_COMPTE,
+  get(k, d){ try { const v = localStorage.getItem(PREFIXE_COMPTE + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v){ try { localStorage.setItem(PREFIXE_COMPTE + k, JSON.stringify(v)); } catch (e) {} }
 };
 
 /* ---------- Snackbar ---------- */
@@ -154,12 +117,12 @@ function hcardHTML(c){
     <div class="hcard__body">
       <h3>${esc(c.titre)}</h3>
       <div class="hcard__meta">
-        <span>Leçon ${c.lecon}/${c.total}</span>
-        <span class="prog-label">${c.prog} %</span>
+        <span>Leçon ${coursStats(c.id).fait}/${coursStats(c.id).total}</span>
+        <span class="prog-label">${coursStats(c.id).pct} %</span>
       </div>
       <div class="lp lp--sm" role="progressbar" aria-valuenow="${c.prog}" aria-valuemin="0" aria-valuemax="100">
         <div class="lp__track"></div>
-        <div class="lp__bar" data-prog="${c.prog}"></div>
+        <div class="lp__bar" data-prog="${coursStats(c.id).pct}"></div>
         <div class="lp__stop"></div>
       </div>
     </div>
@@ -198,12 +161,12 @@ function courseRowHTML(c){
     </span>
     <span class="course-card__main">
       <h3>${esc(c.titre)}</h3>
-      <p>${esc(c.prof)} · ${c.lecon}/${c.total} leçons</p>
+      <p>${esc(c.prof)} · ${coursStats(c.id).total} leçons</p>
       <span class="course-card__row">
         <span class="lp" role="progressbar" aria-valuenow="${c.prog}" aria-valuemin="0" aria-valuemax="100">
-          <span class="lp__track"></span><span class="lp__bar" data-prog="${c.prog}"></span><span class="lp__stop"></span>
+          <span class="lp__track"></span><span class="lp__bar" data-prog="${coursStats(c.id).pct}"></span><span class="lp__stop"></span>
         </span>
-        <b>${c.prog} %</b>
+        <b>${coursStats(c.id).pct} %</b>
       </span>
     </span>
     <span class="course-card__more"><svg class="icon icon--18"><use href="#ic-more"/></svg></span>

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ============================================================
-   Suite de tests navigateur — LearnHub (web/index.html)
+   Suite de tests navigateur — CosmétiLab (web/index.html)
 
    Elle ouvre l'application dans un Chromium mobile réel (390 × 844),
    la pilote comme un utilisateur (tap sur les onglets, ouverture d'une
@@ -24,7 +24,8 @@ const WEB = path.join(__dirname, '..');
 const PAGE = path.join(WEB, 'index.html');
 const API = (process.env.LEARNHUB_API_URL || '').replace(/\/+$/, '');
 const SITE_EXTERNE = (process.env.LEARNHUB_SITE_URL || '').replace(/\/+$/, '');   // ex. http://127.0.0.1:3000 (site + API même domaine)
-const COMPTE = { email: process.env.LEARNHUB_COMPTE || 'amina@learnhub.bj', mdp: process.env.LEARNHUB_MDP || 'demo1234' };
+const COMPTE  = { email: process.env.LEARNHUB_COMPTE || 'amina@cosmetilab.bj', mdp: process.env.LEARNHUB_MDP || 'demo1234' };
+const FORMATEUR = { email: process.env.LEARNHUB_PROF || 'awa@cosmetilab.bj', mdp: process.env.LEARNHUB_PROF_MDP || 'prof1234' };
 
 /* ---------- playwright-core : on cherche sans imposer d'installation ---------- */
 function chargerPlaywright() {
@@ -84,6 +85,16 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
     viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true,
     locale: 'fr-FR', timezoneId: 'Africa/Porto-Novo'
   });
+  /* Depuis cette version, l'application ouvre un écran de compte au premier
+     lancement. Pour les contrôles d'interface, on démarre dans un espace
+     « invité » (données locales) : l'écran d'entrée est testé à part, dans
+     tests/comptes.js. */
+  await contexte.addInitScript(() => {
+    try {
+      localStorage.setItem('lh:compte', JSON.stringify({ id: 'invite', nom: 'Invité', email: '', role: 'invite', token: '', depuis: Date.now() }));
+    } catch (e) {}
+  });
+
   const page = await contexte.newPage();
 
   /* hôtes autorisés : le site testé lui-même (origine courante) et le serveur local des tests */
@@ -94,7 +105,11 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
     if (m.type() !== 'error') return;
     const t = m.text();
     /* le test hors-ligne coupe le réseau volontairement : ces messages sont attendus */
-    if (/Failed to load resource|net::ERR_|ERR_INTERNET_DISCONNECTED|ERR_NAME_NOT_RESOLVED/.test(t)) return;
+    if (/Failed to load resource|net::ERR_|ERR_INTERNET_DISCONNECTED|ERR_NAME_NOT_RESOLVED|Permissions policy violation/.test(t)) return;
+    /* seules les erreurs de NOTRE page comptent : les iframes YouTube tierces
+       émettent leurs propres messages (politique de permissions, etc.) */
+    const ou = m.location && m.location();
+    if (ou && ou.url && site.url && ou.url.indexOf(site.url) !== 0 && ou.url.indexOf('file:') !== 0) return;
     erreurs.push('console : ' + t);
   });
   page.on('request', r => {
@@ -105,7 +120,7 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
     } catch (_) {}
   });
 
-  console.log('LearnHub — suite navigateur · ' + (SITE_EXTERNE ? 'URL en ligne ' + site.url : 'index.html ' + taille + ' Ko') +
+  console.log('CosmétiLab — suite navigateur · ' + (SITE_EXTERNE ? 'URL en ligne ' + site.url : 'index.html ' + taille + ' Ko') +
               ' · ' + new Date().toLocaleString('fr-FR'));
 
   /* ============ A. chargement du fichier unique ============ */
@@ -113,7 +128,7 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
   await page.goto(SITE_EXTERNE ? site.url + '/' : site.url + '/index.html', { waitUntil: 'load' });
   await page.waitForFunction(() => !!(window.APPX && window.LHSYNC), null, { timeout: 20000 });
 
-  test('titre de la page', /LearnHub/i.test(await page.title()), await page.title());
+  test('titre de la page', /CosmétiLab/i.test(await page.title()), await page.title());
   test('modules applicatifs exposés', await page.evaluate(() => !!(window.APPX && window.LHSYNC && window.APPX.PAGES.cours)));
   test('aucune erreur JavaScript', erreurs.length === 0, erreurs.slice(0, 2).join(' | '));
   const largeur = await page.evaluate(() => document.documentElement.scrollWidth);
@@ -296,8 +311,11 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
   const themeApres = await page.evaluate(() => document.documentElement.dataset.theme || '');
   test('réglage conservé après rechargement', /dark/.test(themeApres), 'thème = ' + themeApres);
 
-  const memoire = await page.evaluate(() => Object.keys(localStorage).filter(k => k.startsWith('lh_')));
-  test('progression enregistrée sur l\'appareil', memoire.length >= 3, memoire.join(', '));
+  const memoire = await page.evaluate(() => Object.keys(localStorage).filter(k => k.startsWith('lh:u:') || k.startsWith('lh_')));
+  test('progression enregistrée dans l\'espace du compte', memoire.length >= 3, memoire.join(', '));
+  const espace = await page.evaluate(() => Object.keys(localStorage).filter(k => k.startsWith('lh:u:')));
+  test('données rangées par utilisateur (préfixe lh:u:<compte>:)', espace.length >= 3 && espace.every(k => k.split(':').length >= 4),
+       espace.slice(0, 3).join(', '));
 
   const syncUI = await page.evaluate(async () => {
     await window.LHSYNC.ouvrirUI();

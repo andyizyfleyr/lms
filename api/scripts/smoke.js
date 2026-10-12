@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /* ============================================================
-   Test de fumée de l'API LearnHub — vérifie l'essentiel, y compris
+   Test de fumée de l'API CosmétiLab — vérifie l'essentiel, y compris
    contre l'API déployée (Vercel), sans rien installer d'autre que Node.
 
    Utilisation :
      node scripts/smoke.js                                     # l'API locale (port 3000)
-     node scripts/smoke.js https://learnhub-api.vercel.app     # l'API en production
+     node scripts/smoke.js https://lms-lovat-five.vercel.app     # l'API en production
      BASE=https://… node scripts/smoke.js
-     COMPTE=adjovi@learnhub.bj MDP=prof1234 node scripts/smoke.js
+     COMPTE=awa@cosmetilab.bj MDP=prof1234 node scripts/smoke.js
 
    Ce qu'il contrôle : santé + base, connexion (et refus d'un mauvais mot de
    passe), lecture des contenus, progression, écriture (leçon terminée, note,
@@ -15,7 +15,7 @@
    le compte de démonstration, donc sans rien casser d'important.
    ============================================================ */
 const BASE = (process.argv[2] || process.env.BASE || 'http://127.0.0.1:3000').replace(/\/+$/, '');
-const COMPTE = process.env.COMPTE || 'amina@learnhub.bj';
+const COMPTE = process.env.COMPTE || 'amina@cosmetilab.bj';
 const MDP = process.env.MDP || 'demo1234';
 
 let ok = 0, ko = 0, jeton = null;
@@ -93,6 +93,24 @@ async function appel(methode, chemin, corps, avecJeton = true) {
   if (video) {
     test('aimer une vidéo', (await appel('PATCH', '/api/videos/' + video.id + '/progress', { liked: true, progress: 10 })).corps?.ok === true, video.id);
   }
+  /* --- temps réel, inscription, séparation des données, vue formateur --- */
+  const sync = await appel('GET', '/api/sync');
+  test('/api/sync renvoie une révision', typeof sync.corps?.data?.revision === 'string' && sync.corps.data.revision.length > 0,
+       sync.corps?.data ? 'révision ' + String(sync.corps.data.revision).slice(0, 24) + '… · ' + sync.corps.data.lecons + ' leçons' : '');
+
+  const neuf = 'verif-' + Date.now() + '@cosmetilab.bj';
+  const creation = await appel('POST', '/api/auth/register', { nom: 'Vérification Automatique', email: neuf, motDePasse: 'verif1234', ville: 'Abomey-Calavi', role: 'enseignant' }, false);
+  test('inscription avec le rôle formateur', creation.corps?.data?.user?.role === 'enseignant',
+       creation.corps?.data?.user ? creation.corps.data.user.email + ' · ' + creation.corps.data.user.role : JSON.stringify(creation.corps).slice(0, 80));
+  if (creation.corps?.data?.token){
+    const t2 = creation.corps.data.token;
+    const suivi = await fetch(BASE + '/api/progress?format=app', { headers: { Authorization: 'Bearer ' + t2 } }).then(r => r.json()).catch(() => null);
+    const nb = suivi && suivi.data && suivi.data.lh_lessons ? Object.keys(suivi.data.lh_lessons).length : 0;
+    test('un nouveau compte démarre avec ses propres données (vides)', nb === 0, nb + ' leçon(s) au compteur');
+    const copies = await fetch(BASE + '/api/submissions', { headers: { Authorization: 'Bearer ' + t2 } }).then(r => r.json()).catch(() => null);
+    test('un formateur voit les copies de tous les apprenants', copies?.data?.encadrant === true, (copies?.data?.total ?? '?') + ' copie(s) visible(s)');
+  }
+
   const note = await appel('POST', '/api/notes', { courseId: idCours, titre: 'Vérification automatique', contenu: 'Note créée par scripts/smoke.js le ' + new Date().toISOString() });
   test('créer une note', note.corps?.ok === true, note.corps?.error?.message || '');
   const idNote = note.corps?.data?.note?.id;

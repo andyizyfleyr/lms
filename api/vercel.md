@@ -25,8 +25,8 @@ Ce dossier est **le projet Vercel** (un seul, qui sert aussi l'application) : Ne
 
 | URL | Contenu | Origine |
 |---|---|---|
-| `/` | l'application LearnHub (mobile) | `api/public/index.html` (copie de `web/index.html`) |
-| `/api/*` | l'API JSON (43 routes) | `src/app/api/**/route.ts` |
+| `/` | l'application CosmétiLab (mobile) | `api/public/index.html` (copie de `web/index.html`) |
+| `/api/*` | l'API JSON (44 routes) | `src/app/api/**/route.ts` |
 | `/api-doc` | documentation des routes | `src/app/api-doc/page.tsx` |
 
 Le renvoi de `/` vers le fichier statique est déclaré dans `next.config.mjs` (`rewrites`) : l'application
@@ -68,7 +68,7 @@ curl https://TON-API.vercel.app/api/health
 
 curl -X POST https://TON-API.vercel.app/api/auth/login \
      -H 'Content-Type: application/json' \
-     -d '{"email":"amina@learnhub.bj","motDePasse":"demo1234"}'
+     -d '{"email":"amina@cosmetilab.bj","motDePasse":"demo1234"}'
 # { "ok": true, "data": { "token": "…", "user": { … } } }
 ```
 
@@ -82,7 +82,7 @@ Ensuite, relie le site : *Paramètres → Synchronisation serveur* (ou `?api=htt
 
 ## Notes techniques
 
-- Les **43 routes** sont en `runtime = 'nodejs'` et `dynamic = 'force-dynamic'` : elles ne sont jamais
+- Les **44 routes** sont en `runtime = 'nodejs'` et `dynamic = 'force-dynamic'` : elles ne sont jamais
   mises en cache statique, la progression est toujours lue en direct.
 - **CORS** : `Access-Control-Allow-Origin: *` (l'appel vient d'un autre domaine), avec les en-têtes
   définis dans `next.config.mjs` et le pré-vol `OPTIONS` exporté par chaque route via `src/lib/http.ts`.

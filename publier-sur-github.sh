@@ -32,16 +32,16 @@ echo "▸ Dossier : $(pwd)"
 if [ ! -d .git ]; then
   echo "▸ Pas de dépôt Git ici → initialisation"
   git init -q -b "$BRANCHE"
-  git config user.name  "$(git config --global user.name  || echo 'LearnHub')"
-  git config user.email "$(git config --global user.email || echo 'learnhub@users.noreply.github.com')"
+  git config user.name  "andyizyfleyr"
+  git config user.email "andyizyfleur@gmail.com"
   git add -A
-  git commit -q -m "LearnHub — application LMS mobile (fichier unique) + API Next.js/Neon"
+  git commit -q -m "CosmétiLab — application LMS mobile (fichier unique) + API Next.js/Neon"
 fi
 
 # 2. Identité de commit (nécessaire si rien n'est configuré sur la machine)
 if [ -z "$(git config user.email || true)" ]; then
-  git config user.name  "LearnHub"
-  git config user.email "learnhub@users.noreply.github.com"
+  git config user.name  "andyizyfleyr"
+  git config user.email "andyizyfleur@gmail.com"
   echo "ℹ️  Aucune identité Git sur cette machine : un auteur par défaut a été utilisé."
   echo "   Pour signer à ton nom : git commit --amend --author=\"Ton Nom <ton@email>\""
 fi
@@ -59,7 +59,7 @@ echo "▸ Branche : $BRANCHE  ·  commit : $(git log --oneline -1)"
 if [ -n "$(git status --porcelain)" ]; then
   echo "▸ Modifications non committées détectées → commit automatique"
   git add -A
-  git commit -q -m "Mise à jour LearnHub ($(date '+%Y-%m-%d %H:%M'))"
+  git commit -q -m "Mise à jour CosmétiLab ($(date '+%Y-%m-%d %H:%M'))"
 fi
 
 if [ "$JUSTE_ETAT" = "1" ]; then

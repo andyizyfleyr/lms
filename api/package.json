@@ -1,8 +1,8 @@
 {
-  "name": "learnhub-api",
+  "name": "cosmetilab-api",
   "version": "1.0.0",
   "private": true,
-  "description": "API Next.js + Neon pour LearnHub (LMS mobile)",
+  "description": "API Next.js + Neon pour CosmétiLab (LMS mobile)",
   "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build",

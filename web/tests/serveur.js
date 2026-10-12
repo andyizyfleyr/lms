@@ -60,7 +60,7 @@ function demarrer(racine, port = 0, hote = '127.0.0.1') {
 if (require.main === module) {
   const port = Number(process.argv[2] || 8000);
   demarrer(path.join(__dirname, '..'), port, '0.0.0.0').then(s => {
-    console.log('Aperçu LearnHub : http://localhost:' + s.port + '/index.html');
+    console.log('Aperçu CosmétiLab : http://localhost:' + s.port + '/index.html');
     console.log('(Ctrl+C pour arrêter)');
   });
 }

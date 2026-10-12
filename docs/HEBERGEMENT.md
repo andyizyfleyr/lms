@@ -1,13 +1,13 @@
-# Héberger LearnHub gratuitement
+# Héberger CosmétiLab gratuitement
 
 ## Ce qu'il faut savoir avant de commencer
 
-LearnHub est un **site statique** : un seul fichier HTML qui contient le CSS, le JavaScript et les images (en base64).
+CosmétiLab est un **site statique** : un seul fichier HTML qui contient le CSS, le JavaScript et les images (en base64).
 Conséquences :
 
 - **Aucun serveur, aucune base de données, aucun build** n'est nécessaire.
 - N'importe quel hébergeur statique gratuit fonctionne (Netlify, GitHub Pages, Cloudflare Pages…).
-- Le poids total à envoyer est de **769 Ko** — très en dessous de tous les quotas gratuits.
+- Le poids total à envoyer est de **1 392 Ko** — très en dessous de tous les quotas gratuits.
   Le fichier contient aussi un **extrait vidéo de 24 s** (intégré en MP4/H.264 *et* WebM/VP9, ~190 Ko) : c'est le repli utilisé quand YouTube est injoignable.
 - Les données de progression (leçons, favoris, notes, réponses de quiz) sont stockées **dans le navigateur du visiteur** (`localStorage`), pas sur le serveur. Chaque visiteur a donc sa propre progression.
 
@@ -26,9 +26,9 @@ Dans le dépôt, le site est le dossier **`web/`** :
 | Hébergeur | Compte requis | Difficulté | URL obtenue | HTTPS | Bande passante gratuite |
 |---|---|---|---|---|---|
 | **Netlify Drop** | oui (pour conserver) | ★ | `xxx.netlify.app` | oui | ~100 Go/mois |
-| **GitHub Pages** | oui (GitHub) | ★★ | `pseudo.github.io/learnhub` | oui | ~100 Go/mois |
-| **Cloudflare Pages** | oui | ★★ | `learnhub.pages.dev` | oui | illimitée |
-| **Vercel** | oui | ★★ | `learnhub.vercel.app` | oui | ~100 Go/mois |
+| **GitHub Pages** | oui (GitHub) | ★★ | `pseudo.github.io/cosmetilab` | oui | ~100 Go/mois |
+| **Cloudflare Pages** | oui | ★★ | `cosmetilab.pages.dev` | oui | illimitée |
+| **Vercel** | oui | ★★ | `cosmetilab.vercel.app` | oui | ~100 Go/mois |
 | **Surge.sh** | oui (ligne de commande) | ★★★ | `xxx.surge.sh` | oui | illimitée |
 | **Neocities** | oui | ★ | `pseudo.neocities.org` | oui | 1 Go de stockage |
 
@@ -42,7 +42,7 @@ Dans le dépôt, le site est le dossier **`web/`** :
 2. Glisse le dossier **`deploy-netlify/`** (ou juste le fichier `index.html`) dans la zone de dépôt.
 3. Le site est en ligne immédiatement, à une adresse du type `https://brillant-croquette-1a2b3c.netlify.app`.
 4. Crée un compte gratuit (e-mail ou GitHub) → le site est conservé et tu peux :
-   - le renommer : **Site configuration → Change site name** → `learnhub-lms.netlify.app`
+   - le renommer : **Site configuration → Change site name** → `cosmetilab-lms.netlify.app`
    - mettre à jour : onglet **Deploys → Drag and drop** (re-glisse le fichier)
 
 ## Option 2 — GitHub Pages (URL stable, historique des versions)
@@ -51,24 +51,24 @@ Dans le dépôt, le site est le dossier **`web/`** :
 # dans un dossier contenant index.html (par ex. deploy-netlify/)
 git init
 git add index.html
-git commit -m "LearnHub — dashboard LMS mobile"
+git commit -m "CosmétiLab — dashboard LMS mobile"
 git branch -M main
-git remote add origin https://github.com/TON-COMPTE/learnhub.git
+git remote add origin https://github.com/TON-COMPTE/cosmetilab.git
 git push -u origin main
 ```
 
 Puis dans le navigateur :
 **dépôt → Settings → Pages → Source : « Deploy from a branch » → Branch : `main` / `(root)` → Save**
 
-Adresse au bout de 1 à 2 minutes : **`https://TON-COMPTE.github.io/learnhub/`**
+Adresse au bout de 1 à 2 minutes : **`https://TON-COMPTE.github.io/cosmetilab/`**
 
 Mise à jour : `git add index.html && git commit -m "maj" && git push` (redéploiement automatique).
 
 ## Option 3 — Cloudflare Pages (bande passante illimitée)
 
 1. **https://pages.cloudflare.com** → *Create a project* → *Upload assets*
-2. Glisse le dossier `deploy-netlify/`, donne un nom au projet (`learnhub`)
-3. Adresse : **`https://learnhub.pages.dev`**
+2. Glisse le dossier `deploy-netlify/`, donne un nom au projet (`cosmetilab`)
+3. Adresse : **`https://cosmetilab.pages.dev`**
 
 Le CDN Cloudflare est généralement le plus rapide depuis l'Afrique de l'Ouest.
 
@@ -77,12 +77,12 @@ Le CDN Cloudflare est généralement le plus rapide depuis l'Afrique de l'Ouest.
 ```bash
 npx vercel --prod        # dossier courant = celui qui contient index.html
 ```
-Adresse : `https://learnhub.vercel.app`
+Adresse : `https://cosmetilab.vercel.app`
 
 ## Option 5 — Surge.sh (ligne de commande, sans interface web)
 
 ```bash
-npx surge deploy learnhub-lms.surge.sh
+npx surge deploy cosmetilab-lms.surge.sh
 ```
 Un compte est créé au premier lancement (e-mail + mot de passe demandés dans le terminal).
 
@@ -150,7 +150,7 @@ netlify deploy --prod --dir=.  # publie la nouvelle version
 
 Remplace `index.html` dans le dépôt, puis :
 ```bash
-git add index.html && git commit -m "mise à jour LearnHub" && git push
+git add index.html && git commit -m "mise à jour CosmétiLab" && git push
 ```
 Netlify redéploie automatiquement dès le `push` (onglet **Deploys** pour suivre l'avancement).
 
@@ -171,7 +171,7 @@ Netlify redéploie automatiquement dès le `push` (onglet **Deploys** pour suivr
 ## Backend et synchronisation (facultatif)
 
 L'application fonctionne seule. Si tu veux **retrouver la progression sur tous les appareils**, un
-backend **Next.js + Neon** est prêt dans le dossier **`api/`** (43 routes, 26 tables) :
+backend **Next.js + Neon** est prêt dans le dossier **`api/`** (44 routes, 26 tables) :
 voir `api/README.md` et `api/API.md`, et **`DEPLOIEMENT-GITHUB-VERCEL.md`** pour la mise en ligne.
 
 1. Déploie l'API sur Vercel (projet Vercel avec **Root Directory = `api`**) puis renseigne `DATABASE_URL`.
@@ -191,7 +191,7 @@ Pour un vrai domaine, il en coûte environ 5 à 12 €/an :
 
 1. Acheter le domaine chez un registrar (Namecheap, OVH, Cloudflare Registrar…).
 2. Chez l'hébergeur : **Custom domain** → ajouter le domaine.
-3. Chez le registrar : créer un enregistrement **CNAME** vers l'adresse fournie par l'hébergeur (ex. `learnhub-lms.netlify.app`).
+3. Chez le registrar : créer un enregistrement **CNAME** vers l'adresse fournie par l'hébergeur (ex. `cosmetilab-lms.netlify.app`).
 4. Le certificat HTTPS est émis automatiquement en quelques minutes.
 
 ## À éviter

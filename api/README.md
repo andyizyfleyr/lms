@@ -1,10 +1,10 @@
-# LearnHub API — Next.js + TypeScript + Neon
+# CosmétiLab API — Next.js + TypeScript + Neon
 
-Backend complet du tableau de bord mobile **LearnHub** : authentification, cours, leçons, vidéos,
+Backend complet du tableau de bord mobile **CosmétiLab** : authentification, cours, leçons, vidéos,
 quiz corrigés côté serveur, devoirs et dépôts de fichiers, notes, agenda, notifications, badges,
 statistiques, recherche, réglages et téléchargements hors-ligne.
 
-**43 routes API**, base **PostgreSQL Neon** (26 tables), prêtes pour Vercel.
+**44 routes API**, base **PostgreSQL Neon** (26 tables), prêtes pour Vercel.
 
 Le projet Vercel qui héberge cette API sert aussi l'application mobile : `public/index.html` (copie du
 livrable `web/index.html`) est renvoyé sur `/`, l'API occupe `/api/*` et la documentation `/api-doc`.
@@ -28,9 +28,9 @@ Ouvre <http://localhost:3000/api-doc> : la page liste **tous les points d'entré
 
 | Rôle | E-mail | Mot de passe |
 |---|---|---|
-| Étudiante | `amina@learnhub.bj` | `demo1234` |
-| Formatrice | `adjovi@learnhub.bj` | `prof1234` |
-| Administrateur | `admin@learnhub.bj` | `admin1234` |
+| Apprenante (progression remplie) | `amina@cosmetilab.bj` | `demo1234` |
+| Formatrice (2 copies à noter) | `awa@cosmetilab.bj` | `prof1234` |
+| Administrateur | `admin@cosmetilab.bj` | `admin1234` |
 
 ## 2. Commandes
 
@@ -111,9 +111,9 @@ passage en serverless est transparent. Pense à mettre l'URL obtenue dans l'appl
   ```bash
   npm start                          # puis, dans un autre terminal :
   npm run smoke
-  npm run smoke -- https://learnhub-api.vercel.app   # directement contre la production
+  npm run smoke -- https://lms-lovat-five.vercel.app   # directement contre la production
   ```
 
 - `node scripts/db.js check` : état de la base (tables et volumes).
 - Le jeu d'intégration complet (81 vérifications couvrant en plus les cas d'erreur de chaque route)
-  a été exécuté sur cette version : **81 OK / 0**.
+  a été exécuté sur cette version : **38 OK / 0**.

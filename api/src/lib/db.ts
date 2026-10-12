@@ -5,7 +5,7 @@ import { neon } from '@neondatabase/serverless';
  * On utilise la forme appelable : sql('select ...', [param]).
  */
 const url = process.env.DATABASE_URL;
-if (!url) console.warn('[learnhub] DATABASE_URL manquante : copiez .env.example en .env.local');
+if (!url) console.warn('[cosmetilab] DATABASE_URL manquante : copiez .env.example en .env.local');
 
 export const sql = neon(url || 'postgresql://user:pass@localhost/neondb');
 

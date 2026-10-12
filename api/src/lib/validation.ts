@@ -8,7 +8,10 @@ export const inscription = z.object({
   motDePasse,
   nom: z.string().trim().min(3, '3 caractères minimum').max(80),
   promo: z.string().trim().max(80).optional(),
-  ville: z.string().trim().max(80).optional()
+  ville: z.string().trim().max(80).optional(),
+  /* L'apprenant s'inscrit lui-même comme étudiant ou comme formateur :
+     aucun autre rôle (admin) ne peut être obtenu par ce formulaire. */
+  role: z.enum(['etudiant', 'enseignant']).optional()
 });
 
 export const connexion = z.object({ email, motDePasse: z.string().min(1, 'Mot de passe requis') });

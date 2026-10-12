@@ -28,7 +28,7 @@ const HASH_ADMIN = hashPassword('admin1234');
 const push = s => L.push(s);
 
 push('-- ============================================================');
-push('-- LearnHub — données de démonstration (relançable sans doublon)');
+push('-- CosmétiLab — données de démonstration (relançable sans doublon)');
 push('-- Généré depuis l\'application : cours, modules, vidéos, quiz, devoirs,');
 push('-- ressources, agenda, badges, discussions, notifications, téléchargements.');
 push('-- ============================================================');
@@ -36,14 +36,16 @@ push("create extension if not exists pgcrypto;");
 push('');
 
 /* --- utilisateurs de démonstration -------------------------- */
-push('-- Comptes de démonstration : amina@learnhub.bj / demo1234 (étudiante),');
-push('--                          adjovi@learnhub.bj / prof1234 (formatrice),');
-push('--                          admin@learnhub.bj / admin1234 (administrateur)');
+push('-- Comptes de démonstration : amina@cosmetilab.bj / demo1234 (apprenante),');
+push('--                          awa@cosmetilab.bj / prof1234 (formatrice),');
+push('--                          admin@cosmetilab.bj / admin1234 (administrateur)');
 push(`insert into users (email, password_hash, nom, role, tel, ville, promo, bio, objectif_semaine_h) values
-  ('amina@learnhub.bj', ${q(HASH_AMINA)}, 'Amina Dossou', 'etudiant', '+229 97 00 00 00', 'Abomey-Calavi', 'L3 Informatique', 'Passionnée de développement web et de design d''interface.', 8),
-  ('adjovi@learnhub.bj', ${q(HASH_PROF)}, 'Mme Adjovi', 'enseignant', '', 'Cotonou', '', 'Formatrice UI/UX — Material Design 3.', 4),
-  ('admin@learnhub.bj', ${q(HASH_ADMIN)}, 'Administrateur LearnHub', 'admin', '', 'Cotonou', '', 'Gère les cours, les comptes et les contenus.', 0)
+  ('amina@cosmetilab.bj', ${q(HASH_AMINA)}, 'Amina Dossou', 'etudiant', '+229 97 00 00 00', 'Abomey-Calavi', 'Savonnerie artisanale · promo 2026', 'J''apprends à formuler savons, gels et crèmes pour lancer ma marque.', 8),
+  ('awa@cosmetilab.bj', ${q(HASH_PROF)}, 'Awa Sossou', 'enseignant', '', 'Cotonou', '', 'Formatrice savonnerie à froid — saponification et contrôle qualité.', 4),
+  ('admin@cosmetilab.bj', ${q(HASH_ADMIN)}, 'Administrateur CosmétiLab', 'admin', '', 'Cotonou', '', 'Gère les cours, les comptes et les contenus.', 0)
 on conflict (email) do nothing;`);
+push("-- Les comptes de la version précédente sont retirés.");
+push("delete from users where email like '%@learnhub.bj';");
 push('');
 
 /* --- cours -------------------------------------------------- */
@@ -61,6 +63,17 @@ for (const cid of Object.keys(d.PROGRAMMES)){
     });
   });
 }
+/* L'apprenante de démonstration a déjà bien avancé : les modules 1 et 2 de
+   « Savonnerie à froid », le module 1 de « Gel douche », de « Crème de visage »
+   et de « Cosmétique africaine » sont terminés. Tout nouveau compte, lui,
+   démarre à zéro — les données de chaque utilisateur sont indépendantes. */
+const PLAN_DEMO = { 'c1-m1':1, 'c1-m2':1, 'c2-m1':1, 'c3-m1':1, 'c5-m1':1 };
+const doneLessons = lessons.filter(l => PLAN_DEMO[String(l.id).slice(0, 5)]);
+const FAIT = {}, TOTAL = {};
+lessons.forEach(l => { const cid = String(l.id).split('-')[0]; TOTAL[cid] = (TOTAL[cid] || 0) + 1; });
+doneLessons.forEach(l => { const cid = String(l.id).split('-')[0]; FAIT[cid] = (FAIT[cid] || 0) + 1; });
+const PROG_DEMO = cid => Math.round((FAIT[cid] || 0) / (TOTAL[cid] || 1) * 100);
+
 push(`-- Modules et leçons (${lessons.length})`);
 push('insert into lessons (id, course_id, module_titre, module_ordre, ordre, titre, duree_label, kind, video_id) values');
 push(lessons.map(l => `  (${q(l.id)}, ${q(l.course)}, ${q(l.module)}, ${n(l.mo)}, ${n(l.o)}, ${q(l.titre)}, ${q(l.duree)}, ${q(l.kind)}, ${q(l.video)})`).join(',\n') + '\non conflict (id) do update set titre = excluded.titre, module_titre = excluded.module_titre, duree_label = excluded.duree_label, video_id = excluded.video_id;');
@@ -147,45 +160,57 @@ push(') as v(titre, texte, ico, kind, ref_id, min)');
 push('where not exists (select 1 from notifications n where n.titre = v.titre);');
 push('');
 
+/* --- nettoyage des contenus de l'ancienne version ------------ */
+/* Le seed est relançable : tout contenu qui n'existe plus dans la nouvelle
+   version est retiré (les progressions liées suivent par cascade). */
+push("-- Retrait des contenus qui n'existent plus dans cette version");
+push(`delete from videos where id not in (${d.VIDEOS.map(v => q(v.yt)).join(', ')});`);
+push(`delete from lessons where id not in (${lessons.map(l => q(l.id)).join(', ')});`);
+push(`delete from assignments where id not in (${d.DEVOIRS.map(x => q(x.id)).join(', ')});`);
+push(`delete from quizzes where id not in (${Object.keys(d.QUIZZES).map(q2 => q(q2)).join(', ')});`);
+push(`delete from calendar_sessions where id not in (${d.SESS.map(x => q(x.id)).join(', ')});`);
+push(`delete from badges where id not in (${d.BADGES_DEF.map(x => q(x.id)).join(', ')});`);
+push('');
+
 /* --- état de l'étudiante de démo --------------------------- */
 const u = "u.id";
 push(`-- Progression de l'étudiante de démonstration
-with u as (select id from users where email = 'amina@learnhub.bj')
+with u as (select id from users where email = 'amina@cosmetilab.bj')
 insert into enrollments (user_id, course_id, progress, favori, statut)
 select u.id, v.course_id, v.progress, v.favori, v.statut
 from u, (values`);
-push(d.COURS.map(c => `  (${q(c.id)}, ${n(c.prog)}, ${b(c.fav)}, ${q(c.statut)})`).join(',\n'));
+push(d.COURS.map(c => `  (${q(c.id)}, ${n(PROG_DEMO(c.id))}, ${b(c.fav)}, ${q(c.statut)})`).join(',\n'));
 push(`) as v(course_id, progress, favori, statut)
 on conflict (user_id, course_id) do update set progress = excluded.progress, favori = excluded.favori, statut = excluded.statut;`);
 push('');
 
 push(`-- Leçons déjà terminées
-with u as (select id from users where email = 'amina@learnhub.bj')
+with u as (select id from users where email = 'amina@cosmetilab.bj')
 insert into lesson_progress (user_id, lesson_id, done)
 select u.id, v.lesson_id, true from u, (values`);
-const doneLessons = lessons.filter(l => l.done);
 push(doneLessons.map(l => `  (${q(l.id)})`).join(',\n'));
 push(`) as v(lesson_id)
 on conflict (user_id, lesson_id) do update set done = true;`);
 push('');
 
 push(`-- Vidéos déjà vues / favorites
-with u as (select id from users where email = 'amina@learnhub.bj')
+with u as (select id from users where email = 'amina@cosmetilab.bj')
 insert into video_state (user_id, video_id, progress, liked, saved)
 select u.id, v.video_id, v.progress, false, false from u, (values`);
-push(d.VIDEOS.filter(v => v.prog > 0).map(v => `  (${q(v.yt)}, ${n(v.prog)})`).join(',\n'));
+const VUES = d.VIDEOS.slice(0, 5).map((v, i) => ({ yt: v.yt, prog: [100, 100, 62, 28, 100][i] }));
+push(VUES.map(v => `  (${q(v.yt)}, ${n(v.prog)})`).join(',\n'));
 push(`) as v(video_id, progress)
 on conflict (user_id, video_id) do update set progress = greatest(video_state.progress, excluded.progress);`);
 push('');
 
 push(`-- Réglages par défaut
-with u as (select id from users where email = 'amina@learnhub.bj')
+with u as (select id from users where email = 'amina@cosmetilab.bj')
 insert into settings (user_id, theme, langue) select u.id, 'sombre', 'fr' from u
 on conflict (user_id) do nothing;`);
 push('');
 
 push(`-- Activité des 12 derniers jours (série d'apprentissage)
-with u as (select id from users where email = 'amina@learnhub.bj')
+with u as (select id from users where email = 'amina@cosmetilab.bj')
 insert into activity (user_id, jour, minutes, lecons)
 select u.id, current_date - g, 40 + (g * 7) % 55, 1 + g % 3
 from u, generate_series(0, 11) as g
@@ -193,7 +218,7 @@ on conflict (user_id, jour) do update set minutes = excluded.minutes, lecons = e
 push('');
 
 push(`-- Badges déjà obtenus
-with u as (select id from users where email = 'amina@learnhub.bj')
+with u as (select id from users where email = 'amina@cosmetilab.bj')
 insert into user_badges (user_id, badge_id)
 select u.id, v.badge_id from u, (values`);
 push(d.BADGES_DEF.slice(0, 4).map(x => `  (${q(x.id)})`).join(',\n'));
@@ -202,7 +227,7 @@ on conflict (user_id, badge_id) do nothing;`);
 push('');
 
 push(`-- Téléchargements hors-ligne
-with u as (select id from users where email = 'amina@learnhub.bj')
+with u as (select id from users where email = 'amina@cosmetilab.bj')
 insert into downloads (user_id, course_id, titre, taille_label, etat, progres)
 select u.id, v.course_id, v.titre, v.taille, v.etat, v.progres
 from u, (values`);
@@ -210,8 +235,31 @@ push((d.DL_SEED || []).map(x => `  (${courseOrNull(x.ref)}, ${q(x.t)}, ${q(x.s)}
 push(`) as v(course_id, titre, taille, etat, progres)
 where not exists (select 1 from downloads d where d.titre = v.titre and d.user_id = u.id);`);
 push('');
+push(`-- Résultats de quiz déjà obtenus
+with u as (select id from users where email = 'amina@cosmetilab.bj')
+insert into quiz_attempts (user_id, quiz_id, score, total, note_pct, duree_s)
+select u.id, v.quiz_id, v.score, v.total, v.pct, v.duree from u, (values
+  ('c1', 5, 6, 83, 412),
+  ('c2', 6, 6, 100, 338)
+) as v(quiz_id, score, total, pct, duree)
+where not exists (select 1 from quiz_attempts a where a.user_id = u.id and a.quiz_id = v.quiz_id);`);
+push('');
+push(`-- Une copie notée par la formatrice : elle apparaît dans « Corrections »
+with u as (select id from users where email = 'amina@cosmetilab.bj')
+insert into submissions (assignment_id, user_id, statut, note, commentaire, fichier_nom, fichier_taille)
+select v.aid, u.id, 'note', 18, 'Très bon dossier : sources locales bien documentées.', 'dossier-matieres-premieres.pdf', 284000
+from u, (values ('d5')) as v(aid)
+where not exists (select 1 from submissions s where s.user_id = u.id and s.assignment_id = v.aid);`);
+push('');
+push("-- Une copie en attente de correction (pour l'écran Corrections du formateur)");
+push(`with u as (select id from users where email = 'amina@cosmetilab.bj')
+insert into submissions (assignment_id, user_id, statut, fichier_nom, fichier_taille, commentaire)
+select v.aid, u.id, 'rendu', 'prix-de-revient-savon.xlsx', 64200, 'Prix de revient calculé sur un lot de 20 savons.'
+from u, (values ('d7')) as v(aid)
+where not exists (select 1 from submissions s where s.user_id = u.id and s.assignment_id = v.aid);`);
+push('');
 push("-- Rappels de séances activés pour la première séance");
-push(`with u as (select id from users where email = 'amina@learnhub.bj')
+push(`with u as (select id from users where email = 'amina@cosmetilab.bj')
 insert into session_reminders (user_id, session_id, actif)
 select u.id, s.id, true from u, (select id from calendar_sessions order by jour_semaine limit 2) s
 on conflict (user_id, session_id) do nothing;`);

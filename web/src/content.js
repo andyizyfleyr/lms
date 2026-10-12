@@ -1,0 +1,454 @@
+/* ============================================================
+   CONTENU PÉDAGOGIQUE — CosmétiLab
+   Cours de cosmétique artisanale : savon, gel douche, crème de
+   visage, lait corporel, ingrédients africains, étiquetage & vente.
+
+   Ce fichier est la SOURCE UNIQUE du contenu : l'application
+   (web/index.html) et la base Neon (api/db/seed.sql, via
+   api/scripts/extract-data.js) en sont générées. Toute modification
+   ici se propage partout :  npm run build  puis  npm run db:seed
+   ============================================================ */
+
+/* ============================================================
+   1. CATALOGUE DES COURS
+   ============================================================ */
+const COURS = [
+  {id:'c1', titre:'Savonnerie à froid',                 cat:'Savon',           prof:'Awa Sossou',      lecon:0, total:10, prog:0, ico:'flask',    img:'savon',   acc:'purple', statut:'encours', fav:true,  duree:'18 min'},
+  {id:'c2', titre:'Gel douche & shampoings doux',        cat:'Hygiène liquide', prof:'Bénédicte Ahouan', lecon:0, total:10, prog:0, ico:'drop',     img:'gel',     acc:'blue',   statut:'encours', fav:true,  duree:'12 min'},
+  {id:'c3', titre:'Crème de visage : émulsions & actifs',cat:'Soin visage',     prof:'Dr. Chabi',       lecon:0, total:11, prog:0, ico:'jar',      img:'creme',   acc:'pink',   statut:'encours', fav:false, duree:'22 min'},
+  {id:'c4', titre:'Lait corporel, baumes & karité',      cat:'Soin corps',      prof:'Sylvie Dossou',   lecon:0, total:10, prog:0, ico:'leaf',     img:'lait',    acc:'amber',  statut:'encours', fav:false, duree:'14 min'},
+  {id:'c5', titre:'Cosmétique africaine : karité, argile & savon noir', cat:'Ingrédients', prof:'Rachidath Adjibi', lecon:0, total:9, prog:0, ico:'globe', img:'karite', acc:'teal', statut:'encours', fav:true, duree:'26 min'},
+  {id:'c6', titre:'Étiquetage, sécurité & vente',        cat:'Réglementation',  prof:'Josiane Kponou',  lecon:0, total:9, prog:0, ico:'bullhorn', img:'pack',    acc:'green',  statut:'encours', fav:false, duree:'16 min'}
+];
+
+/* ============================================================
+   2. TUTORIELS YOUTUBE
+   Identifiants vérifiés un par un (API oEmbed : existence +
+   autorisation d'intégration). Durée et nombre de vues relevés
+   sur YouTube ; 0 = non communiqué, l'application masque la valeur
+   au lieu d'afficher un chiffre inventé.
+   ============================================================ */
+const VIDEOS = [
+  /* --- c1 : savonnerie à froid --- */
+  {yt:'hJwIUUQYSQg', cours:'c1', titre:'Savons doux enrichis au beurre de karité',                    chaine:"Les petits Mondes d'Aurélie",  duree:562,  vues:54408,  img:'savon',   prog:0},
+  {yt:'NT5q99x6LoA', cours:'c1', titre:'Faire du savon maison sans soude : la technique melt & pour',   chaine:'Apprendre à faire son savon', duree:772, vues:191628, img:'moule', prog:0},
+  {yt:'wLv3geJ3Rv0', cours:'c1', titre:'Utiliser SoapCalc pour calculer vos recettes de savons',        chaine:'Les Recettes de Louizzette', duree:2002, vues:28654, img:'labo',    prog:0},
+  {yt:'-WB8UKJA5qU', cours:'c1', titre:'Le calculateur Mendrulandia pour la saponification à froid',   chaine:"Le jardin d'Alekil",  duree:684,  vues:24144,  img:'labo',    prog:0},
+  {yt:'8pIZmfuzoHY', cours:'c1', titre:'Savon au beurre de karité et au miel (saponification à froid)', chaine:"Bio'suz Formulation",         duree:593,  vues:1533,   img:'karite',  prog:0},
+  {yt:'Ka6h2cM2Vrw', cours:'c1', titre:'Saponification à froid : le tutoriel complet',                  chaine:'AromatiKa',  duree:0,    vues:0,      img:'process', prog:0},
+  {yt:'WUFqUncjdx0', cours:'c1', titre:'Fabriquer un savon maison en saponification à froid',           chaine:'Céline Vie Verte',              duree:0,    vues:0,      img:'process', prog:0},
+  {yt:'6fulOu4L7DA', cours:'c1', titre:'Savon maison avec la base Melt and Pour 3 beurres',             chaine:'Le Petit Grassois',      duree:101,  vues:4566,   img:'pack',    prog:0},
+
+  /* --- c2 : gel douche & shampoings --- */
+  {yt:'LS8QMUwW2t0', cours:'c2', titre:'Faites votre gel douche maison',                                chaine:'CC de Gevrey-Chambertin et de Nuits-St-Georges', duree:73,  vues:45479,  img:'gel',     prog:0},
+  {yt:'NMvKGkwKFlE', cours:'c2', titre:'Gel douche corps moussant : texture et formule maison',          chaine:"M'hairbyGrace",          duree:0,    vues:0,      img:'gel',     prog:0},
+  {yt:'CG2hYCv-uYs', cours:'c2', titre:'Bien formuler un gel douche : le choix du tensioactif',          chaine:'Celobeauty Skincare',    duree:0,    vues:0,      img:'labo',    prog:0},
+  {yt:'eOzN4ga3S40', cours:'c2', titre:'Gel douche doux et sans sulfate',                               chaine:"M'hairbyGrace",          duree:0,    vues:0,      img:'flacons', prog:0},
+  {yt:'V39AGZT2smk', cours:'c2', titre:'Fabrique ton shampoing solide hydratant et fortifiant',          chaine:'Cynthia Crosetti',       duree:332,  vues:1434,   img:'savon',   prog:0},
+  {yt:'t6TOv6jjafg', cours:'c2', titre:'Comment faire son shampoing solide maison',                      chaine:'Le Kaba',                duree:0,    vues:0,      img:'pack',    prog:0},
+
+  /* --- c3 : crème de visage --- */
+  {yt:'eVtOykfMCFE', cours:'c3', titre:'Formulation cosmétique : tensioactifs, émulsions, INCI',         chaine:'chimie-biologie',        duree:329,  vues:1291,   img:'labo',    prog:0},
+  {yt:'bEToJO9DpFY', cours:'c3', titre:'Formuler une émulsion : crème hydratante visage',               chaine:'Cosmeto Labo',           duree:786,  vues:35964,  img:'creme',   prog:0},
+  {yt:'tqv-7SKGAOc', cours:'c3', titre:'Crème hydratante faite maison (Julien Kaibeck)',                chaine:'Beauté au Naturel',      duree:604,  vues:216397, img:'creme',   prog:0},
+  {yt:'xNLTTCZmK4k', cours:'c3', titre:'2 crèmes hydratantes très faciles à faire',                     chaine:'La cuisine de Violaine', duree:187,  vues:190714, img:'atelier', prog:0},
+  {yt:'E4PYYrwG_cY', cours:'c3', titre:'Technique : réaliser une émulsion pour la peau',                chaine:"Ô Zuyl L'essentiel",     duree:237,  vues:65264,  img:'process', prog:0},
+  {yt:'GB_2Du40hiw', cours:'c3', titre:'Éviter et corriger le déphasage d’une formule cosmétique',       chaine:'La Cité Des Crépus TV',  duree:484,  vues:1616,   img:'ph',      prog:0},
+  {yt:'NL9_Hn--Grs', cours:'c3', titre:'Recette de sérum à l’acide hyaluronique fait maison',            chaine:'Beauté bio',             duree:677,  vues:11819,  img:'huiles',  prog:0},
+  {yt:'38x4CZUy3B8', cours:'c3', titre:'Recette beauté : argile rose et peau sensible',                  chaine:'Anaïs',                  duree:399,  vues:6820,   img:'karite',  prog:0},
+
+  /* --- c4 : lait corporel & karité --- */
+  {yt:'SpX5x5VJGEU', cours:'c4', titre:'Crème corporelle à base de beurre de karité',                   chaine:'Cosmétique et Business Academy', duree:626,  vues:79144,  img:'lait',    prog:0},
+  {yt:'_2zvQyv4bBo', cours:'c4', titre:'Faire une chantilly de karité maison',                           chaine:'Belle en bio beauty',    duree:0,    vues:0,      img:'atelier', prog:0},
+  {yt:'MXWeRqMYJVU', cours:'c4', titre:'Crème hydratante au beurre de karité (corps et cheveux)',         chaine:'Sissy La Généreuse',     duree:0,    vues:0,      img:'karite',  prog:0},
+  {yt:'b6mr8u3QYG4', cours:'c4', titre:'Stick à lèvres au beurre de karité et huile essentielle',         chaine:'wikitube',               duree:0,    vues:0,      img:'flacons', prog:0},
+  {yt:'sHsXzakRf9E', cours:'c4', titre:'Fabrication du beurre de karité brut non raffiné',               chaine:'Soebio',                 duree:125,  vues:2798,   img:'huiles',  prog:0},
+
+  /* --- c5 : cosmétique africaine --- */
+  {yt:'KijtJer0710', cours:'c5', titre:'Comment fabriquer le savon noir africain',                       chaine:'savonnoirafricain',    duree:895,  vues:31058,  img:'karite',  prog:0},
+  {yt:'JSKFU2M1vJM', cours:'c5', titre:'Immersion artisanale au Bénin : le savon noir ancestral',        chaine:'By Shaely',              duree:3969, vues:18341,  img:'atelier', prog:0},
+  {yt:'I2E1I12KeEc', cours:'c5', titre:'Fabriquer son savon noir africain pur',                          chaine:"Africa Cosmetic's",      duree:608,  vues:11948,  img:'process', prog:0},
+  {yt:'fiRiTUgB1VU', cours:'c5', titre:'Fabriquer facilement le vrai savon noir africain',               chaine:'Coach Rasmane Yameogo',  duree:861,  vues:6356,   img:'savon',   prog:0},
+  {yt:'D2HBAj4zY9E', cours:'c5', titre:'Fabrication traditionnelle du beurre de karité',                 chaine:'Unezahra',               duree:0,    vues:0,      img:'huiles',  prog:0},
+
+  /* --- c6 : étiquetage & vente --- */
+  {yt:'hIsLGB6WuhM', cours:'c6', titre:'Comment lire la liste INCI d’un cosmétique',                     chaine:'Les Maronneuses',        duree:0,    vues:0,      img:'pack',    prog:0},
+  {yt:'k-Z9RPbY7eQ', cours:'c6', titre:'Liste INCI : 5 choses à savoir',                                 chaine:'Manue de Menaka',        duree:2124, vues:1119,   img:'pack',    prog:0},
+  {yt:'cZUhpblcch4', cours:'c6', titre:'Les allégations cosmétiques interdites en Europe',               chaine:'INCI Beauty',            duree:0,    vues:0,      img:'flacons', prog:0},
+  {yt:'CHUChDe_GMk', cours:'c6', titre:'Comment rédiger une liste INCI',                                 chaine:'Josiane',                duree:564,  vues:841,    img:'labo',    prog:0},
+  {yt:'TuJhqOzkmto', cours:'c6', titre:'Déchiffrer la liste INCI et la nomenclature des ingrédients',    chaine:'Ready Skin Naturals',    duree:0,    vues:0,      img:'pack',    prog:0}
+];
+
+/* ============================================================
+   3. PROGRAMMES (modules → leçons)
+   kinds : lecture | video | exercice | quiz | devoir | projet
+   ============================================================ */
+const PROGRAMMES = {
+  c1: [
+    {m:'Chimie du savon et sécurité', l:[
+      {t:'Qu’est-ce que la saponification ?',            d:'10 min', k:'lecture'},
+      {t:'Soude, eau et indices SAP : les règles d’or',  d:'12 min', k:'lecture'},
+      {t:'Sécurité : soude, gants, lunettes, ventilation', d:'8 min', k:'lecture'}
+    ]},
+    {m:'Construire sa recette', l:[
+      {t:'Utiliser SoapCalc sans se tromper',            d:'33 min', k:'video', v:'wLv3geJ3Rv0'},
+      {t:'Le calculateur Mendrulandia pas à pas',        d:'11 min', k:'video', v:'-WB8UKJA5qU'},
+      {t:'Exercice guidé : formule 500 g, surgraissage 8 %', d:'30 min', k:'exercice'}
+    ]},
+    {m:'De la trace au démoulage', l:[
+      {t:'Saponification à froid : le tutoriel complet', d:'Vidéo', k:'video', v:'Ka6h2cM2Vrw'},
+      {t:'Savon au karité et au miel',                   d:'10 min', k:'video', v:'8pIZmfuzoHY'},
+      {t:'Mouler, trancher et laisser curer 4 semaines',  d:'14 min', k:'lecture'},
+      {t:'Quiz du module Savonnerie',                    d:'8 min',  k:'quiz', v:'c1'}
+    ]}
+  ],
+  c2: [
+    {m:'Anatomie d’un gel douche', l:[
+      {t:'Eau, tensioactifs, actifs : les trois blocs',  d:'11 min', k:'lecture'},
+      {t:'Formulation cosmétique : tensioactifs et émulsions', d:'5 min', k:'video', v:'eVtOykfMCFE'},
+      {t:'Choisir un tensioactif doux (sans sulfate)',   d:'Vidéo', k:'video', v:'CG2hYCv-uYs'}
+    ]},
+    {m:'Formuler et épaissir', l:[
+      {t:'Gel douche moussant : la formule complète',    d:'Vidéo', k:'video', v:'NMvKGkwKFlE'},
+      {t:'Gel douche doux sans sulfate',                 d:'Vidéo', k:'video', v:'eOzN4ga3S40'},
+      {t:'Épaissir, ajuster le pH et conserver',         d:'13 min', k:'lecture'},
+      {t:'Exercice : recette de gel douche 250 ml',      d:'25 min', k:'exercice'}
+    ]},
+    {m:'Shampoings solides et variantes', l:[
+      {t:'Shampoing solide hydratant et fortifiant',     d:'6 min', k:'video', v:'V39AGZT2smk'},
+      {t:'Shampoing solide : la méthode pas à pas',      d:'Vidéo', k:'video', v:'t6TOv6jjafg'},
+      {t:'Quiz du module Hygiène liquide',               d:'8 min', k:'quiz', v:'c2'}
+    ]}
+  ],
+  c3: [
+    {m:'La peau et ses besoins', l:[
+      {t:'Barrière cutanée, types de peau, hydratation', d:'12 min', k:'lecture'},
+      {t:'Actifs vedettes : acide hyaluronique, niacinamide, vitamine E', d:'14 min', k:'lecture'},
+      {t:'Sérum à l’acide hyaluronique maison',          d:'11 min', k:'video', v:'NL9_Hn--Grs'}
+    ]},
+    {m:'Maîtriser l’émulsion', l:[
+      {t:'Phase aqueuse, phase grasse, émulsifiant',     d:'12 min', k:'lecture'},
+      {t:'Formuler une émulsion : crème hydratante visage', d:'13 min', k:'video', v:'bEToJO9DpFY'},
+      {t:'Technique : réussir son émulsion',             d:'4 min', k:'video', v:'E4PYYrwG_cY'},
+      {t:'Que faire quand la crème déphase ?',           d:'Vidéo', k:'video', v:'GB_2Du40hiw'}
+    ]},
+    {m:'Crèmes finies et soins ciblés', l:[
+      {t:'Crème hydratante faite maison',                d:'10 min', k:'video', v:'tqv-7SKGAOc'},
+      {t:'2 crèmes hydratantes très faciles',            d:'3 min', k:'video', v:'xNLTTCZmK4k'},
+      {t:'Masque purifiant à l’argile rose',             d:'7 min', k:'video', v:'38x4CZUy3B8'},
+      {t:'Quiz du module Soin visage',                   d:'8 min', k:'quiz', v:'c3'}
+    ]}
+  ],
+  c4: [
+    {m:'Nourrir la peau du corps', l:[
+      {t:'Lait, crème, baume : choisir la texture',      d:'11 min', k:'lecture'},
+      {t:'Crème corporelle au beurre de karité',         d:'10 min', k:'video', v:'SpX5x5VJGEU'},
+      {t:'Du karité brut au karité filtré',              d:'2 min', k:'video', v:'sHsXzakRf9E'}
+    ]},
+    {m:'Formules riches et chantilly', l:[
+      {t:'Formuler une lotion fluide qui ne colle pas',  d:'13 min', k:'lecture'},
+      {t:'Chantilly de karité maison',                   d:'Vidéo', k:'video', v:'_2zvQyv4bBo'},
+      {t:'Crème karité corps et cheveux',                d:'Vidéo', k:'video', v:'MXWeRqMYJVU'},
+      {t:'Exercice : lait corporel 300 ml',              d:'30 min', k:'exercice'}
+    ]},
+    {m:'Baumes et soins ciblés', l:[
+      {t:'Stick à lèvres karité',                        d:'Vidéo', k:'video', v:'b6mr8u3QYG4'},
+      {t:'Baume de massage et beurre fouetté',           d:'12 min', k:'lecture'},
+      {t:'Quiz du module Soin corps',                    d:'8 min', k:'quiz', v:'c4'}
+    ]}
+  ],
+  c5: [
+    {m:'Les matières premières du terroir', l:[
+      {t:'Karité, baobab, moringa, coco : usages cosmétiques', d:'15 min', k:'lecture'},
+      {t:'Fabrication traditionnelle du beurre de karité', d:'Vidéo', k:'video', v:'D2HBAj4zY9E'},
+      {t:'Huiles, macérats et argiles',                  d:'12 min', k:'lecture'}
+    ]},
+    {m:'Le savon noir africain', l:[
+      {t:'Savon noir : cendres, huile de palmiste et eau', d:'13 min', k:'lecture'},
+      {t:'Fabriquer le savon noir africain',             d:'15 min', k:'video', v:'KijtJer0710'},
+      {t:'Savon noir pur : la méthode détaillée',        d:'10 min', k:'video', v:'I2E1I12KeEc'},
+      {t:'Immersion artisanale au Bénin',                d:'66 min', k:'video', v:'JSKFU2M1vJM'}
+    ]},
+    {m:'Tradition et qualité', l:[
+      {t:'Vrai savon noir : les points de contrôle',     d:'14 min', k:'video', v:'fiRiTUgB1VU'},
+      {t:'Quiz du module Ingrédients',                   d:'8 min', k:'quiz', v:'c5'}
+    ]}
+  ],
+  c6: [
+    {m:'Nommer et étiqueter', l:[
+      {t:'Ce qu’un étiquetage cosmétique doit contenir', d:'12 min', k:'lecture'},
+      {t:'Lire et rédiger une liste INCI',               d:'9 min', k:'video', v:'CHUChDe_GMk'},
+      {t:'Comment lire la liste INCI',                   d:'Vidéo', k:'video', v:'hIsLGB6WuhM'},
+      {t:'Nomenclature des ingrédients',                 d:'Vidéo', k:'video', v:'TuJhqOzkmto'}
+    ]},
+    {m:'Sécurité et allégations', l:[
+      {t:'Test de stabilité : le protocole en 12 semaines', d:'14 min', k:'lecture'},
+      {t:'Allégations interdites et mentions obligatoires', d:'Vidéo', k:'video', v:'cZUhpblcch4'},
+      {t:'5 réflexes pour une étiquette conforme',        d:'35 min', k:'video', v:'k-Z9RPbY7eQ'}
+    ]},
+    {m:'Vendre ses produits', l:[
+      {t:'Prix de revient, marge et conditionnement',     d:'13 min', k:'lecture'},
+      {t:'Quiz du module Réglementation',                 d:'8 min', k:'quiz', v:'c6'}
+    ]}
+  ]
+};
+
+/* ============================================================
+   4. QUIZ (une série par cours)
+   ============================================================ */
+const QUIZZES = {
+  c1: {titre:'Savonnerie à froid', duree:600, questions:[
+    {q:'Que fabrique la réaction de saponification ?', o:['Du savon et de la glycérine','Une cire émulsifiante','Un gel douche','Un conservateur'], a:0,
+     e:'Sous l’effet de la soude, les triglycérides se transforment en savon et en glycérine.'},
+    {q:'Que signifie « surgraissage » dans une recette de savon ?', o:['Ajouter une huile parfumée','Réduire volontairement la soude pour garder une part d’huile libre','Chauffer la pâte plus longtemps','Ajouter de l’eau après la trace'], a:1,
+     e:'On diminue la soude de 5 à 8 % : l’huile non saponifiée rend le savon plus doux.'},
+    {q:'À quelle température travaille-t-on généralement en saponification à froid ?', o:['0 °C','Entre 35 et 45 °C','100 °C','Peu importe'], a:1,
+     e:'Huiles et lessive de soude sont ramenées autour de 40 °C avant mélange.'},
+    {q:'Qu’appelle-t-on « la trace » ?', o:['Le test du pH','Le moment où la pâte épaissit et laisse une marque','La coloration du savon','Le démoulage'], a:1,
+     e:'À la trace, la pâte épaissit : on ajoute alors les additifs et on coule.'},
+    {q:'Combien de temps faut-il laisser curer un savon à froid ?', o:['24 heures','3 jours','Environ 4 semaines','6 mois'], a:2,
+     e:'La cure de 4 semaines laisse l’eau s’évaporer et le pH baisser.'},
+    {q:'Quel équipement est indispensable pour manipuler la soude ?', o:['Un mixeur plongeant','Gants, lunettes et ventilation','Un thermomètre infrarouge','Une centrifugeuse'], a:1,
+     e:'La soude est corrosive : gants en nitrile, lunettes, local ventilé.'}
+  ]},
+  c2: {titre:'Hygiène liquide : gels et shampoings', duree:600, questions:[
+    {q:'Quel est le rôle principal d’un tensioactif ?', o:['Conserver le produit','Détacher et faire mousser en liant l’eau et les graisses','Épaissir la formule','Parfumer'], a:1,
+     e:'Sa molécule a une tête hydrophile et une queue lipophile : elle capture les salissures.'},
+    {q:'Un « tensioactif doux » se reconnaît à…', o:['Sa mousse abondante','Sa chaîne courte et son origine végétale','Son parfum','Sa couleur'], a:1,
+     e:'Les glucosides (coco glucoside, lauryl glucoside) sont réputés doux pour la peau.'},
+    {q:'Quel pH viser pour un gel douche respectueux de la peau ?', o:['pH 2','Autour de 5,5 (pH physiologique)','pH 9','pH 12'], a:1,
+     e:'Le film hydrolipidique est légèrement acide : on ajuste vers pH 5,5.'},
+    {q:'Pourquoi un gel douche aqueux a-t-il besoin d’un conservateur ?', o:['Pour mousser','Parce que l’eau favorise bactéries et moisissures','Pour épaissir','Pour colorer'], a:1,
+     e:'Toute formule contenant de l’eau doit être protégée des contaminations.'},
+    {q:'Comment épaissit-on naturellement un gel douche ?', o:['En ajoutant du sel ou un épaississant végétal','En le chauffant','En ajoutant de l’huile','En le congelant'], a:0,
+     e:'Le chlorure de sodium ou une gomme (xanthane) augmentent la viscosité.'},
+    {q:'Quel test valide la douceur d’un shampoing solide ?', o:['La couleur','Le pH une fois dissous et la tolérance cutanée','Le poids','L’odeur'], a:1,
+     e:'On mesure le pH en solution diluée et on fait un test d’usage.'}
+  ]},
+  c3: {titre:'Émulsions et soin du visage', duree:600, questions:[
+    {q:'Une émulsion, c’est…', o:['Un mélange d’eau et d’huile stabilisé par un émulsifiant','Une huile pure','Un gel d’eau','Une poudre'], a:0,
+     e:'L’émulsifiant abaisse la tension entre les deux phases et stabilise le mélange.'},
+    {q:'Une crème « H/E » désigne…', o:['Huile dans eau : phase externe aqueuse, toucher frais','Eau dans huile : toucher riche','Un mélange à parts égales','Une crème sans émulsifiant'], a:0,
+     e:'H/E = huile dispersée dans l’eau ; E/H donne au contraire une crème plus riche.'},
+    {q:'Quel ingrédient sert d’actif hydratant capteur d’eau ?', o:['L’acide hyaluronique','La cire d’abeille','L’huile de coco','Le talc'], a:0,
+     e:'L’acide hyaluronique retient plusieurs centaines de fois son poids en eau.'},
+    {q:'À quelle température ajoute-t-on le conservateur ?', o:['À chaud, 70 °C','Sous 40 °C','À 100 °C','Peu importe'], a:1,
+     e:'Au-delà de 40 °C beaucoup de conservateurs et d’actifs sont dégradés.'},
+    {q:'Que signifie « déphasage » ?', o:['La crème mousse','L’eau et l’huile se séparent','La crème durcit','Le parfum s’évapore'], a:1,
+     e:'L’émulsion casse : trop peu d’émulsifiant, mauvais brassage ou choc de température.'},
+    {q:'Quel test est obligatoire avant de commercialiser une crème ?', o:['Le test de stabilité (chaleur, froid, vieillissement)','Le test de mousse','Le test de couleur','Aucun'], a:0,
+     e:'Chaleur, froid et vieillissement accéléré vérifient la tenue de la formule.'}
+  ]},
+  c4: {titre:'Laits corporels et karité', duree:600, questions:[
+    {q:'Quelle est la différence entre un lait et un baume ?', o:['La couleur','Le lait est fluide (beaucoup d’eau), le baume est anhydre et riche','Le baume contient plus d’eau','Aucune'], a:1,
+     e:'Le lait corporel est une émulsion fluide ; le baume est un mélange de beurres et d’huiles.'},
+    {q:'Le beurre de karité est surtout…', o:['Filmogène et nourrissant','Détachant','Exfoliant','Astringent'], a:0,
+     e:'Riche en acides gras et insaponifiables, il nourrit et protège la barrière cutanée.'},
+    {q:'Comment éviter un lait corporel « collant » ?', o:['Augmenter l’huile','Réduire la phase grasse et choisir des huiles pénétrantes','Ajouter du sucre','Chauffer plus fort'], a:1,
+     e:'Jojoba, amande douce ou coco fractionnée pénètrent vite ; on dose le karité.'},
+    {q:'À quoi sert la vitamine E dans une formule ?', o:['À parfumer','À limiter l’oxydation des huiles (antioxydant)','À épaissir','À conserver'], a:1,
+     e:'Antioxydant : elle protège les huiles du rancissement.'},
+    {q:'Quelle précaution avec les huiles essentielles ?', o:['Doser à 15 %','Respecter un dosage faible et éviter chez la femme enceinte','Les chauffer à 80 °C','Les mélanger à l’eau'], a:1,
+     e:'Généralement 0,5 à 1 % maximum, avec contre-indications à connaître.'},
+    {q:'Que doit contenir une fiche de fabrication ?', o:['Uniquement le prix','Numéro de lot, date, ingrédients et quantités','Le nom du client','Rien'], a:1,
+     e:'La traçabilité du lot est indispensable pour la qualité et la vente.'}
+  ]},
+  c5: {titre:'Ingrédients africains', duree:600, questions:[
+    {q:'Le savon noir africain traditionnel est fabriqué à partir de…', o:['Cendres de cabosses ou de plantes et huile de palmiste','Savon de Marseille et argile','Beurre de cacao uniquement','Soude pure'], a:0,
+     e:'La potasse issue des cendres saponifie l’huile de palmiste : c’est un savon à chaud.'},
+    {q:'Quelle argile est la plus adaptée à une peau sensible ?', o:['L’argile rose ou blanche','L’argile verte','Le sable','Le talc'], a:0,
+     e:'Rose et blanche sont les plus douces ; la verte est plus absorbante.'},
+    {q:'Un macérat, c’est…', o:['Une plante infusée dans une huile','Une huile essentielle','Un conservateur','Un émulsifiant'], a:0,
+     e:'On laisse infuser une plante séchée dans une huile végétale à l’abri de la lumière.'},
+    {q:'Quel ingrédient du terroir est riche en vitamine E et en acides gras essentiels ?', o:['L’huile de baobab','Le sable','Le sel','Le talc'], a:0,
+     e:'L’huile de baobab est réputée nourrissante et antioxydante.'},
+    {q:'Pourquoi contrôler le pH d’un savon traditionnel ?', o:['Pour la couleur','Parce qu’un savon trop alcalin agresse la peau','Pour le poids','Pour l’odeur'], a:1,
+     e:'Un pH élevé irrite : on vérifie et on laisse reposer le savon.'},
+    {q:'Comment garantir la qualité d’un beurre de karité artisanal ?', o:['Filtrer, contrôler l’odeur et l’absence d’impuretés','Le colorer','Le chauffer fort','Le diluer à l’eau'], a:0,
+     e:'Filtration et contrôle sensoriel font la différence pour l’export.'}
+  ]},
+  c6: {titre:'Étiquetage, sécurité et vente', duree:600, questions:[
+    {q:'Que signifie INCI ?', o:['International Nomenclature of Cosmetic Ingredients','Indice National Cosmétique','Inventaire des Colorants','Norme Internationale de Conditionnement'], a:0,
+     e:'C’est la nomenclature internationale des ingrédients cosmétiques.'},
+    {q:'Dans quel ordre apparaissent les ingrédients d’une liste INCI ?', o:['Par ordre alphabétique','Par ordre décroissant de quantité','Par couleur','Au hasard'], a:1,
+     e:'Du plus concentré au moins concentré ; sous 1 % l’ordre est libre.'},
+    {q:'Quelle mention est obligatoire sur un cosmétique ?', o:['La date limite d’utilisation ou la période après ouverture (PAO)','Le numéro de téléphone du client','Le prix d’achat','Le nom du fournisseur'], a:0,
+     e:'DLUO ou PAO (pot ouvert avec un mois), plus le lot et le responsable de mise sur le marché.'},
+    {q:'Une allégation interdite serait…', o:['« Hydrate la peau »','« Guérit l’eczéma »','« Texture légère »','« Parfum de rose »'], a:1,
+     e:'Un cosmétique ne peut revendiquer un effet thérapeutique : c’est un médicament.'},
+    {q:'À quoi sert un test de stabilité ?', o:['À vérifier que la formule tient dans le temps','À mesurer la mousse','À calculer la marge','À choisir la couleur'], a:0,
+     e:'Cycles chaud/froid et vieillissement accéléré révèlent séparations et contaminations.'},
+    {q:'Comment fixer un prix de vente cohérent ?', o:['Au hasard','Coût des matières + contenant + temps + marge','En copiant le voisin','Au poids du produit'], a:1,
+     e:'On part du prix de revient complet : matières, emballage, énergie, temps de travail.'}
+  ]}
+};
+
+/* ============================================================
+   5. DEVOIRS
+   ============================================================ */
+const DEVOIRS = [
+  {id:'d1', cours:'c1', titre:'Formule de savon — 500 g à 8 % de surgraissage', type:'Exercice noté', points:20, echeance:{j:0,h:'18:00'}, niveau:'urgent',
+   consignes:["Calculez la soude nécessaire avec un calculateur (SoapCalc ou Mendrulandia).","Justifiez le choix des huiles et le surgraissage retenu.","Déposez une fiche de formule PDF ou une photo de votre feuille de calcul.","Indiquez le temps de cure prévu et la date de disponibilité."]},
+  {id:'d2', cours:'c2', titre:'Recette de gel douche doux — 250 ml', type:'Devoir noté', points:30, echeance:{j:2,h:'12:00'}, niveau:'soon',
+   consignes:["Choisissez un tensioactif doux et justifiez-le.","Indiquez les pourcentages de chaque phase et le pH visé.","Précisez le système conservateur utilisé.","Rendez une fiche technique d’une page (PDF)."]},
+  {id:'d3', cours:'c3', titre:'Crème de visage 100 ml — émulsion H/E', type:'Projet', points:40, echeance:{j:5,h:'23:59'}, niveau:'normal',
+   consignes:["Formulez une crème H/E adaptée à un type de peau précis.","Détaillez phases aqueuse et grasse, émulsifiant et actifs.","Ajoutez le protocole de fabrication et le pH cible.","Bonus : joignez une photo de la crème réalisée."]},
+  {id:'d4', cours:'c4', titre:'Lait corporel au karité — 300 ml', type:'Exercice noté', points:25, echeance:{j:3,h:'19:00'}, niveau:'normal',
+   consignes:["Construisez une formule fluide non collante.","Respectez un dosage raisonnable en karité et justifiez-le.","Précisez les précautions liées aux huiles essentielles si vous en utilisez."]},
+  {id:'d5', cours:'c5', titre:'Dossier matières premières du terroir', type:'Étude de cas', points:30, echeance:{j:-2,h:'23:59'}, niveau:'past',
+   consignes:["Choisissez trois matières premières locales.","Documentez leur origine, leurs propriétés et leurs usages cosmétiques.","Comparez deux méthodes de fabrication du savon noir."], note:18},
+  {id:'d6', cours:'c6', titre:'Fiche produit, étiquette et liste INCI', type:'Devoir noté', points:35, echeance:{j:6,h:'23:59'}, niveau:'normal',
+   consignes:["Rédigez la liste INCI complète de votre produit.","Ajoutez les mentions obligatoires (lot, PAO ou DLUO, responsable de mise sur le marché).","Vérifiez qu’aucune allégation interdite n’est présente.","Joignez la maquette d’étiquette."]},
+  {id:'d7', cours:'c6', titre:'Prix de revient et tarif de vente', type:'Exercice', points:20, echeance:{j:-1,h:'20:00'}, niveau:'past',
+   consignes:["Calculez le prix de revient d’un lot de 20 savons.","Intégrez matières, emballage, énergie et temps de travail.","Proposez un prix de vente et une marge argumentée."], attente:true},
+  {id:'d8', cours:'c1', titre:'Sécurité à l’atelier — protocole', type:'Exercice', points:15, echeance:{j:8,h:'18:00'}, niveau:'calme',
+   consignes:["Listez les risques liés à la soude et les équipements de protection.","Rédigez la procédure d’urgence en cas de projection.","Proposez un rangement type de l’atelier."]}
+];
+
+/* ============================================================
+   6. RESSOURCES TÉLÉCHARGEABLES (par cours)
+   ============================================================ */
+const RESSOURCES = {
+  c1: [
+    {n:'Fiche de sécurité — soude caustique',  t:'PDF · 320 Ko', ico:'shield', acc:'purple'},
+    {n:'Tableau des indices SAP',              t:'PDF · 180 Ko', ico:'chart',  acc:'blue'},
+    {n:'Journal de fabrication vierge',        t:'XLSX · 90 Ko', ico:'grid',   acc:'green'}
+  ],
+  c2: [
+    {n:'Guide des tensioactifs doux',          t:'PDF · 420 Ko', ico:'info',   acc:'blue'},
+    {n:'Fiche formule — gel douche 250 ml',    t:'PDF · 260 Ko', ico:'task',   acc:'purple'},
+    {n:'Tableau pH et conservateurs',          t:'PDF · 300 Ko', ico:'sliders',acc:'amber'}
+  ],
+  c3: [
+    {n:'Fiche formule — crème H/E 100 ml',     t:'PDF · 340 Ko', ico:'task',   acc:'pink'},
+    {n:'Guide des actifs et dosages',          t:'PDF · 620 Ko', ico:'layers', acc:'purple'},
+    {n:'Protocole de test de stabilité',       t:'PDF · 280 Ko', ico:'clock',  acc:'green'}
+  ],
+  c4: [
+    {n:'Fiche formule — lait corporel 300 ml', t:'PDF · 300 Ko', ico:'task',   acc:'amber'},
+    {n:'Dosages huiles essentielles',          t:'PDF · 210 Ko', ico:'shield', acc:'teal'},
+    {n:'Recettes de baumes et beurres fouettés', t:'PDF · 480 Ko', ico:'leaf', acc:'green'}
+  ],
+  c5: [
+    {n:'Fiche matières premières locales',     t:'PDF · 540 Ko', ico:'globe',  acc:'teal'},
+    {n:'Protocole savon noir traditionnel',    t:'PDF · 380 Ko', ico:'fire',   acc:'amber'},
+    {n:'Contrôle qualité du karité',           t:'PDF · 240 Ko', ico:'check-circle', acc:'green'}
+  ],
+  c6: [
+    {n:'Modèle d’étiquette conforme',          t:'PDF · 400 Ko', ico:'task',   acc:'green'},
+    {n:'Grille de vérification INCI',          t:'PDF · 190 Ko', ico:'check-circle', acc:'blue'},
+    {n:'Feuille de calcul du prix de revient', t:'XLSX · 120 Ko',ico:'grid',   acc:'amber'}
+  ]
+};
+
+/* ============================================================
+   7. AGENDA
+   ============================================================ */
+const SESSIONS = [
+  {jour:0, heure:'09:00', titre:'Live — Calcul de soude en direct',        type:'Visioconférence', duree:'1 h 30', salle:'Salle virtuelle A', tags:['Live','Savon'],    acc:'purple', ico:'flask'},
+  {jour:0, heure:'16:00', titre:'Atelier — Pesée et sécurité à l’atelier', type:'Présentiel',      duree:'2 h',    salle:'Atelier · Calavi',   tags:['Atelier'],         acc:'blue',   ico:'shield'},
+  {jour:1, heure:'10:30', titre:'Cours — Émulsions et actifs',             type:'Live',            duree:'1 h',    salle:'Salle virtuelle B',  tags:['Visage'],          acc:'pink',   ico:'jar'},
+  {jour:2, heure:'16:00', titre:'Tutorat — Votre formule de gel douche',   type:'Tutorat',         duree:'45 min', salle:'Visio individuelle', tags:['Tutorat'],         acc:'amber',  ico:'drop'},
+  {jour:4, heure:'11:00', titre:'Atelier — Savon noir et karité',          type:'Présentiel',      duree:'3 h',    salle:'Atelier · Cotonou',  tags:['Terroir'],         acc:'teal',   ico:'leaf'},
+  {jour:6, heure:'18:30', titre:'Q&A communauté CosmétiLab',               type:'Discussion',      duree:'1 h',    salle:'Salon communauté',   tags:['Communauté'],      acc:'green',  ico:'chat'}
+];
+
+const SESS = [
+  {id:'s1', jour:0, heure:'09:00', titre:'Live — Calcul de soude en direct', type:'Visioconférence', duree:'1 h 30', salle:'Salle virtuelle A', cours:'c1',
+   prof:'Awa Sossou', tags:['Live','Savon'], acc:'purple', ico:'flask', desc:"On calcule ensemble une formule complète : indice SAP, surgraissage et quantité d’eau. Apportez votre calculateur ouvert."},
+  {id:'s2', jour:0, heure:'16:00', titre:'Atelier — Pesée et sécurité à l’atelier', type:'Présentiel', duree:'2 h', salle:'Atelier · Calavi', cours:'c1',
+   prof:'Awa Sossou', tags:['Atelier'], acc:'blue', ico:'shield', desc:"Pesée précise, équipements de protection, gestion des projections : les bons réflexes avant de produire."},
+  {id:'s3', jour:1, heure:'10:30', titre:'Cours — Émulsions et actifs', type:'Live', duree:'1 h', salle:'Salle virtuelle B', cours:'c3',
+   prof:'Dr. Chabi', tags:['Visage'], acc:'pink', ico:'jar', desc:"Phase aqueuse, phase grasse, émulsifiant et actifs : construire une crème stable et agréable."},
+  {id:'s4', jour:2, heure:'16:00', titre:'Tutorat — Votre formule de gel douche', type:'Tutorat', duree:'45 min', salle:'Visio individuelle', cours:'c2',
+   prof:'Bénédicte Ahouan', tags:['Tutorat'], acc:'amber', ico:'drop', desc:"Revue individuelle de votre recette : choix du tensioactif, pH, viscosité et conservation."},
+  {id:'s5', jour:4, heure:'11:00', titre:'Atelier — Savon noir et karité', type:'Présentiel', duree:'3 h', salle:'Atelier · Cotonou', cours:'c5',
+   prof:'Rachidath Adjibi', tags:['Terroir'], acc:'teal', ico:'leaf', desc:"Fabrication traditionnelle du savon noir, filtration du karité et contrôle de qualité du lot."},
+  {id:'s6', jour:6, heure:'18:30', titre:'Q&A communauté CosmétiLab', type:'Discussion', duree:'1 h', salle:'Salon communauté', cours:'',
+   prof:'Équipe CosmétiLab', tags:['Communauté'], acc:'green', ico:'chat', desc:"Questions libres, retours d’expérience et entraide entre apprenants et formatrices."}
+];
+
+const ECHEANCES = [
+  {titre:'Formule de savon — 500 g à 8 %',   cours:'Savonnerie à froid',      quand:"Aujourd'hui", heure:'18:00', niveau:'urgent', ico:'flask',  acc:'purple', offset:0},
+  {titre:'Recette de gel douche — 250 ml',   cours:'Gel douche & shampoings doux', quand:'Dans 2 jours', heure:'12:00', niveau:'soon', ico:'drop', acc:'blue', offset:2},
+  {titre:'Lait corporel au karité — 300 ml', cours:'Lait corporel, baumes & karité', quand:'Dans 3 jours', heure:'19:00', niveau:'normal', ico:'leaf', acc:'amber', offset:3}
+];
+
+/* ============================================================
+   8. NOTIFICATIONS, TÉLÉCHARGEMENTS, DISCUSSIONS
+   ============================================================ */
+const NOTIFS_SEED = [
+  {id:'n1', type:'devoir',  t:'Formule de savon à rendre aujourd’hui',   b:'Clôture à 18:00 — 20 points.',                                  min:6,    lu:0, go:['devoir','d1']},
+  {id:'n2', type:'message', t:'Nouveau message de Awa Sossou',           b:'« Votre surgraissage est un peu haut, corrigez la soude. »',    min:48,   lu:0, go:['cours','c1',{tab:'discussion'}]},
+  {id:'n3', type:'cours',   t:'Nouvelle leçon disponible',               b:'Crème de visage — « Que faire quand la crème déphase ? ».',      min:170,  lu:0, go:['cours','c3']},
+  {id:'n4', type:'badge',   t:'Badge débloqué : Premier savon 🎉',       b:'Votre première leçon de savonnerie est terminée.',              min:400,  lu:1, go:['badges','']},
+  {id:'n5', type:'quiz',    t:'Résultat du quiz Savonnerie',             b:'Score : 83 % — attention à la leçon sur la cure.',              min:1440, lu:1, go:['quiz','c1']},
+  {id:'n6', type:'systeme', t:'Téléchargement terminé',                  b:'Savonnerie à froid disponible hors-ligne.',                     min:1700, lu:1, go:['telechargements','']},
+  {id:'n7', type:'message', t:'Dr. Chabi a répondu à votre question',    b:'« Un déphasage se rattrape en réchauffant doucement l’émulsion. »', min:2500, lu:1, go:['cours','c3',{tab:'discussion'}]},
+  {id:'n8', type:'cours',   t:'Session live demain à 10:30',             b:'Émulsions et actifs — salle virtuelle B.',                      min:3000, lu:1, go:['session','s3']}
+];
+
+const DL_SEED = [
+  {id:'dl1', ref:'c1', t:'Savonnerie à froid',            s:'3 leçons · 180 Mo',        p:100, st:'done',  size:180},
+  {id:'dl2', ref:'c3', t:'Crème de visage : émulsions',   s:'Module 2 · 140 Mo',        p:52,  st:'pause', size:140},
+  {id:'dl3', ref:'v',  t:'Saponification à froid : le tutoriel complet', s:'Vidéo · 42 Mo', p:100, st:'done', size:42, v:'Ka6h2cM2Vrw'},
+  {id:'dl4', ref:'v',  t:'Formuler une émulsion : crème hydratante visage', s:'Vidéo · 13 min · 38 Mo', p:18, st:'dl', size:38, v:'bEToJO9DpFY'}
+];
+
+const DISC_SEED = {
+  c1: [
+    {id:'m1', a:'Awa Sossou',   role:'Formatrice', ini:'AS', acc:'purple', min:180, txt:"Bienvenue dans l’atelier 🧼 Commencez par le module 1 : on ne touche à la soude qu’après avoir lu la fiche sécurité.", likes:6},
+    {id:'m2', a:'Ibrahim S.',   role:'Apprenant',  ini:'IS', acc:'green',  min:120, txt:"J’ai calculé un surgraissage de 5 % avec 60 % d’huile d’olive : est-ce assez doux pour une peau sensible ?", likes:2},
+    {id:'m3', a:'Awa Sossou',   role:'Formatrice', ini:'AS', acc:'purple', min:95,  txt:"Oui, 5 % convient. Passez à 8 % si vous ajoutez du karité : le savon restera plus crémeux.", likes:4}
+  ],
+  c2: [
+    {id:'m4', a:'Bénédicte Ahouan', role:'Formatrice', ini:'BA', acc:'blue', min:150, txt:"Pour un gel douche doux, visez pH 5,5 et moins de 10 % de tensioactif moussant. Le reste : eau, actifs et conservateur.", likes:5},
+    {id:'m5', a:'Amina D.',         role:'Vous',       ini:'AD', acc:'amber', min:70,  txt:"J’ai testé le coco glucoside : mousse plus fine mais beaucoup plus douce sur ma peau. Merci pour le conseil !", likes:3, me:1},
+    {id:'m6', a:'Bénédicte Ahouan', role:'Formatrice', ini:'BA', acc:'blue', min:40,  txt:"Parfait 👏 Notez bien le pH dans votre fiche de fabrication, c’est ce qui garantit la stabilité du lot.", likes:2}
+  ],
+  c3: [
+    {id:'m7', a:'Dr. Chabi', role:'Formatrice', ini:'DC', acc:'pink', min:210, txt:"Rappel : les phases se chauffent séparément à 70 °C, puis on verse l’eau dans l’huile hors du feu en fouettant.", likes:7},
+    {id:'m8', a:'Sylvie D.', role:'Apprenante', ini:'SD', acc:'teal', min:60,  txt:"Ma crème a déphasé au bout de trois jours. J’ai utilisé 4 % d’émulsifiant seulement — c’est la cause ?", likes:1},
+    {id:'m9', a:'Dr. Chabi', role:'Formatrice', ini:'DC', acc:'pink', min:35,  txt:"Très probablement : passez à 6 % et allongez le refroidissement sous agitation. Regardez la leçon « déphasage ».", likes:3}
+  ],
+  c4: [
+    {id:'m10', a:'Sylvie Dossou', role:'Formatrice', ini:'SD', acc:'amber', min:300, txt:"Astuce : fouettez le karité avec un peu de coco fractionnée pour obtenir une chantilly légère qui pénètre vite.", likes:4}
+  ],
+  c5: [
+    {id:'m11', a:'Rachidath Adjibi', role:'Formatrice', ini:'RA', acc:'teal', min:420, txt:"Le savon noir traditionnel se cuit plusieurs heures : patience et remuer sans arrêt 💪 la vidéo d’immersion au Bénin montre tout le procédé.", likes:8}
+  ],
+  c6: [
+    {id:'m12', a:'Josiane Kponou', role:'Formatrice', ini:'JK', acc:'green', min:520, txt:"Avant de vendre, vérifiez trois choses : liste INCI complète, numéro de lot et responsable de mise sur le marché sur l’étiquette.", likes:5}
+  ]
+};
+
+/* ============================================================
+   9. BADGES, FAQ, BADGES DU TABLEAU DE BORD
+   ============================================================ */
+const BADGES_DEF = [
+  {id:'premier', nom:'Premier savon',    ico:'flask',       acc:'purple', desc:'Terminer sa première leçon',                    cible:1},
+  {id:'assidu',  nom:'Assidu·e',         ico:'school',      acc:'green',  desc:'Terminer 20 leçons',                            cible:20},
+  {id:'regulier',nom:'Régulier·ère',     ico:'clock',       acc:'blue',   desc:'Terminer 10 leçons',                            cible:10},
+  {id:'streak',  nom:'Marathonien·ne',   ico:'fire',        acc:'amber',  desc:'Apprendre 7 jours d’affilée',                   cible:7},
+  {id:'explo',   nom:'Explorateur·rice', ico:'globe',       acc:'teal',   desc:'Suivre les 6 cours du catalogue',               cible:6},
+  {id:'perf',    nom:'Perfectionniste',  ico:'star',        acc:'amber',  desc:'Obtenir 5 quiz parfaits (100 %)',               cible:5},
+  {id:'mentor',  nom:'Mentor·e',         ico:'chat',        acc:'purple', desc:'Publier 10 messages dans les discussions',      cible:10},
+  {id:'data',    nom:'Maître des émulsions', ico:'jar',     acc:'pink',   desc:'Terminer « Crème de visage : émulsions & actifs »', cible:100},
+  {id:'cyber',   nom:'Étiquette conforme', ico:'check-circle', acc:'green', desc:'Terminer « Étiquetage, sécurité & vente »',    cible:100}
+];
+
+const BADGES = [
+  {nom:'Premier savon',  desc:'Première leçon terminée', ico:'flask',  acc:'purple', obt:true},
+  {nom:'Marathonien·ne', desc:'7 jours d’affilée',       ico:'fire',   acc:'amber',  obt:true},
+  {nom:'Assidu·e',       desc:'20 leçons terminées',     ico:'school', acc:'green',  obt:false},
+  {nom:'Mentor·e',       desc:'10 messages publiés',     ico:'chat',   acc:'blue',   obt:false}
+];
+
+const FAQ = [
+  {q:'Comment créer mon compte CosmétiLab ?', r:"Depuis l’écran d’accueil, choisissez « Créer un compte » : nom, e-mail, mot de passe, ville et votre profil (apprenant ou formateur). Votre compte est créé sur le serveur et votre progression démarre à zéro."},
+  {q:'Mes données sont-elles séparées de celles des autres ?', r:"Oui. Chaque compte possède son propre espace : progression, notes, quiz, devoirs et favoris sont enregistrés sur le serveur avec votre jeton personnel. Personne d’autre ne voit votre travail."},
+  {q:'Comment ma progression se synchronise-t-elle ?', r:"L’application pousse chaque changement au serveur et interroge l’API toutes les quelques secondes : si vous continuez sur un autre appareil, c’est repris ici automatiquement, sans recharger la page."},
+  {q:'Puis-je travailler sans connexion ?', r:"Oui. Hors-ligne, tout reste enregistré sur l’appareil (y compris les vidéos repliées en extrait intégré) et se synchronise dès que le réseau revient."},
+  {q:'Comment déposer un devoir ?', r:"Ouvrez le devoir depuis l’accueil ou l’agenda, lisez les consignes, joignez votre fichier (PDF, photo ou archive) et validez « Déposer le devoir ». Votre formateur le reçoit immédiatement."},
+  {q:'Je suis formateur : où sont les copies à corriger ?', r:"Dans Profil → Corrections (visible avec un compte formateur) : vous y trouvez les dépôts de tous les apprenants, avec la note et le commentaire à saisir en un geste."}
+];

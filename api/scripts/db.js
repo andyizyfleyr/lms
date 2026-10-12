@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ------------------------------------------------------------
-   Outils base de données LearnHub (Neon) — migrate / seed / check / reset
+   Outils base de données CosmétiLab (Neon) — migrate / seed / check / reset
    Usage : npm run db:migrate | db:seed | db:check | db:reset
    ------------------------------------------------------------ */
 const fs = require('fs');
@@ -49,7 +49,7 @@ const run = async (client, file) => {
     if (cmd === 'migrate') await run(client, 'db/schema.sql');
     else if (cmd === 'seed') await run(client, 'db/seed.sql');
     else if (cmd === 'reset'){
-      console.log('  ⚠ remise à zéro de toutes les tables LearnHub…');
+      console.log('  ⚠ remise à zéro de toutes les tables CosmétiLab…');
       await client.query(`drop table if exists quiz_answers, quiz_attempts, quiz_options, quiz_questions, quizzes,
         submissions, assignments, notes, messages, lesson_progress, enrollments, video_state, activity,
         downloads, session_reminders, user_badges, settings, notifications, auth_tokens, badges,

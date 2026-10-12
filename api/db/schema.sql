@@ -1,5 +1,5 @@
 -- ============================================================
--- LearnHub — schéma PostgreSQL (Neon)
+-- CosmétiLab — schéma PostgreSQL (Neon)
 -- Idempotent : peut être relancé sans casser la base.
 -- ============================================================
 create extension if not exists pgcrypto;

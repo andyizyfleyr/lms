@@ -1,4 +1,4 @@
-# Référence de l'API LearnHub
+# Référence de l'API CosmétiLab
 
 Base d'exemple : `http://localhost:3000` (ou l'URL Vercel).
 Toutes les routes renvoient du JSON. En cas de succès : `{ "ok": true, "data": … }`.
@@ -11,7 +11,7 @@ Authentification : en-tête `Authorization: Bearer <jeton>` (jeton renvoyé par 
 
 | Méthode | Chemin | Description |
 |---|---|---|
-| POST | `/api/auth/register` | `{email, motDePasse, nom, promo?, ville?}` → `{token, user}` |
+| POST | `/api/auth/register` | `{email, motDePasse, nom, role?, promo?, ville?}` → `{token, user}` — `role` : `etudiant` (défaut) ou `enseignant` |
 | POST | `/api/auth/login` | `{email, motDePasse}` → `{token, user, settings}` |
 | POST | `/api/auth/logout` | Invalide le jeton courant |
 | GET | `/api/auth/me` | Profil + réglages |
@@ -38,6 +38,12 @@ Authentification : en-tête `Authorization: Bearer <jeton>` (jeton renvoyé par 
 | POST | `/api/courses/{id}/messages` | Publier un message |
 | POST | `/api/courses/{id}/enroll` | S'inscrire au cours |
 | DELETE | `/api/courses/{id}/enroll` | Quitter le cours |
+
+## Temps réel
+
+| Méthode | Chemin | Description |
+|---|---|---|
+| GET | `/api/sync` | Révision de l'espace du compte : `{revision, lecons, videos, quiz, depots, cours, serveur, utilisateur}`. Interrogée en boucle par l'application ; si `revision` change, elle recharge la progression. |
 
 ## Progression
 
@@ -115,7 +121,7 @@ Authentification : en-tête `Authorization: Bearer <jeton>` (jeton renvoyé par 
 # 1. connexion
 TOKEN=$(curl -s -X POST http://localhost:3000/api/auth/login \
   -H 'Content-Type: application/json' \
-  -d '{"email":"amina@learnhub.bj","motDePasse":"demo1234"}' | jq -r .data.token)
+  -d '{"email":"amina@cosmetilab.bj","motDePasse":"demo1234"}' | jq -r .data.token)
 
 # 2. mes cours suivis
 curl -s "http://localhost:3000/api/courses?inscrit=1" -H "Authorization: Bearer $TOKEN" | jq .data.cours[]

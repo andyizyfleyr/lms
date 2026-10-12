@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 
 export const metadata: Metadata = {
-  title: 'LearnHub API — Next.js + Neon',
-  description: 'API REST complète du tableau de bord LMS LearnHub (cours, leçons, vidéos, quiz, devoirs, notes, agenda, badges).'
+  title: 'CosmétiLab API — Next.js + Neon',
+  description: 'API REST complète du tableau de bord LMS CosmétiLab (cours, leçons, vidéos, quiz, devoirs, notes, agenda, badges).'
 };
 export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: '#6750a4' };
 

@@ -28,18 +28,18 @@ function extraire(fichier, nom){
 }
 
 const donnees = {
-  COURS:       extraire('app.js', 'COURS'),
-  VIDEOS:      extraire('app.js', 'VIDEOS'),
-  PROGRAMMES:  extraire('core.js', 'PROGRAMMES'),
-  QUIZZES:     extraire('core.js', 'QUIZZES'),
-  DEVOIRS:     extraire('core.js', 'DEVOIRS'),
-  RESSOURCES:  extraire('core.js', 'RESSOURCES'),
-  SESS:        extraire('core.js', 'SESS'),
-  BADGES_DEF:  extraire('core.js', 'BADGES_DEF'),
-  NOTIFS_SEED: extraire('core.js', 'NOTIFS_SEED'),
-  DL_SEED:     extraire('core.js', 'DL_SEED'),
-  DISC_SEED:   extraire('core.js', 'DISC_SEED'),
-  FAQ:         extraire('core.js', 'FAQ')
+  COURS:       extraire('content.js', 'COURS'),
+  VIDEOS:      extraire('content.js', 'VIDEOS'),
+  PROGRAMMES:  extraire('content.js', 'PROGRAMMES'),
+  QUIZZES:     extraire('content.js', 'QUIZZES'),
+  DEVOIRS:     extraire('content.js', 'DEVOIRS'),
+  RESSOURCES:  extraire('content.js', 'RESSOURCES'),
+  SESS:        extraire('content.js', 'SESS'),
+  BADGES_DEF:  extraire('content.js', 'BADGES_DEF'),
+  NOTIFS_SEED: extraire('content.js', 'NOTIFS_SEED'),
+  DL_SEED:     extraire('content.js', 'DL_SEED'),
+  DISC_SEED:   extraire('content.js', 'DISC_SEED'),
+  FAQ:         extraire('content.js', 'FAQ')
 };
 
 fs.writeFileSync(SORTIE, JSON.stringify(donnees, null, 1) + '\n');

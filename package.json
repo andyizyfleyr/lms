@@ -1,8 +1,8 @@
 {
-  "name": "learnhub",
+  "name": "cosmetilab",
   "version": "1.0.0",
   "private": true,
-  "description": "LearnHub — tableau de bord LMS mobile (fichier HTML unique) + API Next.js sur base Neon",
+  "description": "CosmétiLab — tableau de bord LMS mobile (fichier HTML unique) + API Next.js sur base Neon",
   "license": "MIT",
   "scripts": {
     "build": "npm --prefix web run build && node api/scripts/sync-site.js",
@@ -19,7 +19,9 @@
     "verifier-tout": "npm run verifier && npm run site:verifier && npm --prefix api run typecheck && npm --prefix api run db:check && npm --prefix api run smoke",
     "api:smoke": "npm --prefix api run smoke",
     "site:sync": "node api/scripts/sync-site.js",
-    "site:verifier": "node api/scripts/sync-site.js --verifier"
+    "site:verifier": "node api/scripts/sync-site.js --verifier",
+    "test:comptes": "npm --prefix web run test:comptes",
+    "test:tout": "npm --prefix web run test && npm --prefix web run test:comptes"
   },
   "engines": {
     "node": ">=20"

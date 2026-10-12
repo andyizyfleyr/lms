@@ -23,8 +23,10 @@ const test = (nom, condition, detail = '') => {
 console.log('=== Contenu du livrable ===');
 test('fichier unique et autonome', !/<script[^>]+src=|<link[^>]+href=/i.test(html), 'aucun script ni feuille externe');
 test('aucune dépendance CDN', !/https?:\/\/(unpkg|cdn|jsdelivr)/i.test(html));
+ test('contenu cosmétique', /const COURS\s*=\s*\[/.test(html) && /Savonnerie à froid/.test(html));
+ test('comptes séparés et temps réel', /lh:u:/.test(html) && /\/api\/sync/.test(html));
 const images = (html.match(/data:image\/(png|jpeg|webp);base64,/g) || []).length;
-test('images en base64', images >= 5, images + ' images');
+test('images en base64', images >= 10, images + ' images');
 test('extrait vidéo intégré (MP4 + WebM)', /data:video\/mp4;base64,/.test(html) && /data:video\/webm;base64,/.test(html));
 const icones = (html.match(/<symbol id="ic-/g) || []).length;
 test('sprite d’icônes', icones >= 30, icones + ' icônes');
@@ -34,11 +36,11 @@ test('lecteur YouTube + repli local', /YT\.Player/.test(html) && /CLIP_MP4/.test
 test('synchronisation API', /window\.LHSYNC/.test(html) && /\/api\/progress\?format=app/.test(html));
 test('thème clair / sombre', /setTheme\(/.test(html));
 test('persistance locale', /localStorage/.test(html));
-test('taille < 1 Mo', html.length < 1_000_000, Math.round(html.length / 1024) + ' Ko');
+test('taille maîtrisée (< 2,6 Mo)', html.length < 2_600_000, Math.round(html.length / 1024) + ' Ko');
 
 console.log('\n=== Anti-dérive (sources → livrable) ===');
 const os = require('os');
-let tmp = path.join(os.tmpdir(), 'learnhub-index-' + process.pid + '.html');
+let tmp = path.join(os.tmpdir(), 'cosmetilab-index-' + process.pid + '.html');
 try {
   execFileSync(process.execPath, [path.join(ICI, 'build.js'), tmp], { cwd: ICI, stdio: 'pipe' });
   const reconstruit = fs.readFileSync(tmp, 'utf8');

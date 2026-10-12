@@ -15,270 +15,6 @@ const IC = {
 /* ------------------------------------------------------------
    1. DONNÉES : programmes, quiz, devoirs, notifications…
    ------------------------------------------------------------ */
-const PROGRAMMES = {
-  c1: [
-    {m:'Fondations du web', l:[
-      {t:"Introduction au web et à l'environnement", d:'8 min',  k:'lecture',  done:1},
-      {t:'Les bases de JavaScript',                  d:'62 min', k:'video',    v:'agj8_3xpuYI', done:1},
-      {t:'JavaScript de A à Z en 1 heure',           d:'62 min', k:'video',    v:'ldxt9FNUc50', done:1}
-    ]},
-    {m:'DOM & composants réutilisables', l:[
-      {t:'Manipuler le DOM pas à pas',               d:'12 min', k:'lecture', done:1},
-      {t:'Créer des composants réutilisables',       d:'14 min', k:'lecture', done:1},
-      {t:'Exercice guidé : galerie de cartes',       d:'25 min', k:'exercice'}
-    ]},
-    {m:'Passer au full-stack', l:[
-      {t:'Consommer une API REST',                   d:'16 min', k:'lecture'},
-      {t:'Projet final : portfolio responsive',      d:'1 h',    k:'projet'}
-    ]}
-  ],
-  c2: [
-    {m:'Les bases de Material Design 3', l:[
-      {t:'Tout savoir sur Material Design 3',        d:'24 min', k:'video', v:'h_JYW2hdI8U', done:1},
-      {t:'Colorimétrie et rôles de couleur',         d:'12 min', k:'lecture', done:1},
-      {t:'Typographie et échelle de styles',         d:'10 min', k:'lecture', done:1}
-    ]},
-    {m:'Composants M3', l:[
-      {t:'Prototyper un FAB Material 3 sur Figma',   d:'23 min', k:'video', v:'asN3B33wOzo', done:1},
-      {t:'Cartes, chips et navigation',              d:'15 min', k:'lecture'},
-      {t:'Material 3 : du design au déploiement',    d:'16 min', k:'video', v:'7nrhTdS7dHg'}
-    ]},
-    {m:'Aller plus loin', l:[
-      {t:'Exercice : palette dynamique',             d:'20 min', k:'exercice'},
-      {t:'Accessibilité et contrastes',              d:'14 min', k:'lecture'},
-      {t:'Quiz final — composants Material 3',       d:'10 min', k:'quiz'}
-    ]}
-  ],
-  c3: [
-    {m:'Python pour la data', l:[
-      {t:'Introduction à Python pour la data',       d:'10 min', k:'lecture', done:1},
-      {t:'Python, NumPy et Pandas (cours complet)',  d:'6 h 05', k:'video', v:'LwkWwxg10IU', done:1},
-      {t:'Pandas : analyse du Titanic',              d:'17 min', k:'video', v:'zZkNOdBWgFQ', done:1}
-    ]},
-    {m:'Préparer et visualiser', l:[
-      {t:'Nettoyage et préparation des données',     d:'14 min', k:'lecture', done:1},
-      {t:'Visualisation avec Matplotlib',            d:'16 min', k:'lecture', done:1}
-    ]},
-    {m:'Modéliser', l:[
-      {t:'Premiers modèles : régression linéaire',   d:'22 min', k:'exercice', done:1},
-      {t:'Devoir noté : régression linéaire',        d:'1 h 30', k:'devoir'},
-      {t:'Quiz du module Data Science',              d:'10 min', k:'quiz'}
-    ]}
-  ],
-  c4: [
-    {m:'Panorama du digital', l:[
-      {t:'Formation marketing digital complète',     d:'1 h 46', k:'video', v:'5IcZPL-zJYc', done:1},
-      {t:'Définir sa cible et son positionnement',   d:'12 min', k:'lecture'},
-      {t:'Stratégie réseaux sociaux en 7 étapes',    d:'9 min',  k:'video', v:'3WFYTiHi5TU', done:1}
-    ]},
-    {m:'Contenu et acquisition', l:[
-      {t:'Community management au quotidien',        d:'10 min', k:'lecture'},
-      {t:'Publicité en ligne : Meta & Google Ads',   d:'18 min', k:'lecture'},
-      {t:'Exercice : plan de contenu 30 jours',      d:'20 min', k:'exercice'}
-    ]},
-    {m:'Piloter la performance', l:[
-      {t:'Étude de cas : lancement produit',         d:'15 min', k:'lecture'},
-      {t:'Quiz marketing digital',                   d:'8 min',  k:'quiz'}
-    ]}
-  ],
-  c5: [
-    {m:'Business English essentials', l:[
-      {t:"18 mots d'anglais des affaires",           d:'21 min', k:'video', v:'vzIEBqBexf4', done:1},
-      {t:'Business English : conversation',          d:'1 h 45', k:'video', v:'iyoXejosxGg', done:1}
-    ]},
-    {m:'Communiquer au travail', l:[
-      {t:'Réunions et visioconférences',             d:'12 min', k:'lecture', done:1},
-      {t:'Écrire des e-mails professionnels',        d:'14 min', k:'lecture', done:1},
-      {t:'Négocier et convaincre',                   d:'18 min', k:'exercice', done:1}
-    ]},
-    {m:'Certification', l:[
-      {t:'Préparation à l\'examen B2',               d:'20 min', k:'lecture', done:1},
-      {t:'Quiz final B2',                            d:'12 min', k:'quiz', done:1}
-    ]}
-  ],
-  c6: [
-    {m:'Comprendre les menaces', l:[
-      {t:'Cybersécurité : guide pour démarrer',      d:'18 min', k:'video', v:'VLr0mTzYfRE'},
-      {t:'Débuter le hacking éthique',               d:'20 min', k:'video', v:'syb15o27GEE'},
-      {t:'Authentification et mots de passe',        d:'12 min', k:'lecture'}
-    ]},
-    {m:'Protéger ses données', l:[
-      {t:'Le chiffrement expliqué simplement',       d:'15 min', k:'lecture'},
-      {t:'Sécurité des réseaux',                     d:'14 min', k:'lecture'},
-      {t:'Hygiène numérique au quotidien',           d:'10 min', k:'lecture'}
-    ]},
-    {m:'Mettre en pratique', l:[
-      {t:'Exercice : repérer un e-mail de phishing', d:'20 min', k:'exercice'},
-      {t:'Quiz du module Cybersécurité',             d:'10 min', k:'quiz'}
-    ]}
-  ]
-};
-
-const QUIZZES = {
-  c2: {titre:'Composants Material Design 3', duree:600, questions:[
-    {q:'Quel rôle de couleur M3 faut-il utiliser pour un texte posé sur « primary » ?', o:['on-primary','secondary','surface-variant','outline'], a:0,
-     e:'Chaque rôle possède sa contrepartie « on- » pour garantir le contraste du contenu.'},
-    {q:'Par défaut, quelle est la forme d\'un FAB en Material 3 ?', o:['Carré (0 dp)','Coins arrondis de 16 dp','Coin supérieur arrondi','Pilule complète'], a:1,
-     e:'Le FAB M3 utilise un rayon de 16 dp ; la variante « extended » est également arrondie à 16 dp.'},
-    {q:'En Material 3, l\'élévation est principalement exprimée par…', o:['Une ombre uniquement','Une teinte de surface (surface tint)','Une bordure épaisse','Un dégradé'], a:1,
-     e:'M3 remplace l\'ombre seule par des « surface containers » teintés selon le niveau.'},
-    {q:'D\'où provient la couleur d\'un bouton « tonal » M3 ?', o:['primary','secondary-container','tertiary','error'], a:1,
-     e:'Un bouton tonal (filled tonal) est rempli par la couleur de rôle secondary-container.'},
-    {q:'À quoi sert un « state layer » dans les composants M3 ?', o:['À décorer le bouton','À signaler survol, focus et appui','À empiler les cartes','À animer les icônes'], a:1,
-     e:'Le state layer ajoute une couche d\'opacité sur l\'état (hover 8 %, focus 10 %, pressed 10 %).'},
-    {q:'Quelle taille de corps pour le style « body large » ?', o:['14','16','18','20'], a:1,
-     e:'L\'échelle typographique M3 définit body-large à 16 sp.'}
-  ]},
-  c1: {titre:'JavaScript : les fondamentaux', duree:420, questions:[
-    {q:'Quel mot-clé déclare une constante non réaffectable ?', o:['var','let','const','static'], a:2, e:'const : la liaison ne peut pas être réassignée.'},
-    {q:'Que renvoie « typeof null » ?', o:['"null"','"object"','"undefined"','"number"'], a:1, e:'Comportement historique du langage : typeof null vaut "object".'},
-    {q:'Quelle méthode ajoute un élément en fin de tableau ?', o:['unshift()','pop()','push()','shift()'], a:2, e:'push() ajoute en fin ; unshift() ajoute au début.'},
-    {q:'Comment sélectionner un élément par son identifiant ?', o:['document.querySelectorAll(".id")','document.getElementById("id")','document.find("id")','window.element("id")'], a:1, e:'getElementById renvoie un seul élément.'},
-    {q:'Que fait « addEventListener("click", fn) » ?', o:['Exécute fn immédiatement','Enregistre fn pour l\'événement click','Supprime le nœud','Modifie le style'], a:1, e:'On attache un écouteur déclenché à chaque clic.'}
-  ]},
-  c3: {titre:'Data Science avec Python', duree:480, questions:[
-    {q:'Quelle fonction lit un fichier CSV avec Pandas ?', o:['pd.read_csv()','pd.load_csv()','pd.open_csv()','pd.csv()'], a:0, e:'pandas.read_csv charge un CSV dans un DataFrame.'},
-    {q:'Que renvoie df.head() ?', o:['Les 10 dernières lignes','Les 5 premières lignes','Le nombre de lignes','Les colonnes'], a:1, e:'head(n=5) affiche les 5 premières lignes.'},
-    {q:'Quel attribut donne les dimensions d\'un DataFrame ?', o:['df.size','df.len','df.shape','df.count'], a:2, e:'df.shape renvoie (lignes, colonnes).'},
-    {q:'Quel outil sert à afficher un graphique avec Matplotlib ?', o:['plt.show()','plt.display()','plt.render()','plt.plot.show'], a:0, e:'plt.show() affiche la figure courante.'},
-    {q:'Quelle bibliothèque est optimisée pour le calcul numérique ?', o:['NumPy','Pillow','Requests','Flask'], a:0, e:'NumPy fournit des tableaux ndarray vectorisés.'}
-  ]},
-  c4: {titre:'Marketing digital', duree:360, questions:[
-    {q:'Que signifie SEO ?', o:['Search Engine Optimization','Social Engagement Online','Sales Efficiency Output','Site Editing Order'], a:0, e:'Optimisation pour les moteurs de recherche.'},
-    {q:'Quel indicateur mesure l\'engagement sur un réseau social ?', o:['Le nombre de serveurs','Le taux d\'engagement','Le poids des images','Le taux de conversion d\'un site'], a:1, e:'Interactions / impressions ou abonnés.'},
-    {q:'Un « CTA » est…', o:['Un budget publicitaire','Un appel à l\'action','Une campagne d\'e-mailing','Une audience'], a:1, e:'Call To Action : invite à une action précise.'},
-    {q:'Quel canal est « owned » (possédé) ?', o:['Une publicité payante','Votre blog','Un article de presse','Un avis client'], a:1, e:'Owned media : vous en maîtrisez le contenu et la diffusion.'}
-  ]},
-  c5: {titre:'Business English B2', duree:420, questions:[
-    {q:'Comment refuser poliment en réunion ?', o:['I don\'t care.','I\'m afraid I\'d have to disagree.','No way.','That\'s wrong.'], a:1, e:'Formule atténuée et professionnelle.'},
-    {q:'Quelle formule ouvre un e-mail professionnel ?', o:['Hey!','Dear Ms Clark,','Yo,','To whom it may concern,'], a:1, e:'« Dear + titre + nom » reste la référence formelle.'},
-    {q:'Que signifie « to follow up on something » ?', o:['Annuler','Relancer / faire un suivi','Renvoyer un colis','Signer un contrat'], a:1, e:'Faire un suivi d\'un dossier ou d\'un échange.'},
-    {q:'Comment demander une reformulation ?', o:['Could you clarify that, please?','Speak louder.','What?','Say it again, fast.'], a:0, e:'« Could you clarify… » demande une précision avec courtoisie.'}
-  ]},
-  c6: {titre:'Cybersécurité — Fondamentaux', duree:420, questions:[
-    {q:'Quel signe évoque un e-mail de phishing ?', o:['Un domaine d\'expéditeur douteux','Une signature professionnelle','Un objet clair','Un PDF joint à votre demande'], a:0, e:'Le domaine de l\'expéditeur est le premier indice.'},
-    {q:'La double authentification (2FA)…', o:['Remplace le mot de passe','Ajoute une seconde preuve','Chiffre le disque','Supprime les cookies'], a:1, e:'Un second facteur : code, application, clé matérielle.'},
-    {q:'Un mot de passe robuste est…', o:['Un mot du dictionnaire','Long, unique et aléatoire','Votre date de naissance','Le même partout'], a:1, e:'Longueur + unicité + aléatoire = robustesse.'},
-    {q:'Le chiffrement garantit…', o:['La confidentialité des données','La vitesse du réseau','La sauvegarde automatique','L\'anonymat total'], a:0, e:'Les données restent illisibles sans la clé.'}
-  ]}
-};
-
-const DEVOIRS = [
-  {id:'d1', cours:'c2', titre:'Quiz — Les composants Material 3', type:'Quiz noté', points:20, echeance:{j:0,h:'18:00'}, niveau:'urgent',
-   consignes:["Révisez les rôles de couleur et les styles typographiques M3.","Le quiz comporte 6 questions à choix unique.","Un seul essai possible avant la clôture à 18:00."], quiz:'c2'},
-  {id:'d2', cours:'c1', titre:'Projet — Portfolio responsive', type:'Projet', points:40, echeance:{j:1,h:'23:59'}, niveau:'soon',
-   consignes:["Livrez une page portfolio responsive (mobile-first).","Utilisez des composants réutilisables en JavaScript.","Déposez une archive .zip contenant le code source.","Bonus : intégrez une barre de navigation type Material 3."]},
-  {id:'d3', cours:'c3', titre:'Devoir — Régression linéaire', type:'Devoir noté', points:30, echeance:{j:4,h:'12:00'}, niveau:'normal',
-   consignes:["Chargez le jeu de données fourni avec Pandas.","Nettoyez les valeurs manquantes et justifiez vos choix.","Entraînez une régression linéaire simple et commentez le R².","Rendez un notebook .ipynb commenté."]},
-  {id:'d4', cours:'c4', titre:'Étude de cas — Lancement produit', type:'Étude de cas', points:25, echeance:{j:-3,h:'23:59'}, niveau:'past',
-   consignes:["Analysez la campagne de lancement d'une marque locale.","Proposez un plan média sur 30 jours."], note:17},
-  {id:'d5', cours:'c6', titre:'Exercice — Repérer un phishing', type:'Exercice', points:15, echeance:{j:-1,h:'20:00'}, niveau:'past',
-   consignes:["Identifiez 5 indices de phishing dans l'e-mail fourni.","Expliquez la conduite à tenir pour chacun."], attente:true}
-];
-
-const SESS = [
-  {id:'s1', jour:0, heure:'09:00', titre:'Live — Composants Material 3', type:'Visioconférence', duree:'1 h 30', salle:'Salle virtuelle A', cours:'c2',
-   prof:'Mme Adjovi', tags:['Live','UI/UX'], acc:'purple', ico:'video', desc:"Composants M3 en direct : cartes, chips, navigation et états d'interaction. Questions ouvertes en fin de séance."},
-  {id:'s2', jour:0, heure:'14:00', titre:'Atelier — Maquette responsive', type:'Présentiel', duree:'2 h', salle:'Amphi 2 · Calavi', cours:'c2',
-   prof:'M. Kouassi', tags:['Atelier'], acc:'blue', ico:'grid', desc:"Atelier pratique : passez la maquette Figma en HTML/CSS responsive. Apportez votre ordinateur."},
-  {id:'s3', jour:1, heure:'10:30', titre:'Cours — Hooks React avancés', type:'Live', duree:'1 h', salle:'Salle virtuelle B', cours:'c1',
-   prof:'M. Kouassi', tags:['Dev','React'], acc:'green', ico:'code', desc:"useMemo, useCallback et effets : quand optimiser, quand s'abstenir."},
-  {id:'s4', jour:2, heure:'16:00', titre:'Tutorat Data Science', type:'Tutorat', duree:'45 min', salle:'Visio individuelle', cours:'c3',
-   prof:'Dr. Bio', tags:['Tutorat'], acc:'amber', ico:'chart', desc:"Séance individuelle : revue de votre notebook de régression linéaire."},
-  {id:'s5', jour:4, heure:'11:00', titre:'Examen blanc — Anglais B2', type:'Évaluation', duree:'2 h', salle:"Centre d'examen", cours:'c5',
-   prof:'Ms. Clark', tags:['Examen'], acc:'pink', ico:'globe', desc:"Épreuve blanche complète : compréhension, expression écrite et orale."},
-  {id:'s6', jour:6, heure:'18:30', titre:'Q&A communauté LearnHub', type:'Discussion', duree:'1 h', salle:'Discord LearnHub', cours:'',
-   prof:'Équipe LearnHub', tags:['Communauté'], acc:'teal', ico:'chat', desc:"Questions libres, retours d'expérience et entraide entre étudiants."}
-];
-
-const NOTIFS_SEED = [
-  {id:'n1', type:'devoir',   t:'Quiz Material 3 à rendre aujourd\'hui',  b:'Clôture à 18:00 — 6 questions, 20 points.',                        min:8,    lu:0, go:['devoir','d1']},
-  {id:'n2', type:'message',  t:'Nouveau commentaire de Mme Adjovi',      b:'« Maquette M3 » : vos espacements sont bien meilleurs 👏',         min:52,   lu:0, go:['cours','c2',{tab:'discussion'}]},
-  {id:'n3', type:'cours',    t:'Nouvelle leçon disponible',              b:'Développement Web Full-Stack — « Consommer une API REST ».',        min:180,  lu:0, go:['cours','c1']},
-  {id:'n4', type:'badge',    t:'Badge débloqué : Marathonien 🎉',        b:'12 jours d\'affilée — continu comme ça !',                          min:420,  lu:1, go:['badges','']},
-  {id:'n5', type:'quiz',     t:'Résultat du quiz Data Science',          b:'Score : 80 % — les bases sont solides.',                            min:1500, lu:1, go:['quiz','c3']},
-  {id:'n6', type:'systeme',  t:'Téléchargement terminé',                 b:'UI/UX Design & Material 3 disponible hors-ligne (240 Mo).',         min:1800, lu:1, go:['telechargements','']},
-  {id:'n7', type:'message',  t:'M. Kouassi a répondu à votre question',  b:'« Oui, tu peux utiliser des Web Components sans framework. »',       min:2600, lu:1, go:['cours','c1',{tab:'discussion'}]},
-  {id:'n8', type:'cours',    t:'Session live demain à 10:30',            b:'Hooks React avancés — salle virtuelle B.',                          min:3100, lu:1, go:['session','s3']}
-];
-
-const DL_SEED = [
-  {id:'dl1', ref:'c2',  t:'UI/UX Design & Material 3',  s:'3 leçons · 240 Mo', p:100, st:'done', size:240},
-  {id:'dl2', ref:'c1',  t:'Développement Web Full-Stack', s:'Module 3 · 180 Mo', p:46,  st:'pause', size:180},
-  {id:'dl3', ref:'v',   t:'Pandas Python — analyse du Titanic', s:'Vidéo · 17 min · 42 Mo', p:100, st:'done', size:42, v:'zZkNOdBWgFQ'},
-  {id:'dl4', ref:'v',   t:'Tout savoir sur Material Design 3', s:'Vidéo · 24 min · 88 Mo', p:24, st:'dl', size:88, v:'h_JYW2hdI8U'}
-];
-
-const DISC_SEED = {
-  c1: [
-    {id:'m1', a:'M. Kouassi', role:'Formateur', ini:'MK', acc:'blue',   min:120, txt:"Bonjour à tous 👋 Le module 3 est en ligne. Commencez par la leçon sur les API REST, puis attaquez le projet portfolio.", likes:4},
-    {id:'m2', a:'Ibrahim S.', role:'Étudiant',  ini:'IS', acc:'green',  min:95,  txt:"Merci ! Est-ce qu'on peut utiliser des Web Components sans framework pour le projet ?", likes:2},
-    {id:'m3', a:'M. Kouassi', role:'Formateur', ini:'MK', acc:'blue',   min:88,  txt:"Oui, c'est même recommandé pour ce module : composants natifs + fetch, sans dépendance.", likes:6}
-  ],
-  c2: [
-    {id:'m4', a:'Mme Adjovi', role:'Formateur', ini:'MA', acc:'purple', min:60,  txt:"Vos maquettes avancent bien 👏 Pensez à vérifier le contraste texte/fond (ratio 4.5:1 minimum) avant de rendre.", likes:5},
-    {id:'m5', a:'Amina D.',   role:'Vous',      ini:'AD', acc:'amber',  min:45,  txt:"Merci ! J'ai retravaillé les espacements avec l'échelle 4/8/12 et une teinte surface-container-high sur les cartes.", likes:3, me:1},
-    {id:'m6', a:'Mme Adjovi', role:'Formateur', ini:'MA', acc:'purple', min:38,  txt:"« Maquette M3 » : vos espacements sont bien meilleurs 👏 Continuez sur la hiérarchie typographique.", likes:7}
-  ],
-  c3: [
-    {id:'m7', a:'Dr. Bio', role:'Formateur', ini:'DB', acc:'green', min:200, txt:"Rappel : le devoir de régression linéaire se rend en notebook commenté (.ipynb). Posez vos questions ici.", likes:3}
-  ],
-  c4: [], c5: [], c6: []
-};
-
-const RESSOURCES = {
-  c1: [
-    {n:'Support de cours — API REST',       t:'PDF · 2,4 Mo', ico:'task', acc:'purple'},
-    {n:'Code source du module 3',           t:'ZIP · 8,1 Mo', ico:'code', acc:'blue'},
-    {n:'Mémo JavaScript (aide-mémoire)',    t:'PDF · 640 Ko', ico:'layers', acc:'green'},
-    {n:'Maquette de départ',                t:'Figma · lien', ico:'edit', acc:'amber'}
-  ],
-  c2: [
-    {n:'Grille et espacements M3',          t:'PDF · 1,1 Mo', ico:'grid', acc:'purple'},
-    {n:'Kit de composants Figma',           t:'Figma · lien', ico:'layers', acc:'blue'},
-    {n:'Palette et rôles de couleur',       t:'PDF · 820 Ko', ico:'sliders', acc:'amber'},
-    {n:'Checklist accessibilité',           t:'PDF · 380 Ko', ico:'shield', acc:'green'}
-  ],
-  c3: [
-    {n:'Notebook de régression linéaire',   t:'IPYNB · 1,8 Mo', ico:'chart', acc:'green'},
-    {n:'Jeu de données Titanic',            t:'CSV · 60 Ko',     ico:'layers', acc:'blue'},
-    {n:'Mémo Pandas',                       t:'PDF · 900 Ko',    ico:'task', acc:'purple'}
-  ],
-  c4: [
-    {n:'Plan de contenu (modèle)',          t:'XLSX · 240 Ko', ico:'grid', acc:'amber'},
-    {n:'Étude de cas — lancement produit',  t:'PDF · 1,5 Mo',  ico:'task', acc:'purple'}
-  ],
-  c5: [
-    {n:'Vocabulaire des affaires (200 mots)', t:'PDF · 700 Ko', ico:'globe', acc:'pink'},
-    {n:'Sujets d\'entraînement B2',           t:'PDF · 1,2 Mo', ico:'task', acc:'blue'}
-  ],
-  c6: [
-    {n:'Guide d\'hygiène numérique',        t:'PDF · 1,3 Mo', ico:'shield', acc:'teal'},
-    {n:'Exemples d\'e-mails frauduleux',    t:'PDF · 900 Ko', ico:'task',   acc:'purple'}
-  ]
-};
-
-const BADGES_DEF = [
-  {id:'streak',  nom:'Marathonien',     ico:'fire',        acc:'amber',  desc:'Se connecter 7 jours d\'affilée',           cible:7},
-  {id:'assidu',  nom:'Assidu',          ico:'school',      acc:'green',  desc:'Terminer 20 leçons',                        cible:20},
-  {id:'premier', nom:'Premier pas',     ico:'check-circle',acc:'blue',   desc:'Terminer sa première leçon',                cible:1},
-  {id:'regulier',nom:'Régulier',        ico:'clock',       acc:'purple', desc:'Terminer 10 leçons ce mois-ci',             cible:10},
-  {id:'explo',   nom:'Explorateur',     ico:'globe',       acc:'teal',   desc:'Suivre les 6 cours du catalogue',           cible:6},
-  {id:'perf',    nom:'Perfectionniste', ico:'star',        acc:'blue',   desc:'Obtenir 5 quiz parfaits (100 %)',           cible:5},
-  {id:'mentor',  nom:'Mentor',          ico:'chat',        acc:'purple', desc:'Publier 10 messages dans les discussions',  cible:10},
-  {id:'data',    nom:'Data Analyst',    ico:'chart',       acc:'green',  desc:'Terminer « Data Science avec Python »',     cible:100},
-  {id:'cyber',   nom:'Cyber-défenseur', ico:'shield',      acc:'teal',   desc:'Terminer « Cybersécurité — Fondamentaux »', cible:100}
-];
-
-const FAQ = [
-  {q:'Comment reprendre une leçon là où je l\'avais laissée ?', r:"Ouvrez un cours depuis l'accueil ou l'onglet Cours : la leçon en cours est marquée « En cours ». Votre progression vidéo est enregistrée automatiquement, vous reprenez au bon moment."},
-  {q:'Puis-je télécharger les cours pour les suivre hors-ligne ?', r:"Oui. Dans une fiche de cours, utilisez « Télécharger hors-ligne », ou passez par Profil → Téléchargements pour gérer les contenus déjà enregistrés."},
-  {q:'Comment déposer un devoir ?', r:"Ouvrez le devoir depuis l'accueil (Échéances) ou l'agenda, joignez votre fichier, ajoutez un commentaire facultatif puis validez « Déposer le devoir ». Le statut passe à « Rendu »."},
-  {q:'Mes quiz sont-ils notés ?', r:"Chaque quiz enregistre votre meilleur score. Un score ≥ 80 % compte pour le badge « Éclair » et 100 % alimente « Perfectionniste »."},
-  {q:'Comment activer le thème sombre ?', r:"Utilisez l'icône lune en haut à droite, ou Profil → Paramètres → Apparence : Clair, Sombre ou Système (suit votre téléphone)."},
-  {q:'Que faire si une vidéo ne se lance pas ?', r:"Les vidéos sont hébergées par YouTube. Si la lecture est bloquée (hors-ligne, réseau d'entreprise), le lecteur affiche un bouton « Ouvrir sur YouTube »."}
-];
-
 /* ------------------------------------------------------------
    2. ÉTAT PERSISTANT
    ------------------------------------------------------------ */
@@ -1000,8 +736,7 @@ const BADGES_HOME = ['streak','perf','explo','data'];
 function renderHomeBadges(){
   const box = $('#badges');
   if (!box) return;
-  box.innerHTML = BADGES_HOME.map(id => {
-    const b = BADGES_DEF.find(x => x.id === id);
+  box.innerHTML = BADGES_HOME.map(id => BADGES_DEF.find(x => x.id === id)).filter(Boolean).map(b => {
     const ok = badgeUnlocked(b);
     return `<button class="badge-item ripple${ok ? '' : ' is-locked'}" data-badge="${b.id}">
       <span class="badge-item__ico acc-${b.acc}">${svg(b.ico, 'icon')}</span>
@@ -1140,7 +875,7 @@ PAGES.parametres = {
        <div class="sec"><div class="sec__h"><h2>Session</h2></div>
          <button class="btn btn--danger btn--block ripple" data-act="logout">${svg('logout', 'icon icon--18')} Se déconnecter</button>
          <div class="card card--pad" style="margin-top:14px">
-           <div class="kv"><span>Version</span><b>LearnHub 3.2.0</b></div>
+           <div class="kv"><span>Version</span><b>CosmétiLab 4.0.0</b></div>
            <div class="kv"><span>Thème</span><b>Material Design 3</b></div>
            <div class="kv"><span>Compte</span><b>${esc(S.profile.promo)}</b></div>
          </div>
@@ -1222,61 +957,13 @@ function applyProfileUI(){
    15. CONNEXION / DÉCONNEXION
    ------------------------------------------------------------ */
 function showLogin(silent){
-  const host = $('#loginHost');
-  host.innerHTML = `<div class="login" id="loginScreen">
-    <span class="login__logo">${svg('school', 'icon icon--28')}</span>
-    <h1>LearnHub</h1>
-    <p class="sub">Votre plateforme d'apprentissage mobile</p>
-    <div class="field"><input id="lgMail" type="email" placeholder=" " value="${silent ? '' : esc(S.profile.email)}" autocomplete="username"><label for="lgMail">Adresse e-mail</label></div>
-    <div class="field"><input id="lgPwd" type="password" placeholder=" " value="" autocomplete="current-password"><label for="lgPwd">Mot de passe</label></div>
-    <p class="field__help" id="lgErr" hidden></p>
-    <button class="btn btn--filled btn--block ripple" id="lgBtn">Se connecter</button>
-    <div class="login__links">
-      <button class="text-btn ripple" data-act="forgot">Mot de passe oublié ?</button>
-      <button class="text-btn ripple" data-act="demo">Mode démo</button>
-    </div>
-    <div class="note login__demo">${svg('info', 'icon')}<span>Démonstration : n'importe quelle adresse e-mail valide et un mot de passe de 4 caractères minimum.</span></div>
-  </div>`;
-  requestAnimationFrame(() => $('#loginScreen').classList.add('is-open'));
-  const submit = () => {
-    const mail = $('#lgMail').value.trim(), pwd = $('#lgPwd').value;
-    const err = $('#lgErr');
-    const bad = m => { err.textContent = m; err.hidden = false; };
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) return bad('Adresse e-mail invalide.');
-    if (pwd.length < 4) return bad('Le mot de passe doit contenir au moins 4 caractères.');
-    err.hidden = true;
-    const b = $('#lgBtn');
-    b.disabled = true; b.innerHTML = '<span class="spin-sm"></span> Connexion…';
-    setTimeout(() => {
-      S.profile.email = mail; S.logged = true; persist();
-      $('#loginScreen').classList.remove('is-open');
-      setTimeout(() => { host.innerHTML = ''; }, 520);
-      applyProfileUI();
-      toast('Bienvenue ' + S.profile.nom.split(' ')[0] + ' 👋');
-    }, 850);
-  };
-  $('#lgBtn').onclick = submit;
-  $('#lgPwd').onkeydown = e => { if (e.key === 'Enter') submit(); };
-  $('#loginHost').onclick = e => {
-    const a = e.target.closest('[data-act]'); if (!a) return;
-    if (a.dataset.act === 'demo'){ $('#lgMail').value = 'etudiant@learnhub.bj'; $('#lgPwd').value = 'demo'; $('#lgErr').hidden = true; }
-    if (a.dataset.act === 'forgot') dialog({title:'Réinitialiser le mot de passe', text:'Un lien de réinitialisation sera envoyé à l\'adresse saisie.', confirmLabel:'Envoyer le lien', ico:'help'})
-      .then(ok => { if (ok) toast('Lien envoyé — vérifiez votre boîte mail'); });
-  };
-  setTimeout(() => { const i = $('#lgMail'); if (i && silent) i.focus(); }, 600);
+  if (window.LHCOMPTE) return window.LHCOMPTE.ouvrirEntree(silent);
+  toast('Module de comptes indisponible');
 }
 function doLogout(){
-  dialog({title:'Se déconnecter ?', text:'Votre progression reste enregistrée sur cet appareil.', confirmLabel:'Déconnecter', danger:true, ico:'logout'})
-    .then(ok => {
-      if (!ok) return;
-      S.logged = false; persist();
-      while (pageStack.length) popPage(true);
-      histReset();
-      closeSheet();
-      showLogin(false);
-    });
+  if (window.LHCOMPTE) return window.LHCOMPTE.deconnecter();
+  S.logged = false; persist(); showLogin(false);
 }
-
 /* ------------------------------------------------------------
    16. ACTIONS GLOBALES (data-act)
    ------------------------------------------------------------ */
@@ -1298,7 +985,7 @@ const ACTIONS = {
   },
   avatar(){ toast('Sélecteur d\'avatar — fonctionnalité de démonstration'); },
   shareProfile(){
-    const url = 'https://learnhub.bj/@' + S.profile.nom.toLowerCase().replace(/\s+/g, '');
+    const url = 'https://cosmetilab.bj/@' + S.profile.nom.toLowerCase().replace(/\s+/g, '');
     if (navigator.clipboard) navigator.clipboard.writeText(url).catch(() => {});
     toast('Lien de profil copié');
   },
@@ -1342,9 +1029,9 @@ const ACTIONS = {
     dialog({title:'Ticket envoyé', text:'Référence ' + ref + '. Vous recevrez une réponse par e-mail.', confirmLabel:'Fermer', cancel:false, ico:'check-circle'});
   },
   contact(){
-    dialog({title:'Support LearnHub', cancel:false, confirmLabel:'Fermer', title2:'', onOpen(box){
+    dialog({title:'Support CosmétiLab', cancel:false, confirmLabel:'Fermer', title2:'', onOpen(box){
       box.querySelector('.dialog__card').insertAdjacentHTML('beforeend',
-        `<p style="margin-top:8px" class="body-medium">Chat : disponible de 8 h à 20 h<br>E-mail : support@learnhub.bj<br>Tél : +229 21 00 00 00</p>`);
+        `<p style="margin-top:8px" class="body-medium">Chat : disponible de 8 h à 20 h<br>E-mail : support@cosmetilab.bj<br>Tél : +229 21 00 00 00</p>`);
     }});
   },
   resume(){ pushPage('cours', {id:'c1'}); },
@@ -1554,7 +1241,7 @@ if (typeof renderCourses === 'function') renderCourses();
     p.insertAdjacentHTML('afterend', `<p class="body-small muted" id="goalText" style="margin-top:8px">${leconsTotalesFaites()} leçons terminées · objectif 30</p>`);
   }
 })();
-setTimeout(() => { if (!S.logged) showLogin(true); }, 400);
+setTimeout(() => { if (!window.LHCOMPTE || !window.LHCOMPTE.compte()) showLogin(true); }, 400);
 
 /* ------------------------------------------------------------
    Lien partagé : index.html#cours/c1, #videos, #devoir/d2, #quiz/c1…
@@ -1764,7 +1451,7 @@ window.LHSYNC = (function(){
         '<p class="body-medium" style="margin:0 0 12px">Serveur : <code>' + e.serveur + '</code></p>'
       : '<label class="field"><span class="field__label">Adresse du serveur</span>' +
         '<input class="field__input" id="syncUrl" type="url" inputmode="url" placeholder="https://mon-api.vercel.app" value="' + (e.serveur || '') + '"></label>' +
-        '<label class="field"><span class="field__label">E-mail</span><input class="field__input" id="syncMail" type="email" placeholder="amina@learnhub.bj"></label>' +
+        '<label class="field"><span class="field__label">E-mail</span><input class="field__input" id="syncMail" type="email" placeholder="amina@cosmetilab.bj"></label>' +
         '<label class="field"><span class="field__label">Mot de passe</span><input class="field__input" id="syncPwd" type="password" placeholder="demo1234"></label>';
     openSheet(
       '<h3 class="title-medium">Synchronisation serveur</h3>' +
@@ -1825,7 +1512,14 @@ window.LHSYNC = (function(){
       if (p){ base = decodeURIComponent(p).replace(/\/+$/, ''); ecrire(CLE_API, base); }
     } catch (e) {}
     if (!base) await detecterMemeOrigine();        // site + API sur la même adresse
-    if (actif()){ verifier().then(r => { if (r.ok) refreshUI(); }); }
+    /* Jeton valide → on récupère la progression du serveur tout de suite :
+       à l'ouverture, l'appareil affiche l'état réel du compte, pas un écran vide. */
+    if (actif()){
+      verifier().then(r => {
+        if (!r.ok) return;
+        hydrater().then(() => { if (window.APPX){ window.APPX.refreshUI(); window.APPX.refreshPages(); } });
+      });
+    }
   }
 
   return { actif, etat, connecter, deconnecter, verifier, hydrater, changed, pousser, quiz, rendre, retirerRendu, note, ouvrirUI, soumettre, amorcer, detecterMemeOrigine, req };

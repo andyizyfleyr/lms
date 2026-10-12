@@ -3,46 +3,46 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#6750A4">
+<meta name="theme-color" content="#7A3355">
 <meta name="description" content="Dashboard mobile d'une plateforme LMS — Material Design 3">
-<title>LearnHub · Tableau de bord</title>
+<title>CosmétiLab · Tableau de bord</title>
 <style>
 /* ============================================================
    MATERIAL DESIGN 3 — DESIGN TOKENS
    ============================================================ */
 :root{
   /* --- Light scheme (M3 baseline) --- */
-  --md-primary:#6750A4;            --md-on-primary:#FFFFFF;
-  --md-primary-container:#EADDFF;  --md-on-primary-container:#21005D;
-  --md-secondary:#625B71;          --md-on-secondary:#FFFFFF;
-  --md-secondary-container:#E8DEF8;--md-on-secondary-container:#1D192B;
-  --md-tertiary:#7D5260;           --md-on-tertiary:#FFFFFF;
-  --md-tertiary-container:#FFD8E4; --md-on-tertiary-container:#31111D;
+  --md-primary:#7A3355;            --md-on-primary:#FFFFFF;
+  --md-primary-container:#FFD9E4;  --md-on-primary-container:#3A0B22;
+  --md-secondary:#7C5665;          --md-on-secondary:#FFFFFF;
+  --md-secondary-container:#F6DFE6;--md-on-secondary-container:#2C1219;
+  --md-tertiary:#8A6A1F;           --md-on-tertiary:#FFFFFF;
+  --md-tertiary-container:#F6E3B4; --md-on-tertiary-container:#2A1E00;
   --md-error:#B3261E;              --md-on-error:#FFFFFF;
   --md-error-container:#F9DEDC;    --md-on-error-container:#410E0B;
-  --md-success:#1B6B3A;            --md-success-container:#C4EED0;
+  --md-success:#2E7D5B;            --md-success-container:#C6EFD9;
 
-  --md-surface:#FEF7FF;            --md-on-surface:#1D1B20;
-  --md-surface-variant:#E7E0EC;    --md-on-surface-variant:#49454F;
-  --md-outline:#79747E;            --md-outline-variant:#CAC4D0;
+  --md-surface:#FFF8F9;            --md-on-surface:#1F1A1C;
+  --md-surface-variant:#EDE0E3;    --md-on-surface-variant:#524345;
+  --md-outline:#857375;            --md-outline-variant:#D8C2C7;
   --md-scrim:rgba(0,0,0,.4);
   --md-shadow:rgba(0,0,0,.15);
   --md-surface-lowest:#FFFFFF;
-  --md-surface-low:#F7F2FA;
-  --md-surface-high:#ECE6F0;
-  --md-surface-highest:#E6E0E9;
-  --md-inverse-surface:#322F35;    --md-inverse-on-surface:#F5EFF7;
-  --md-inverse-primary:#D0BCFF;
+  --md-surface-low:#FDF3F5;
+  --md-surface-high:#F3E6E9;
+  --md-surface-highest:#EEE0E3;
+  --md-inverse-surface:#362F32;    --md-inverse-on-surface:#FBEEF0;
+  --md-inverse-primary:#FFB0C9;
 
   /* --- Accents (palettes tonales) --- */
-  --acc-blue-c:#D3E3FD;   --acc-blue-o:#041E49;
-  --acc-green-c:#C4EED0;  --acc-green-o:#072711;
-  --acc-amber-c:#FFDF9E;  --acc-amber-o:#291800;
-  --acc-purple-c:#EADDFF; --acc-purple-o:#21005D;
-  --acc-pink-c:#FFD8E4;   --acc-pink-o:#31111D;
-  --acc-teal-c:#B8E7E1;   --acc-teal-o:#00201D;
+  --acc-blue-c:#F6DCE6;   --acc-blue-o:#4A1526;
+  --acc-green-c:#C6EFD9;  --acc-green-o:#12301B;
+  --acc-amber-c:#F6E3B4;  --acc-amber-o:#3A2A00;
+  --acc-purple-c:#FFD9E4; --acc-purple-o:#3A0B22;
+  --acc-pink-c:#F6E3B4;   --acc-pink-o:#2A1E00;
+  --acc-teal-c:#CFE6E1;   --acc-teal-o:#0C2B27;
 
-  --hero-grad:linear-gradient(135deg,#6750A4 0%,#7F67BE 45%,#9A82DB 100%);
+  --hero-grad:linear-gradient(135deg,#7A3355 0%,#A4506E 45%,#D3A15C 100%);
   --hero-fg:#FFFFFF;
 
   /* --- Shape --- */
@@ -58,37 +58,37 @@
   --ease-emph:cubic-bezier(.05,.7,.1,1);
 }
 [data-theme="dark"]{
-  --md-primary:#D0BCFF;            --md-on-primary:#381E72;
-  --md-primary-container:#4F378B;  --md-on-primary-container:#EADDFF;
-  --md-secondary:#CCC2DC;          --md-on-secondary:#332D41;
-  --md-secondary-container:#4A4458;--md-on-secondary-container:#E8DEF8;
-  --md-tertiary:#EFB8C8;           --md-on-tertiary:#492532;
-  --md-tertiary-container:#633B48; --md-on-tertiary-container:#FFD8E4;
+  --md-primary:#FFB0C9;            --md-on-primary:#5A1130;
+  --md-primary-container:#75294A;  --md-on-primary-container:#FFD9E4;
+  --md-secondary:#E3BDC8;          --md-on-secondary:#42262F;
+  --md-secondary-container:#5A3A44;--md-on-secondary-container:#FFD9E4;
+  --md-tertiary:#E6C77A;           --md-on-tertiary:#3A2A00;
+  --md-tertiary-container:#6E2745; --md-on-tertiary-container:#FFD9E4;
   --md-error:#F2B8B5;              --md-on-error:#601410;
   --md-error-container:#8C1D18;    --md-on-error-container:#F9DEDC;
-  --md-success:#9BE3B4;            --md-success-container:#0F5223;
+  --md-success:#9EDFC0;            --md-success-container:#10402C;
 
-  --md-surface:#141218;            --md-on-surface:#E6E0E9;
-  --md-surface-variant:#49454F;    --md-on-surface-variant:#CAC4D0;
-  --md-outline:#938F99;            --md-outline-variant:#49454F;
+  --md-surface:#181114;            --md-on-surface:#EDE0E3;
+  --md-surface-variant:#524345;    --md-on-surface-variant:#D8C2C7;
+  --md-outline:#A08C90;            --md-outline-variant:#524345;
   --md-scrim:rgba(0,0,0,.6);
   --md-shadow:rgba(0,0,0,.5);
-  --md-surface-lowest:#0F0D13;
-  --md-surface-low:#1D1B20;
-  --md-surface-high:#2B2930;
-  --md-surface-highest:#36343B;
-  --md-inverse-surface:#E6E0E9;    --md-inverse-on-surface:#322F35;
-  --md-inverse-primary:#6750A4;
+  --md-surface-lowest:#120B0E;
+  --md-surface-low:#211A1C;
+  --md-surface-high:#2C2427;
+  --md-surface-highest:#372F32;
+  --md-inverse-surface:#EDE0E3;    --md-inverse-on-surface:#362F32;
+  --md-inverse-primary:#7A3355;
 
-  --acc-blue-c:#0842A0;   --acc-blue-o:#D3E3FD;
-  --acc-green-c:#0F5223;  --acc-green-o:#C4EED0;
-  --acc-amber-c:#5C4200;  --acc-amber-o:#FFDF9E;
-  --acc-purple-c:#4F378B; --acc-purple-o:#EADDFF;
-  --acc-pink-c:#633B48;   --acc-pink-o:#FFD8E4;
-  --acc-teal-c:#00463F;   --acc-teal-o:#B8E7E1;
+  --acc-blue-c:#6E2745;   --acc-blue-o:#F6DCE6;
+  --acc-green-c:#10402C;  --acc-green-o:#C4EED0;
+  --acc-amber-c:#574318;  --acc-amber-o:#F6E3B4;
+  --acc-purple-c:#75294A; --acc-purple-o:#FFD9E4;
+  --acc-pink-c:#6E2745;   --acc-pink-o:#FFD9E4;
+  --acc-teal-c:#0F3B36;   --acc-teal-o:#CFE6E1;
 
-  --hero-grad:linear-gradient(135deg,#4F378B 0%,#5B3F92 45%,#6E4E9B 100%);
-  --hero-fg:#EADDFF;
+  --hero-grad:linear-gradient(135deg,#75294A 0%,#5B3F92 45%,#6E4E9B 100%);
+  --hero-fg:#FFD9E4;
   --e1:0 1px 2px rgba(0,0,0,.6),0 1px 3px 1px rgba(0,0,0,.35);
   --e2:0 2px 6px 2px rgba(0,0,0,.45);
   --e3:0 4px 10px 3px rgba(0,0,0,.5);
@@ -611,7 +611,7 @@ main::-webkit-scrollbar{display:none}
   background-image:
     linear-gradient(135deg,rgba(41,20,76,.90) 0%,rgba(78,48,134,.74) 55%,rgba(120,86,180,.62) 100%),
     var(--hero-img,none),
-    linear-gradient(135deg,#6750A4 0%,#7F67BE 45%,#9A82DB 100%);
+    linear-gradient(135deg,#7A3355 0%,#A4506E 45%,#D3A15C 100%);
   background-size:cover,cover,auto;
   background-position:center,center,center;
 }
@@ -619,7 +619,7 @@ main::-webkit-scrollbar{display:none}
   background-image:
     linear-gradient(135deg,rgba(24,10,48,.93) 0%,rgba(50,28,92,.82) 55%,rgba(74,48,120,.72) 100%),
     var(--hero-img,none),
-    linear-gradient(135deg,#4F378B 0%,#5B3F92 45%,#6E4E9B 100%);
+    linear-gradient(135deg,#75294A 0%,#5B3F92 45%,#6E4E9B 100%);
 }
 .hcard__thumb{position:relative;height:104px}
 .hcard__thumb::after{display:none}
@@ -1232,6 +1232,10 @@ main::-webkit-scrollbar{display:none}
     <path d="M17.5 19H7a4.5 4.5 0 0 1-.7-8.95A5.5 5.5 0 0 1 17 9.5a4.75 4.75 0 0 1 .5 9.5Z"/>
     <path d="M12 12.5v5.5m0 0-2-2m2 2 2-2"/>
   </symbol>
+  <symbol id="ic-flask" viewBox="0 0 24 24"><path d="M9.4 3.6h5.2M10.4 3.6v3.6l-4.1 7.6A3 3 0 0 0 9 19.4h6a3 3 0 0 0 2.7-4.6l-4.1-7.6V3.6"/><path d="M7.5 14.6h9"/></symbol>
+  <symbol id="ic-drop" viewBox="0 0 24 24"><path d="M12 4.2c2.9 3.2 5.4 5.9 5.4 8.9a5.4 5.4 0 0 1-10.8 0c0-3 2.5-5.7 5.4-8.9z"/></symbol>
+  <symbol id="ic-jar" viewBox="0 0 24 24"><rect x="5.8" y="9" width="12.4" height="10.4" rx="2"/><path d="M9 9V6.4h6V9M8.4 12.8h7.2"/></symbol>
+  <symbol id="ic-leaf" viewBox="0 0 24 24"><path d="M19.6 4.4C15 4.8 8.6 8 6.8 12.4c-1.2 3 1.2 6 4.6 5.6 4-.5 6.9-5.6 8.2-13.6z"/><path d="M6.2 19.8c1.6-4.4 4.6-7.6 9-9.6"/></symbol>
 </svg>
 
 <!-- ============================ APP ============================ -->
@@ -1268,14 +1272,14 @@ main::-webkit-scrollbar{display:none}
       <article class="hero ripple" data-page="cours" data-id="c1">
         <div class="hero__top">
           <span class="hero__pill"><svg class="icon icon--16"><use href="#ic-play"/></svg> REPRENDRE</span>
-          <span class="hero__time"><svg class="icon icon--16"><use href="#ic-clock"/></svg> 12 min restantes</span>
+          <span class="hero__time"><svg class="icon icon--16"><use href="#ic-clock"/></svg> 18 min de vidéo</span>
         </div>
-        <h2 class="headline-small">Développement Web Full-Stack</h2>
-        <p class="body-medium" id="heroSub">Module 4 · Composants réutilisables en JavaScript</p>
+        <h2 class="headline-small">Savonnerie à froid</h2>
+        <p class="body-medium" id="heroSub">Module 1 · Chimie du savon et sécurité</p>
         <div class="hero__progress">
-          <div class="lp" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" aria-label="Progression du cours">
+          <div class="lp" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Progression du cours">
             <div class="lp__track"></div>
-            <div class="lp__bar" id="heroBar" data-prog="62"></div>
+            <div class="lp__bar" id="heroBar" data-prog="0"></div>
             <div class="lp__stop"></div>
           </div>
           <span class="label-large" id="heroPct">62 %</span>
@@ -1436,7 +1440,17 @@ main::-webkit-scrollbar{display:none}
 
       <div class="section">
         <div class="section__head"><h2>Préférences</h2></div>
-        <div class="list-row" data-switch="notif">
+                  <button class="list-row ripple" data-page="compte">
+            <span class="list-row__ico acc-purple"><svg class="icon icon--20"><use href="#ic-person"/></svg></span>
+            <span class="list-row__main"><h3>Mon compte</h3><p data-direct>Espace personnel</p></span>
+            <svg class="icon icon--18"><use href="#ic-chevron"/></svg>
+          </button>
+          <button class="list-row ripple" id="rowCorrections" data-page="corrections" hidden>
+            <span class="list-row__ico acc-blue"><svg class="icon icon--20"><use href="#ic-upload"/></svg></span>
+            <span class="list-row__main"><h3>Corrections</h3><p>Copies déposées par les apprenants</p></span>
+            <svg class="icon icon--18"><use href="#ic-chevron"/></svg>
+          </button>
+<div class="list-row" data-switch="notif">
           <span class="list-row__ico acc-blue"><svg class="icon icon--20"><use href="#ic-bell"/></svg></span>
           <div class="list-row__main"><h3>Rappels d'échéances</h3><p>Notifications 24 h avant</p></div>
           <button class="switch" role="switch" aria-checked="true" aria-label="Rappels d'échéances"></button>
@@ -1473,7 +1487,7 @@ main::-webkit-scrollbar{display:none}
         <button class="btn btn--danger btn--block ripple" style="margin-top:8px" data-act="logout">
           <svg class="icon icon--18"><use href="#ic-logout"/></svg> Se déconnecter
         </button>
-        <p class="body-small muted" style="text-align:center;margin-top:16px">LearnHub · v3.2.0 — Material Design 3</p>
+        <p class="body-small muted" style="text-align:center;margin-top:16px">CosmétiLab · v4.0.0 — Material Design 3</p>
       </div>
     </section>
   </main>

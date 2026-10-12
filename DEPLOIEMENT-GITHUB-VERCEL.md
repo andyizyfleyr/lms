@@ -1,11 +1,11 @@
-# Publier LearnHub sur GitHub puis Vercel
+# Publier CosmétiLab sur GitHub puis Vercel
 
 **Tout tient sur une seule adresse** : l'application sur `/`, l'API sur `/api/*`, dans **un seul projet Vercel**.
 
 ```
-https://lms-lovat-five.vercel.app/            → l'application LearnHub (mobile)
+https://lms-lovat-five.vercel.app/            → l'application CosmétiLab (mobile)
 https://lms-lovat-five.vercel.app/api/health  → l'API Next.js (JSON)
-https://lms-lovat-five.vercel.app/api-doc     → la documentation des 43 routes
+https://lms-lovat-five.vercel.app/api-doc     → la documentation des 44 routes
 ```
 
 **Dépôt : <https://github.com/andyizyfleyr/lms>** (branche `main`).
@@ -94,7 +94,7 @@ npm run db:check               # volumes attendus
 
 4. **Deploy**. Une minute plus tard :
 
-   - `https://<projet>.vercel.app/` → **l'application** (titre d'onglet « LearnHub · Tableau de bord ») ;
+   - `https://<projet>.vercel.app/` → **l'application** (titre d'onglet « CosmétiLab · Tableau de bord ») ;
    - `https://<projet>.vercel.app/api/health` → `{"ok":true,"data":{"statut":"ok","base":"Neon","tables":26,…}}` ;
    - `https://<projet>.vercel.app/api-doc` → la documentation de l'API.
 
@@ -109,7 +109,7 @@ L'application détecte **toute seule** l'API servie sur le même domaine : au d�
 `/api/health` ; si l'API répond, elle l'adopte (visible dans *Paramètres → Synchronisation serveur*,
 statut « Adresse enregistrée, non connecté »). Il reste seulement à **se connecter** :
 
-*Profil → Paramètres → Synchronisation serveur* → e-mail + mot de passe (`amina@learnhub.bj` / `demo1234`).
+*Profil → Paramètres → Synchronisation serveur* → e-mail + mot de passe (`amina@cosmetilab.bj` / `demo1234`).
 
 Sur un hébergeur purement statique (Netlify, GitHub Pages…), la sonde échoue : l'application reste
 100 % fonctionnelle en local, et tu peux indiquer une API distante à la main —

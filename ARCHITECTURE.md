@@ -1,4 +1,4 @@
-# Architecture de LearnHub
+# Architecture de CosmétiLab
 
 Ce document explique **comment le projet est construit et pourquoi**, pour que toute modification
 future reste compatible avec le déploiement (Vercel, Netlify, GitHub Pages) et avec les tests.
@@ -13,10 +13,10 @@ future reste compatible avec le déploiement (Vercel, Netlify, GitHub Pages) et 
         ▼
    https://mon-projet.vercel.app/
         │
-        ├── /            ──►  l'application LearnHub  (api/public/index.html,
+        ├── /            ──►  l'application CosmétiLab  (api/public/index.html,
         │                     copie publiée de web/index.html — 770 Ko, autonome)
         │
-        ├── /api/*       ──►  API Next.js (43 routes) ──► Neon PostgreSQL (26 tables)
+        ├── /api/*       ──►  API Next.js (44 routes) ──► Neon PostgreSQL (26 tables)
         │
         └── /api-doc     ──►  documentation des routes
 ```
@@ -24,7 +24,7 @@ future reste compatible avec le déploiement (Vercel, Netlify, GitHub Pages) et 
 | Chemin servi | D'où il vient | Rôle |
 |---|---|---|
 | `/` et `/index.html` | `api/public/index.html` ← copie de `web/index.html` | l'application (HTML + CSS + JS + images + extrait vidéo) |
-| `/api/*` | `api/src/app/api/**/route.ts` | l'API JSON (43 routes) |
+| `/api/*` | `api/src/app/api/**/route.ts` | l'API JSON (44 routes) |
 | `/api-doc` | `api/src/app/api-doc/page.tsx` | documentation des routes |
 | — | `web/src/**` | sources du fichier unique (assemblées par `web/build.js`) |
 
@@ -57,22 +57,22 @@ API de l'autre » reste possible (Netlify, second projet Vercel) : le CORS est d
 sources divergent silencieusement. Le pipeline est court et explicite (`web/build.js`) :
 
 ```
-web/src/shell.html   structure HTML + <style> complet + sprite d'icônes (48 icônes)
-web/src/images.json  const IMG = { … 7 images en base64 … }
+web/src/shell.html   structure HTML + <style> complet + sprite d'icônes (52 icônes)
+web/src/images.json  const IMG = { … 14 images en base64 … }
 web/src/clip.json    const CLIP_MP4 / CLIP_WEBM (extrait vidéo 24 s, 640×360, muet)
-web/src/app.js       données, utilitaires, lecteur vidéo, synchronisation serveur (LHSYNC)
-web/src/core.js      état persistant, routeur de pages, tableaux de bord
+web/src/app.js       données, utilitaires, lecteur vidéo, espace de données par compte (store préfixé)
+web/src/core.js      état persistant, routeur de pages, tableaux de bord, synchronisation (LHSYNC)
 web/src/lms.js       pages pédagogiques : cours, quiz, devoirs
         │
         ▼  node build.js
-web/index.html       769 Ko — le livrable, et le seul fichier à publier
+web/src/compte.js     écran d'entrée, inscription/connexion, temps réel, espace formateur\nweb/index.html       1 392 Ko — le livrable, et le seul fichier à publier
 ```
 
-`build.js` vérifie 8 briques après assemblage (structure HTML, sprite, images, extrait vidéo, noyau,
+`build.js` vérifie 10 briques après assemblage (structure HTML, sprite, images, extrait vidéo, noyau,
 pages LMS, synchronisation, fin de document) et **sort en erreur** si l'une manque : impossible de
 publier un fichier incomplet.
 
-`verify.js` fait les 13 contrôles de sortie, dont un **contrôle anti-dérive** : il réassemble dans un
+`verify.js` fait les 15 contrôles de sortie, dont un **contrôle anti-dérive** : il réassemble dans un
 fichier temporaire et compare octet par octet avec `web/index.html`. Si quelqu'un a touché au livrable
 sans toucher aux sources, le contrôle échoue.
 
@@ -116,13 +116,44 @@ sans toucher aux sources, le contrôle échoue.
 - **Hors-ligne** : tout continue de fonctionner localement, la synchronisation reprend au retour du
   réseau (`navigator.onLine`).
 
+### La synchronisation (`LHSYNC`, dans `core.js`)
+
+- **Configuration** : soit l'application est servie par l'API (même domaine) et elle la détecte toute
+  seule, soit on donne l'adresse (`?api=…` ou *Paramètres → Synchronisation serveur*). Le jeton est
+  conservé dans `localStorage` (`lh_token`).
+- **Hydratation (serveur → app)** : `GET /api/progress?format=app` renvoie la progression dans la
+  forme exacte de l'état local (`lh_lessons`, `lh_videos`, `lh_quiz`).
+- **Envoi (app → serveur)** : `POST /api/lessons/:id/complete`, `PATCH /api/videos/:yt/progress`,
+  `POST /api/quizzes/:id/attempts`, `POST /api/assignments/:id/submissions`, `POST /api/notes`…
+- **Économie de réseau** : la mémoire `lh_synced` retient ce qui est déjà parti (envois par paquets de
+  8) ; seules les nouveautés sont poussées. Un changement de compte remet cette mémoire à zéro.
+- **Identifiants de leçons** : local `c1:3` (cours + index) ↔ serveur `c1-m1-l1` (cours + module +
+  leçon). La table de correspondance est construite au chargement, dans les deux sens.
+- **Hors-ligne** : tout continue de fonctionner localement, la synchronisation reprend au retour du
+  réseau (`navigator.onLine`).
+
+### Les comptes (`compte.js`)
+
+- **Écran d'entrée** (`#loginScreen`) : connexion, inscription (`POST /api/auth/register` avec `role` :
+  `etudiant` ou `enseignant`) et mode local (« explorer sans compte »).
+- **Espaces séparés** : le magasin local est préfixé par le compte (`lh:u:<compte>:`), le serveur filtre
+  par `user_id` déduit du jeton ; `lh_synced` est vidé à chaque changement de compte pour que
+  l'historique d'envoi ne fuite pas d'un utilisateur à l'autre.
+- **Temps réel** : boucle de sondage de `GET /api/sync` (4 s au premier plan, 15 s en arrière-plan,
+  reprise immédiate au retour de l'onglet ou du réseau, et 0,9 s après un envoi local). La réponse ne
+  contient qu'une **révision** (compteurs + horodatages). Si elle diffère de la précédente, l'app
+  recharge la progression, rafraîchit les pages ouvertes et l'annonce ; sinon rien ne bouge.
+- **Formateur** : `GET /api/submissions` renvoie les dépôts des apprenants pour un compte
+  `enseignant`/`admin` (filtres `?cours=`, `?statut=`), et `PATCH /api/submissions/{id}` enregistre la
+  note et le commentaire. La page **Corrections** de l'application fait les deux.
+
 ---
 
 ## 3. L'API : Next.js + TypeScript + Neon
 
 ```
 api/
-├── src/app/api/**/route.ts     43 routes, toutes en runtime Node.js et `dynamic = force-dynamic`
+├── src/app/api/**/route.ts     44 routes, toutes en runtime Node.js et `dynamic = force-dynamic`
 ├── src/lib/db.ts               client Neon (@neondatabase/serverless) + helpers q / q1 / exec
 ├── src/lib/auth.ts             mots de passe scrypt, jetons signés valables 30 jours
 ├── src/lib/http.ts             ok() / fail() / handler() / OPTIONS() : enveloppe commune
@@ -139,7 +170,7 @@ api/
 { "ok": false, "error": { "code": "…", "message": "…", "details": { … } } }
 ```
 
-Autres règles : CORS `*` avec pré-vol `OPTIONS` exporté par les 43 routes ; authentification
+Autres règles : CORS `*` avec pré-vol `OPTIONS` exporté par les 44 routes ; authentification
 `Authorization: Bearer <jeton>` ; fichiers envoyés en base64 (≤ 2,5 Mo) ; `runtime = 'nodejs'` (le
 pilote Neon HTTP n'a pas besoin d'un runtime Edge, et Node évite les surprises de compatibilité).
 
@@ -154,13 +185,13 @@ identique en deux commandes (`npm run db:reset`), sans dépendre d'un fichier lo
 
 | Contrôle | Commande | Attendu |
 |---|---|---|
-| Intégrité de l'assemblage | `cd web && npm run build` | 8 contrôles, 769 Ko |
+| Intégrité de l'assemblage | `cd web && npm run build` | 10 contrôles, 1 392 Ko |
 | Contrôles statiques + anti-dérive | `cd web && npm run verify` | 13 OK / 0 |
 | Copie publiée du site (celle servie sur `/`) | `npm run site:verifier` | identique à `web/index.html` |
 | Suite navigateur (mobile 390 × 844) | `cd web && npm run test` | 37 OK / 0 sans API · 42 avec API · 43 en mode « une seule URL » |
 | Types de l'API | `cd api && npm run typecheck` | 0 erreur |
-| Test de fumée de l'API | `cd api && npm run smoke` | 34 OK / 0 |
-| Build Next.js | `cd api && npm run build` | 43 routes |
+| Test de fumée de l'API | `cd api && npm run smoke` | 38 OK / 0 |
+| Build Next.js | `cd api && npm run build` | 44 routes |
 | Base | `cd api && npm run db:check` | 26 tables, contenus présents |
 | Tout d'un coup | `npm run verifier-tout` | vert (site + types + base + API) |
 

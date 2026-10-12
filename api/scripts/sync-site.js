@@ -3,7 +3,7 @@
    Copie l'application (web/index.html) dans api/public/index.html
    pour le déploiement « tout sur une seule adresse » :
 
-     https://mon-projet.vercel.app/       → l'application LearnHub
+     https://mon-projet.vercel.app/       → l'application CosmétiLab
      https://mon-projet.vercel.app/api/*  → l'API Next.js + Neon
 
    Une seule source de vérité : web/index.html (assemblé depuis web/src/).

@@ -7,20 +7,21 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export { OPTIONS };
 
-/** POST /api/auth/register — créer un compte étudiant. */
+/** POST /api/auth/register — créer un compte (apprenant ou formateur). */
 export async function POST(req: Request) {
   return handler(async () => {
     const parsed = await parseBody(req, inscription);
     if ('error' in parsed) return parsed.error;
-    const { email, motDePasse, nom, promo, ville } = parsed.data;
+    const { email, motDePasse, nom, promo, ville, role } = parsed.data;
+    const roleFinal = role === 'enseignant' ? 'enseignant' : 'etudiant';
 
     const existe = await q1('select id from users where email = $1', [email]);
     if (existe) return fail('Un compte existe déjà avec cet e-mail', 409, 'email_deja_utilise');
 
     const user = await q1<{ id: string; email: string; nom: string; role: string }>(
-      `insert into users (email, password_hash, nom, promo, ville)
-       values ($1, $2, $3, $4, $5) returning id, email, nom, role`,
-      [email, hashPassword(motDePasse), nom, promo ?? '', ville ?? '']
+      `insert into users (email, password_hash, nom, promo, ville, role)
+       values ($1, $2, $3, $4, $5, $6) returning id, email, nom, role`,
+      [email, hashPassword(motDePasse), nom, promo ?? '', ville ?? '', roleFinal]
     );
     if (!user) return fail('Création impossible', 500, 'erreur_serveur');
 

@@ -1,6 +1,6 @@
 const GROUPES: Array<{ titre: string; emoji: string; routes: Array<[string, string, string]> }> = [
   { titre: 'Authentification', emoji: '🔐', routes: [
-    ['POST', '/api/auth/register', 'Créer un compte (e-mail, mot de passe, nom)'],
+    ['POST', '/api/auth/register', 'Créer un compte (apprenant ou formateur) → jeton'],
     ['POST', '/api/auth/login', 'Se connecter → jeton valable 30 jours'],
     ['POST', '/api/auth/logout', 'Fermer la session'],
     ['GET', '/api/auth/me', 'Profil + réglages de l’utilisateur connecté'],
@@ -21,6 +21,9 @@ const GROUPES: Array<{ titre: string; emoji: string; routes: Array<[string, stri
     ['GET', '/api/courses/{id}/resources', 'Supports de cours'],
     ['GET|POST', '/api/courses/{id}/messages', 'Fil de discussion du cours'],
     ['POST|DELETE', '/api/courses/{id}/enroll', 'S’inscrire / quitter le cours']
+  ] },
+  { titre: 'Temps réel', emoji: '🔄', routes: [
+    ['GET', '/api/sync', 'Révision de l’espace du compte (l’app s’en sert pour se mettre à jour toute seule)']
   ] },
   { titre: 'Progression', emoji: '📈', routes: [
     ['GET', '/api/progress', 'Toute ma progression (?format=app pour l’app HTML)'],
@@ -75,7 +78,7 @@ export default function Accueil() {
   return (
     <main style={{ maxWidth: 860, margin: '0 auto', padding: '32px 20px 64px' }}>
       <header style={{ background: 'linear-gradient(135deg,#6750a4,#4f378a)', color: '#fff', borderRadius: 28, padding: '28px 26px' }}>
-        <p style={{ margin: 0, opacity: .85, fontSize: 14, letterSpacing: .6 }}>LearnHub · backend</p>
+        <p style={{ margin: 0, opacity: .85, fontSize: 14, letterSpacing: .6 }}>CosmétiLab · backend</p>
         <h1 style={{ margin: '6px 0 4px', fontSize: 30 }}>API REST — Next.js + Neon</h1>
         <p style={{ margin: 0, opacity: .9, fontSize: 15 }}>
           {total} points d’entrée couvrant toute l’application mobile : authentification, cours, leçons, vidéos,
@@ -97,7 +100,7 @@ export default function Accueil() {
         <pre style={{ background: '#f3edf7', padding: 14, borderRadius: 14, overflowX: 'auto', fontSize: 13.5, margin: 0 }}>{`# connexion
 curl -s -X POST https://VOTRE-API.vercel.app/api/auth/login \\
   -H 'Content-Type: application/json' \\
-  -d '{"email":"amina@learnhub.bj","motDePasse":"demo1234"}'
+  -d '{"email":"amina@cosmetilab.bj","motDePasse":"demo1234"}'
 
 # cours (jeton requis pour la progression)
 curl -s https://VOTRE-API.vercel.app/api/courses -H "Authorization: Bearer $TOKEN"
@@ -124,7 +127,7 @@ curl -s -X POST .../api/quizzes/c1/attempts -H "Authorization: Bearer $TOKEN" \\
       ))}
 
       <footer style={{ textAlign: 'center', color: '#79747e', fontSize: 13.5, marginTop: 26 }}>
-        Base de données : Neon (PostgreSQL) · Comptes de démonstration : amina@learnhub.bj / demo1234 (étudiante), adjovi@learnhub.bj / prof1234 (formatrice), admin@learnhub.bj / admin1234 (admin)
+        Base de données : Neon (PostgreSQL) · Comptes de démonstration : amina@cosmetilab.bj / demo1234 (apprenante), awa@cosmetilab.bj / prof1234 (formatrice), admin@cosmetilab.bj / admin1234 (admin)
       </footer>
     </main>
   );

@@ -2,950 +2,1334 @@
  "COURS": [
   {
    "id": "c1",
-   "titre": "Développement Web Full-Stack",
-   "cat": "Développement",
-   "prof": "M. Kouassi",
-   "lecon": 12,
-   "total": 24,
-   "prog": 62,
-   "ico": "code",
-   "img": "code",
+   "titre": "Savonnerie à froid",
+   "cat": "Savon",
+   "prof": "Awa Sossou",
+   "lecon": 0,
+   "total": 10,
+   "prog": 0,
+   "ico": "flask",
+   "img": "savon",
    "acc": "purple",
+   "statut": "encours",
+   "fav": true,
+   "duree": "18 min"
+  },
+  {
+   "id": "c2",
+   "titre": "Gel douche & shampoings doux",
+   "cat": "Hygiène liquide",
+   "prof": "Bénédicte Ahouan",
+   "lecon": 0,
+   "total": 10,
+   "prog": 0,
+   "ico": "drop",
+   "img": "gel",
+   "acc": "blue",
    "statut": "encours",
    "fav": true,
    "duree": "12 min"
   },
   {
-   "id": "c2",
-   "titre": "UI/UX Design & Material 3",
-   "cat": "Design",
-   "prof": "Mme Adjovi",
-   "lecon": 8,
-   "total": 18,
-   "prog": 44,
-   "ico": "layers",
-   "img": "design",
-   "acc": "blue",
-   "statut": "encours",
-   "fav": true,
-   "duree": "25 min"
-  },
-  {
    "id": "c3",
-   "titre": "Data Science avec Python",
-   "cat": "Data",
-   "prof": "Dr. Bio",
-   "lecon": 15,
-   "total": 20,
-   "prog": 75,
-   "ico": "chart",
-   "img": "data",
-   "acc": "green",
+   "titre": "Crème de visage : émulsions & actifs",
+   "cat": "Soin visage",
+   "prof": "Dr. Chabi",
+   "lecon": 0,
+   "total": 11,
+   "prog": 0,
+   "ico": "jar",
+   "img": "creme",
+   "acc": "pink",
    "statut": "encours",
    "fav": false,
-   "duree": "18 min"
+   "duree": "22 min"
   },
   {
    "id": "c4",
-   "titre": "Marketing Digital & Réseaux",
-   "cat": "Business",
-   "prof": "M. Tossou",
-   "lecon": 4,
-   "total": 16,
-   "prog": 25,
-   "ico": "bullhorn",
-   "img": "marketing",
+   "titre": "Lait corporel, baumes & karité",
+   "cat": "Soin corps",
+   "prof": "Sylvie Dossou",
+   "lecon": 0,
+   "total": 10,
+   "prog": 0,
+   "ico": "leaf",
+   "img": "lait",
    "acc": "amber",
    "statut": "encours",
    "fav": false,
-   "duree": "9 min"
+   "duree": "14 min"
   },
   {
    "id": "c5",
-   "titre": "Anglais professionnel B2",
-   "cat": "Langues",
-   "prof": "Ms. Clark",
-   "lecon": 20,
-   "total": 20,
-   "prog": 100,
+   "titre": "Cosmétique africaine : karité, argile & savon noir",
+   "cat": "Ingrédients",
+   "prof": "Rachidath Adjibi",
+   "lecon": 0,
+   "total": 9,
+   "prog": 0,
    "ico": "globe",
-   "img": "anglais",
-   "acc": "pink",
-   "statut": "termine",
+   "img": "karite",
+   "acc": "teal",
+   "statut": "encours",
    "fav": true,
-   "duree": "—"
+   "duree": "26 min"
   },
   {
    "id": "c6",
-   "titre": "Cybersécurité — Fondamentaux",
-   "cat": "Sécurité",
-   "prof": "M. Sanni",
+   "titre": "Étiquetage, sécurité & vente",
+   "cat": "Réglementation",
+   "prof": "Josiane Kponou",
    "lecon": 0,
-   "total": 12,
+   "total": 9,
    "prog": 0,
-   "ico": "shield",
-   "img": "cyber",
-   "acc": "teal",
-   "statut": "avenir",
+   "ico": "bullhorn",
+   "img": "pack",
+   "acc": "green",
+   "statut": "encours",
    "fav": false,
-   "duree": "30 min"
+   "duree": "16 min"
   }
  ],
  "VIDEOS": [
   {
-   "yt": "5IcZPL-zJYc",
-   "cours": "c4",
-   "titre": "Formation Marketing Digital : le cours complet",
-   "chaine": "Ludo Salenne",
-   "duree": 6371,
-   "vues": 853817,
-   "img": "marketing",
-   "prog": 0
-  },
-  {
-   "yt": "VLr0mTzYfRE",
-   "cours": "c6",
-   "titre": "Cybersécurité : guide complet pour démarrer",
-   "chaine": "Techno",
-   "duree": 1057,
-   "vues": 503575,
-   "img": "cyber",
-   "prog": 0
-  },
-  {
-   "yt": "iyoXejosxGg",
-   "cours": "c5",
-   "titre": "Learn Business English — conversation & vocabulary",
-   "chaine": "Shaw English Online",
-   "duree": 6325,
-   "vues": 411346,
-   "img": "anglais",
-   "prog": 100
-  },
-  {
-   "yt": "zZkNOdBWgFQ",
-   "cours": "c3",
-   "titre": "Pandas Python — introduction et analyse du Titanic",
-   "chaine": "Machine Learnia",
-   "duree": 1049,
-   "vues": 296829,
-   "img": "data",
-   "prog": 70
-  },
-  {
-   "yt": "h_JYW2hdI8U",
-   "cours": "c2",
-   "titre": "Everything you need to know about Material Design 3",
-   "chaine": "Stevdza-San",
-   "duree": 1465,
-   "vues": 134508,
-   "img": "design",
-   "prog": 0
-  },
-  {
-   "yt": "7nrhTdS7dHg",
-   "cours": "c2",
-   "titre": "Material 3 : du design au déploiement",
-   "chaine": "Flutter",
-   "duree": 970,
-   "vues": 106907,
-   "img": "design",
-   "prog": 0
-  },
-  {
-   "yt": "syb15o27GEE",
-   "cours": "c6",
-   "titre": "Débuter le hacking éthique et la cybersécurité",
-   "chaine": "Fransosiche",
-   "duree": 1214,
-   "vues": 63762,
-   "img": "cyber",
-   "prog": 0
-  },
-  {
-   "yt": "agj8_3xpuYI",
+   "yt": "hJwIUUQYSQg",
    "cours": "c1",
-   "titre": "Les bases de JavaScript — tuto débutant",
-   "chaine": "Bertrand . Tech",
-   "duree": 3754,
-   "vues": 44254,
-   "img": "code",
-   "prog": 12
-  },
-  {
-   "yt": "LwkWwxg10IU",
-   "cours": "c3",
-   "titre": "Python, NumPy et Pandas pour la Data Science",
-   "chaine": "J.A DATATECH CONSULTING",
-   "duree": 21916,
-   "vues": 40411,
-   "img": "data",
+   "titre": "Savons doux enrichis au beurre de karité",
+   "chaine": "savonnerie artisanale",
+   "duree": 562,
+   "vues": 54408,
+   "img": "savon",
    "prog": 0
   },
   {
-   "yt": "asN3B33wOzo",
-   "cours": "c2",
-   "titre": "Prototyper un FAB Material 3 sur Figma",
-   "chaine": "The indieDev",
-   "duree": 1409,
-   "vues": 19967,
-   "img": "design",
-   "prog": 0
-  },
-  {
-   "yt": "ldxt9FNUc50",
+   "yt": "NT5q99x6LoA",
    "cours": "c1",
-   "titre": "Apprendre JavaScript en 1 h — cours complet débutant",
-   "chaine": "Comment Coder",
-   "duree": 3740,
-   "vues": 12304,
-   "img": "code",
-   "prog": 45
-  },
-  {
-   "yt": "vzIEBqBexf4",
-   "cours": "c5",
-   "titre": "18 mots d'anglais des affaires à connaître",
-   "chaine": "Anglais Avec un Anglophone",
-   "duree": 1247,
-   "vues": 9927,
-   "img": "anglais",
+   "titre": "Faire du savon maison sans soude : la technique melt & pour",
+   "chaine": "Apprendre à faire son savon",
+   "duree": 772,
+   "vues": 191628,
+   "img": "moule",
    "prog": 0
   },
   {
-   "yt": "3WFYTiHi5TU",
+   "yt": "wLv3geJ3Rv0",
+   "cours": "c1",
+   "titre": "Utiliser SoapCalc pour calculer vos recettes de savons",
+   "chaine": "Les Recettes de Louizzet",
+   "duree": 2002,
+   "vues": 28654,
+   "img": "labo",
+   "prog": 0
+  },
+  {
+   "yt": "-WB8UKJA5qU",
+   "cours": "c1",
+   "titre": "Le calculateur Mendrulandia pour la saponification à froid",
+   "chaine": "savonnerie artisanale",
+   "duree": 684,
+   "vues": 24144,
+   "img": "labo",
+   "prog": 0
+  },
+  {
+   "yt": "8pIZmfuzoHY",
+   "cours": "c1",
+   "titre": "Savon au beurre de karité et au miel (saponification à froid)",
+   "chaine": "atelier karité",
+   "duree": 593,
+   "vues": 1533,
+   "img": "karite",
+   "prog": 0
+  },
+  {
+   "yt": "Ka6h2cM2Vrw",
+   "cours": "c1",
+   "titre": "Saponification à froid : le tutoriel complet",
+   "chaine": "savonnerie artisanale",
+   "duree": 0,
+   "vues": 0,
+   "img": "process",
+   "prog": 0
+  },
+  {
+   "yt": "WUFqUncjdx0",
+   "cours": "c1",
+   "titre": "Fabriquer un savon maison en saponification à froid",
+   "chaine": "DIY savon",
+   "duree": 0,
+   "vues": 0,
+   "img": "process",
+   "prog": 0
+  },
+  {
+   "yt": "6fulOu4L7DA",
+   "cours": "c1",
+   "titre": "Savon maison avec la base Melt and Pour 3 beurres",
+   "chaine": "Le Petit Grassois",
+   "duree": 101,
+   "vues": 4566,
+   "img": "pack",
+   "prog": 0
+  },
+  {
+   "yt": "LS8QMUwW2t0",
+   "cours": "c2",
+   "titre": "Faites votre gel douche maison",
+   "chaine": "CC de Gevrey-Chambertin",
+   "duree": 73,
+   "vues": 45479,
+   "img": "gel",
+   "prog": 0
+  },
+  {
+   "yt": "NMvKGkwKFlE",
+   "cours": "c2",
+   "titre": "Gel douche corps moussant : texture et formule maison",
+   "chaine": "M’hairbyGrace",
+   "duree": 0,
+   "vues": 0,
+   "img": "gel",
+   "prog": 0
+  },
+  {
+   "yt": "CG2hYCv-uYs",
+   "cours": "c2",
+   "titre": "Bien formuler un gel douche : le choix du tensioactif",
+   "chaine": "Celobeauty Skincare",
+   "duree": 0,
+   "vues": 0,
+   "img": "labo",
+   "prog": 0
+  },
+  {
+   "yt": "eOzN4ga3S40",
+   "cours": "c2",
+   "titre": "Gel douche doux et sans sulfate",
+   "chaine": "M’hairbyGrace",
+   "duree": 0,
+   "vues": 0,
+   "img": "flacons",
+   "prog": 0
+  },
+  {
+   "yt": "V39AGZT2smk",
+   "cours": "c2",
+   "titre": "Fabrique ton shampoing solide hydratant et fortifiant",
+   "chaine": "Cynthia Crosetti",
+   "duree": 332,
+   "vues": 1434,
+   "img": "savon",
+   "prog": 0
+  },
+  {
+   "yt": "t6TOv6jjafg",
+   "cours": "c2",
+   "titre": "Comment faire son shampoing solide maison",
+   "chaine": "Le Kaba",
+   "duree": 0,
+   "vues": 0,
+   "img": "pack",
+   "prog": 0
+  },
+  {
+   "yt": "eVtOykfMCFE",
+   "cours": "c3",
+   "titre": "Formulation cosmétique : tensioactifs, émulsions, INCI",
+   "chaine": "chimie-biologie",
+   "duree": 329,
+   "vues": 1291,
+   "img": "labo",
+   "prog": 0
+  },
+  {
+   "yt": "bEToJO9DpFY",
+   "cours": "c3",
+   "titre": "Formuler une émulsion : crème hydratante visage",
+   "chaine": "Cosmeto Labo",
+   "duree": 786,
+   "vues": 35964,
+   "img": "creme",
+   "prog": 0
+  },
+  {
+   "yt": "tqv-7SKGAOc",
+   "cours": "c3",
+   "titre": "Crème hydratante faite maison (Julien Kaibeck)",
+   "chaine": "Beauté au Naturel",
+   "duree": 604,
+   "vues": 216397,
+   "img": "creme",
+   "prog": 0
+  },
+  {
+   "yt": "xNLTTCZmK4k",
+   "cours": "c3",
+   "titre": "2 crèmes hydratantes très faciles à faire",
+   "chaine": "La cuisine de Violaine",
+   "duree": 187,
+   "vues": 190714,
+   "img": "atelier",
+   "prog": 0
+  },
+  {
+   "yt": "E4PYYrwG_cY",
+   "cours": "c3",
+   "titre": "Technique : réaliser une émulsion pour la peau",
+   "chaine": "Ô Zuyl L’essentiel",
+   "duree": 237,
+   "vues": 65264,
+   "img": "process",
+   "prog": 0
+  },
+  {
+   "yt": "GB_2Du40hiw",
+   "cours": "c3",
+   "titre": "Éviter et corriger le déphasage d’une formule cosmétique",
+   "chaine": "La Cité Des Crépus TV",
+   "duree": 484,
+   "vues": 1616,
+   "img": "ph",
+   "prog": 0
+  },
+  {
+   "yt": "NL9_Hn--Grs",
+   "cours": "c3",
+   "titre": "Recette de sérum à l’acide hyaluronique fait maison",
+   "chaine": "Beauté bio",
+   "duree": 677,
+   "vues": 11819,
+   "img": "huiles",
+   "prog": 0
+  },
+  {
+   "yt": "38x4CZUy3B8",
+   "cours": "c3",
+   "titre": "Recette beauté : argile rose et peau sensible",
+   "chaine": "Anaïs",
+   "duree": 399,
+   "vues": 6820,
+   "img": "karite",
+   "prog": 0
+  },
+  {
+   "yt": "SpX5x5VJGEU",
    "cours": "c4",
-   "titre": "Construire une stratégie réseaux sociaux en 7 étapes",
-   "chaine": "Metricool en français",
-   "duree": 531,
-   "vues": 2919,
-   "img": "marketing",
-   "prog": 30
+   "titre": "Crème corporelle à base de beurre de karité",
+   "chaine": "Cosmétique et Business",
+   "duree": 626,
+   "vues": 79144,
+   "img": "lait",
+   "prog": 0
+  },
+  {
+   "yt": "_2zvQyv4bBo",
+   "cours": "c4",
+   "titre": "Faire une chantilly de karité maison",
+   "chaine": "Belle en bio beauty",
+   "duree": 0,
+   "vues": 0,
+   "img": "atelier",
+   "prog": 0
+  },
+  {
+   "yt": "MXWeRqMYJVU",
+   "cours": "c4",
+   "titre": "Crème hydratante au beurre de karité (corps et cheveux)",
+   "chaine": "Sissy La Généreuse",
+   "duree": 0,
+   "vues": 0,
+   "img": "karite",
+   "prog": 0
+  },
+  {
+   "yt": "b6mr8u3QYG4",
+   "cours": "c4",
+   "titre": "Stick à lèvres au beurre de karité et huile essentielle",
+   "chaine": "wikitube",
+   "duree": 0,
+   "vues": 0,
+   "img": "flacons",
+   "prog": 0
+  },
+  {
+   "yt": "sHsXzakRf9E",
+   "cours": "c4",
+   "titre": "Fabrication du beurre de karité brut non raffiné",
+   "chaine": "Soebio",
+   "duree": 125,
+   "vues": 2798,
+   "img": "huiles",
+   "prog": 0
+  },
+  {
+   "yt": "KijtJer0710",
+   "cours": "c5",
+   "titre": "Comment fabriquer le savon noir africain",
+   "chaine": "savon noir africain",
+   "duree": 895,
+   "vues": 31058,
+   "img": "karite",
+   "prog": 0
+  },
+  {
+   "yt": "JSKFU2M1vJM",
+   "cours": "c5",
+   "titre": "Immersion artisanale au Bénin : le savon noir ancestral",
+   "chaine": "By Shaely",
+   "duree": 3969,
+   "vues": 18341,
+   "img": "atelier",
+   "prog": 0
+  },
+  {
+   "yt": "I2E1I12KeEc",
+   "cours": "c5",
+   "titre": "Fabriquer son savon noir africain pur",
+   "chaine": "Africa Cosmetic’s",
+   "duree": 608,
+   "vues": 11948,
+   "img": "process",
+   "prog": 0
+  },
+  {
+   "yt": "fiRiTUgB1VU",
+   "cours": "c5",
+   "titre": "Fabriquer facilement le vrai savon noir africain",
+   "chaine": "Coach Rasmane Yameogo",
+   "duree": 861,
+   "vues": 6356,
+   "img": "savon",
+   "prog": 0
+  },
+  {
+   "yt": "D2HBAj4zY9E",
+   "cours": "c5",
+   "titre": "Fabrication traditionnelle du beurre de karité",
+   "chaine": "Unezahra",
+   "duree": 0,
+   "vues": 0,
+   "img": "huiles",
+   "prog": 0
+  },
+  {
+   "yt": "hIsLGB6WuhM",
+   "cours": "c6",
+   "titre": "Comment lire la liste INCI d’un cosmétique",
+   "chaine": "Les Maronneuses",
+   "duree": 0,
+   "vues": 0,
+   "img": "pack",
+   "prog": 0
+  },
+  {
+   "yt": "k-Z9RPbY7eQ",
+   "cours": "c6",
+   "titre": "Liste INCI : 5 choses à savoir",
+   "chaine": "Manue de Menaka",
+   "duree": 2124,
+   "vues": 1119,
+   "img": "pack",
+   "prog": 0
+  },
+  {
+   "yt": "cZUhpblcch4",
+   "cours": "c6",
+   "titre": "Les allégations cosmétiques interdites en Europe",
+   "chaine": "INCI Beauty",
+   "duree": 0,
+   "vues": 0,
+   "img": "flacons",
+   "prog": 0
+  },
+  {
+   "yt": "CHUChDe_GMk",
+   "cours": "c6",
+   "titre": "Comment rédiger une liste INCI",
+   "chaine": "Josiane",
+   "duree": 564,
+   "vues": 841,
+   "img": "labo",
+   "prog": 0
+  },
+  {
+   "yt": "TuJhqOzkmto",
+   "cours": "c6",
+   "titre": "Déchiffrer la liste INCI et la nomenclature des ingrédients",
+   "chaine": "Ready Skin Naturals",
+   "duree": 0,
+   "vues": 0,
+   "img": "pack",
+   "prog": 0
   }
  ],
  "PROGRAMMES": {
   "c1": [
    {
-    "m": "Fondations du web",
+    "m": "Chimie du savon et sécurité",
     "l": [
      {
-      "t": "Introduction au web et à l'environnement",
+      "t": "Qu’est-ce que la saponification ?",
+      "d": "10 min",
+      "k": "lecture"
+     },
+     {
+      "t": "Soude, eau et indices SAP : les règles d’or",
+      "d": "12 min",
+      "k": "lecture"
+     },
+     {
+      "t": "Sécurité : soude, gants, lunettes, ventilation",
       "d": "8 min",
-      "k": "lecture",
-      "done": 1
-     },
-     {
-      "t": "Les bases de JavaScript",
-      "d": "62 min",
-      "k": "video",
-      "v": "agj8_3xpuYI",
-      "done": 1
-     },
-     {
-      "t": "JavaScript de A à Z en 1 heure",
-      "d": "62 min",
-      "k": "video",
-      "v": "ldxt9FNUc50",
-      "done": 1
+      "k": "lecture"
      }
     ]
    },
    {
-    "m": "DOM & composants réutilisables",
+    "m": "Construire sa recette",
     "l": [
      {
-      "t": "Manipuler le DOM pas à pas",
-      "d": "12 min",
-      "k": "lecture",
-      "done": 1
+      "t": "Utiliser SoapCalc sans se tromper",
+      "d": "33 min",
+      "k": "video",
+      "v": "wLv3geJ3Rv0"
      },
      {
-      "t": "Créer des composants réutilisables",
-      "d": "14 min",
-      "k": "lecture",
-      "done": 1
+      "t": "Le calculateur Mendrulandia pas à pas",
+      "d": "11 min",
+      "k": "video",
+      "v": "-WB8UKJA5qU"
      },
      {
-      "t": "Exercice guidé : galerie de cartes",
-      "d": "25 min",
+      "t": "Exercice guidé : formule 500 g, surgraissage 8 %",
+      "d": "30 min",
       "k": "exercice"
      }
     ]
    },
    {
-    "m": "Passer au full-stack",
+    "m": "De la trace au démoulage",
     "l": [
      {
-      "t": "Consommer une API REST",
-      "d": "16 min",
+      "t": "Saponification à froid : le tutoriel complet",
+      "d": "Vidéo",
+      "k": "video",
+      "v": "Ka6h2cM2Vrw"
+     },
+     {
+      "t": "Savon au karité et au miel",
+      "d": "10 min",
+      "k": "video",
+      "v": "8pIZmfuzoHY"
+     },
+     {
+      "t": "Mouler, trancher et laisser curer 4 semaines",
+      "d": "14 min",
       "k": "lecture"
      },
      {
-      "t": "Projet final : portfolio responsive",
-      "d": "1 h",
-      "k": "projet"
+      "t": "Quiz du module Savonnerie",
+      "d": "8 min",
+      "k": "quiz",
+      "v": "c1"
      }
     ]
    }
   ],
   "c2": [
    {
-    "m": "Les bases de Material Design 3",
+    "m": "Anatomie d’un gel douche",
     "l": [
      {
-      "t": "Tout savoir sur Material Design 3",
-      "d": "24 min",
-      "k": "video",
-      "v": "h_JYW2hdI8U",
-      "done": 1
-     },
-     {
-      "t": "Colorimétrie et rôles de couleur",
-      "d": "12 min",
-      "k": "lecture",
-      "done": 1
-     },
-     {
-      "t": "Typographie et échelle de styles",
-      "d": "10 min",
-      "k": "lecture",
-      "done": 1
-     }
-    ]
-   },
-   {
-    "m": "Composants M3",
-    "l": [
-     {
-      "t": "Prototyper un FAB Material 3 sur Figma",
-      "d": "23 min",
-      "k": "video",
-      "v": "asN3B33wOzo",
-      "done": 1
-     },
-     {
-      "t": "Cartes, chips et navigation",
-      "d": "15 min",
+      "t": "Eau, tensioactifs, actifs : les trois blocs",
+      "d": "11 min",
       "k": "lecture"
      },
      {
-      "t": "Material 3 : du design au déploiement",
-      "d": "16 min",
+      "t": "Formulation cosmétique : tensioactifs et émulsions",
+      "d": "5 min",
       "k": "video",
-      "v": "7nrhTdS7dHg"
+      "v": "eVtOykfMCFE"
+     },
+     {
+      "t": "Choisir un tensioactif doux (sans sulfate)",
+      "d": "Vidéo",
+      "k": "video",
+      "v": "CG2hYCv-uYs"
      }
     ]
    },
    {
-    "m": "Aller plus loin",
+    "m": "Formuler et épaissir",
     "l": [
      {
-      "t": "Exercice : palette dynamique",
-      "d": "20 min",
+      "t": "Gel douche moussant : la formule complète",
+      "d": "Vidéo",
+      "k": "video",
+      "v": "NMvKGkwKFlE"
+     },
+     {
+      "t": "Gel douche doux sans sulfate",
+      "d": "Vidéo",
+      "k": "video",
+      "v": "eOzN4ga3S40"
+     },
+     {
+      "t": "Épaissir, ajuster le pH et conserver",
+      "d": "13 min",
+      "k": "lecture"
+     },
+     {
+      "t": "Exercice : recette de gel douche 250 ml",
+      "d": "25 min",
       "k": "exercice"
+     }
+    ]
+   },
+   {
+    "m": "Shampoings solides et variantes",
+    "l": [
+     {
+      "t": "Shampoing solide hydratant et fortifiant",
+      "d": "6 min",
+      "k": "video",
+      "v": "V39AGZT2smk"
      },
      {
-      "t": "Accessibilité et contrastes",
-      "d": "14 min",
-      "k": "lecture"
+      "t": "Shampoing solide : la méthode pas à pas",
+      "d": "Vidéo",
+      "k": "video",
+      "v": "t6TOv6jjafg"
      },
      {
-      "t": "Quiz final — composants Material 3",
-      "d": "10 min",
-      "k": "quiz"
+      "t": "Quiz du module Hygiène liquide",
+      "d": "8 min",
+      "k": "quiz",
+      "v": "c2"
      }
     ]
    }
   ],
   "c3": [
    {
-    "m": "Python pour la data",
+    "m": "La peau et ses besoins",
     "l": [
      {
-      "t": "Introduction à Python pour la data",
-      "d": "10 min",
-      "k": "lecture",
-      "done": 1
+      "t": "Barrière cutanée, types de peau, hydratation",
+      "d": "12 min",
+      "k": "lecture"
      },
      {
-      "t": "Python, NumPy et Pandas (cours complet)",
-      "d": "6 h 05",
-      "k": "video",
-      "v": "LwkWwxg10IU",
-      "done": 1
-     },
-     {
-      "t": "Pandas : analyse du Titanic",
-      "d": "17 min",
-      "k": "video",
-      "v": "zZkNOdBWgFQ",
-      "done": 1
-     }
-    ]
-   },
-   {
-    "m": "Préparer et visualiser",
-    "l": [
-     {
-      "t": "Nettoyage et préparation des données",
+      "t": "Actifs vedettes : acide hyaluronique, niacinamide, vitamine E",
       "d": "14 min",
-      "k": "lecture",
-      "done": 1
+      "k": "lecture"
      },
      {
-      "t": "Visualisation avec Matplotlib",
-      "d": "16 min",
-      "k": "lecture",
-      "done": 1
+      "t": "Sérum à l’acide hyaluronique maison",
+      "d": "11 min",
+      "k": "video",
+      "v": "NL9_Hn--Grs"
      }
     ]
    },
    {
-    "m": "Modéliser",
+    "m": "Maîtriser l’émulsion",
     "l": [
      {
-      "t": "Premiers modèles : régression linéaire",
-      "d": "22 min",
-      "k": "exercice",
-      "done": 1
+      "t": "Phase aqueuse, phase grasse, émulsifiant",
+      "d": "12 min",
+      "k": "lecture"
      },
      {
-      "t": "Devoir noté : régression linéaire",
-      "d": "1 h 30",
-      "k": "devoir"
+      "t": "Formuler une émulsion : crème hydratante visage",
+      "d": "13 min",
+      "k": "video",
+      "v": "bEToJO9DpFY"
      },
      {
-      "t": "Quiz du module Data Science",
+      "t": "Technique : réussir son émulsion",
+      "d": "4 min",
+      "k": "video",
+      "v": "E4PYYrwG_cY"
+     },
+     {
+      "t": "Que faire quand la crème déphase ?",
+      "d": "Vidéo",
+      "k": "video",
+      "v": "GB_2Du40hiw"
+     }
+    ]
+   },
+   {
+    "m": "Crèmes finies et soins ciblés",
+    "l": [
+     {
+      "t": "Crème hydratante faite maison",
       "d": "10 min",
-      "k": "quiz"
+      "k": "video",
+      "v": "tqv-7SKGAOc"
+     },
+     {
+      "t": "2 crèmes hydratantes très faciles",
+      "d": "3 min",
+      "k": "video",
+      "v": "xNLTTCZmK4k"
+     },
+     {
+      "t": "Masque purifiant à l’argile rose",
+      "d": "7 min",
+      "k": "video",
+      "v": "38x4CZUy3B8"
+     },
+     {
+      "t": "Quiz du module Soin visage",
+      "d": "8 min",
+      "k": "quiz",
+      "v": "c3"
      }
     ]
    }
   ],
   "c4": [
    {
-    "m": "Panorama du digital",
+    "m": "Nourrir la peau du corps",
     "l": [
      {
-      "t": "Formation marketing digital complète",
-      "d": "1 h 46",
-      "k": "video",
-      "v": "5IcZPL-zJYc",
-      "done": 1
-     },
-     {
-      "t": "Définir sa cible et son positionnement",
-      "d": "12 min",
+      "t": "Lait, crème, baume : choisir la texture",
+      "d": "11 min",
       "k": "lecture"
      },
      {
-      "t": "Stratégie réseaux sociaux en 7 étapes",
-      "d": "9 min",
+      "t": "Crème corporelle au beurre de karité",
+      "d": "10 min",
       "k": "video",
-      "v": "3WFYTiHi5TU",
-      "done": 1
+      "v": "SpX5x5VJGEU"
+     },
+     {
+      "t": "Du karité brut au karité filtré",
+      "d": "2 min",
+      "k": "video",
+      "v": "sHsXzakRf9E"
      }
     ]
    },
    {
-    "m": "Contenu et acquisition",
+    "m": "Formules riches et chantilly",
     "l": [
      {
-      "t": "Community management au quotidien",
-      "d": "10 min",
+      "t": "Formuler une lotion fluide qui ne colle pas",
+      "d": "13 min",
       "k": "lecture"
      },
      {
-      "t": "Publicité en ligne : Meta & Google Ads",
-      "d": "18 min",
-      "k": "lecture"
+      "t": "Chantilly de karité maison",
+      "d": "Vidéo",
+      "k": "video",
+      "v": "_2zvQyv4bBo"
      },
      {
-      "t": "Exercice : plan de contenu 30 jours",
-      "d": "20 min",
+      "t": "Crème karité corps et cheveux",
+      "d": "Vidéo",
+      "k": "video",
+      "v": "MXWeRqMYJVU"
+     },
+     {
+      "t": "Exercice : lait corporel 300 ml",
+      "d": "30 min",
       "k": "exercice"
      }
     ]
    },
    {
-    "m": "Piloter la performance",
+    "m": "Baumes et soins ciblés",
     "l": [
      {
-      "t": "Étude de cas : lancement produit",
-      "d": "15 min",
+      "t": "Stick à lèvres karité",
+      "d": "Vidéo",
+      "k": "video",
+      "v": "b6mr8u3QYG4"
+     },
+     {
+      "t": "Baume de massage et beurre fouetté",
+      "d": "12 min",
       "k": "lecture"
      },
      {
-      "t": "Quiz marketing digital",
+      "t": "Quiz du module Soin corps",
       "d": "8 min",
-      "k": "quiz"
+      "k": "quiz",
+      "v": "c4"
      }
     ]
    }
   ],
   "c5": [
    {
-    "m": "Business English essentials",
+    "m": "Les matières premières du terroir",
     "l": [
      {
-      "t": "18 mots d'anglais des affaires",
-      "d": "21 min",
-      "k": "video",
-      "v": "vzIEBqBexf4",
-      "done": 1
+      "t": "Karité, baobab, moringa, coco : usages cosmétiques",
+      "d": "15 min",
+      "k": "lecture"
      },
      {
-      "t": "Business English : conversation",
-      "d": "1 h 45",
+      "t": "Fabrication traditionnelle du beurre de karité",
+      "d": "Vidéo",
       "k": "video",
-      "v": "iyoXejosxGg",
-      "done": 1
+      "v": "D2HBAj4zY9E"
+     },
+     {
+      "t": "Huiles, macérats et argiles",
+      "d": "12 min",
+      "k": "lecture"
      }
     ]
    },
    {
-    "m": "Communiquer au travail",
+    "m": "Le savon noir africain",
     "l": [
      {
-      "t": "Réunions et visioconférences",
-      "d": "12 min",
-      "k": "lecture",
-      "done": 1
+      "t": "Savon noir : cendres, huile de palmiste et eau",
+      "d": "13 min",
+      "k": "lecture"
      },
      {
-      "t": "Écrire des e-mails professionnels",
+      "t": "Fabriquer le savon noir africain",
+      "d": "15 min",
+      "k": "video",
+      "v": "KijtJer0710"
+     },
+     {
+      "t": "Savon noir pur : la méthode détaillée",
+      "d": "10 min",
+      "k": "video",
+      "v": "I2E1I12KeEc"
+     },
+     {
+      "t": "Immersion artisanale au Bénin",
+      "d": "66 min",
+      "k": "video",
+      "v": "JSKFU2M1vJM"
+     }
+    ]
+   },
+   {
+    "m": "Tradition et qualité",
+    "l": [
+     {
+      "t": "Vrai savon noir : les points de contrôle",
       "d": "14 min",
-      "k": "lecture",
-      "done": 1
+      "k": "video",
+      "v": "fiRiTUgB1VU"
      },
      {
-      "t": "Négocier et convaincre",
-      "d": "18 min",
-      "k": "exercice",
-      "done": 1
-     }
-    ]
-   },
-   {
-    "m": "Certification",
-    "l": [
-     {
-      "t": "Préparation à l'examen B2",
-      "d": "20 min",
-      "k": "lecture",
-      "done": 1
-     },
-     {
-      "t": "Quiz final B2",
-      "d": "12 min",
+      "t": "Quiz du module Ingrédients",
+      "d": "8 min",
       "k": "quiz",
-      "done": 1
+      "v": "c5"
      }
     ]
    }
   ],
   "c6": [
    {
-    "m": "Comprendre les menaces",
+    "m": "Nommer et étiqueter",
     "l": [
      {
-      "t": "Cybersécurité : guide pour démarrer",
-      "d": "18 min",
-      "k": "video",
-      "v": "VLr0mTzYfRE"
-     },
-     {
-      "t": "Débuter le hacking éthique",
-      "d": "20 min",
-      "k": "video",
-      "v": "syb15o27GEE"
-     },
-     {
-      "t": "Authentification et mots de passe",
+      "t": "Ce qu’un étiquetage cosmétique doit contenir",
       "d": "12 min",
       "k": "lecture"
+     },
+     {
+      "t": "Lire et rédiger une liste INCI",
+      "d": "9 min",
+      "k": "video",
+      "v": "CHUChDe_GMk"
+     },
+     {
+      "t": "Comment lire la liste INCI",
+      "d": "Vidéo",
+      "k": "video",
+      "v": "hIsLGB6WuhM"
+     },
+     {
+      "t": "Nomenclature des ingrédients",
+      "d": "Vidéo",
+      "k": "video",
+      "v": "TuJhqOzkmto"
      }
     ]
    },
    {
-    "m": "Protéger ses données",
+    "m": "Sécurité et allégations",
     "l": [
      {
-      "t": "Le chiffrement expliqué simplement",
-      "d": "15 min",
-      "k": "lecture"
-     },
-     {
-      "t": "Sécurité des réseaux",
+      "t": "Test de stabilité : le protocole en 12 semaines",
       "d": "14 min",
       "k": "lecture"
      },
      {
-      "t": "Hygiène numérique au quotidien",
-      "d": "10 min",
-      "k": "lecture"
+      "t": "Allégations interdites et mentions obligatoires",
+      "d": "Vidéo",
+      "k": "video",
+      "v": "cZUhpblcch4"
+     },
+     {
+      "t": "5 réflexes pour une étiquette conforme",
+      "d": "35 min",
+      "k": "video",
+      "v": "k-Z9RPbY7eQ"
      }
     ]
    },
    {
-    "m": "Mettre en pratique",
+    "m": "Vendre ses produits",
     "l": [
      {
-      "t": "Exercice : repérer un e-mail de phishing",
-      "d": "20 min",
-      "k": "exercice"
+      "t": "Prix de revient, marge et conditionnement",
+      "d": "13 min",
+      "k": "lecture"
      },
      {
-      "t": "Quiz du module Cybersécurité",
-      "d": "10 min",
-      "k": "quiz"
+      "t": "Quiz du module Réglementation",
+      "d": "8 min",
+      "k": "quiz",
+      "v": "c6"
      }
     ]
    }
   ]
  },
  "QUIZZES": {
-  "c2": {
-   "titre": "Composants Material Design 3",
+  "c1": {
+   "titre": "Savonnerie à froid",
    "duree": 600,
    "questions": [
     {
-     "q": "Quel rôle de couleur M3 faut-il utiliser pour un texte posé sur « primary » ?",
+     "q": "Que fabrique la réaction de saponification ?",
      "o": [
-      "on-primary",
-      "secondary",
-      "surface-variant",
-      "outline"
+      "Du savon et de la glycérine",
+      "Une cire émulsifiante",
+      "Un gel douche",
+      "Un conservateur"
      ],
      "a": 0,
-     "e": "Chaque rôle possède sa contrepartie « on- » pour garantir le contraste du contenu."
+     "e": "Sous l’effet de la soude, les triglycérides se transforment en savon et en glycérine."
     },
     {
-     "q": "Par défaut, quelle est la forme d'un FAB en Material 3 ?",
+     "q": "Que signifie « surgraissage » dans une recette de savon ?",
      "o": [
-      "Carré (0 dp)",
-      "Coins arrondis de 16 dp",
-      "Coin supérieur arrondi",
-      "Pilule complète"
+      "Ajouter une huile parfumée",
+      "Réduire volontairement la soude pour garder une part d’huile libre",
+      "Chauffer la pâte plus longtemps",
+      "Ajouter de l’eau après la trace"
      ],
      "a": 1,
-     "e": "Le FAB M3 utilise un rayon de 16 dp ; la variante « extended » est également arrondie à 16 dp."
+     "e": "On diminue la soude de 5 à 8 % : l’huile non saponifiée rend le savon plus doux."
     },
     {
-     "q": "En Material 3, l'élévation est principalement exprimée par…",
+     "q": "À quelle température travaille-t-on généralement en saponification à froid ?",
      "o": [
-      "Une ombre uniquement",
-      "Une teinte de surface (surface tint)",
-      "Une bordure épaisse",
-      "Un dégradé"
+      "0 °C",
+      "Entre 35 et 45 °C",
+      "100 °C",
+      "Peu importe"
      ],
      "a": 1,
-     "e": "M3 remplace l'ombre seule par des « surface containers » teintés selon le niveau."
+     "e": "Huiles et lessive de soude sont ramenées autour de 40 °C avant mélange."
     },
     {
-     "q": "D'où provient la couleur d'un bouton « tonal » M3 ?",
+     "q": "Qu’appelle-t-on « la trace » ?",
      "o": [
-      "primary",
-      "secondary-container",
-      "tertiary",
-      "error"
+      "Le test du pH",
+      "Le moment où la pâte épaissit et laisse une marque",
+      "La coloration du savon",
+      "Le démoulage"
      ],
      "a": 1,
-     "e": "Un bouton tonal (filled tonal) est rempli par la couleur de rôle secondary-container."
+     "e": "À la trace, la pâte épaissit : on ajoute alors les additifs et on coule."
     },
     {
-     "q": "À quoi sert un « state layer » dans les composants M3 ?",
+     "q": "Combien de temps faut-il laisser curer un savon à froid ?",
      "o": [
-      "À décorer le bouton",
-      "À signaler survol, focus et appui",
-      "À empiler les cartes",
-      "À animer les icônes"
+      "24 heures",
+      "3 jours",
+      "Environ 4 semaines",
+      "6 mois"
      ],
-     "a": 1,
-     "e": "Le state layer ajoute une couche d'opacité sur l'état (hover 8 %, focus 10 %, pressed 10 %)."
+     "a": 2,
+     "e": "La cure de 4 semaines laisse l’eau s’évaporer et le pH baisser."
     },
     {
-     "q": "Quelle taille de corps pour le style « body large » ?",
+     "q": "Quel équipement est indispensable pour manipuler la soude ?",
      "o": [
-      "14",
-      "16",
-      "18",
-      "20"
+      "Un mixeur plongeant",
+      "Gants, lunettes et ventilation",
+      "Un thermomètre infrarouge",
+      "Une centrifugeuse"
      ],
      "a": 1,
-     "e": "L'échelle typographique M3 définit body-large à 16 sp."
+     "e": "La soude est corrosive : gants en nitrile, lunettes, local ventilé."
     }
    ]
   },
-  "c1": {
-   "titre": "JavaScript : les fondamentaux",
-   "duree": 420,
+  "c2": {
+   "titre": "Hygiène liquide : gels et shampoings",
+   "duree": 600,
    "questions": [
     {
-     "q": "Quel mot-clé déclare une constante non réaffectable ?",
+     "q": "Quel est le rôle principal d’un tensioactif ?",
      "o": [
-      "var",
-      "let",
-      "const",
-      "static"
-     ],
-     "a": 2,
-     "e": "const : la liaison ne peut pas être réassignée."
-    },
-    {
-     "q": "Que renvoie « typeof null » ?",
-     "o": [
-      "\"null\"",
-      "\"object\"",
-      "\"undefined\"",
-      "\"number\""
+      "Conserver le produit",
+      "Détacher et faire mousser en liant l’eau et les graisses",
+      "Épaissir la formule",
+      "Parfumer"
      ],
      "a": 1,
-     "e": "Comportement historique du langage : typeof null vaut \"object\"."
+     "e": "Sa molécule a une tête hydrophile et une queue lipophile : elle capture les salissures."
     },
     {
-     "q": "Quelle méthode ajoute un élément en fin de tableau ?",
+     "q": "Un « tensioactif doux » se reconnaît à…",
      "o": [
-      "unshift()",
-      "pop()",
-      "push()",
-      "shift()"
-     ],
-     "a": 2,
-     "e": "push() ajoute en fin ; unshift() ajoute au début."
-    },
-    {
-     "q": "Comment sélectionner un élément par son identifiant ?",
-     "o": [
-      "document.querySelectorAll(\".id\")",
-      "document.getElementById(\"id\")",
-      "document.find(\"id\")",
-      "window.element(\"id\")"
+      "Sa mousse abondante",
+      "Sa chaîne courte et son origine végétale",
+      "Son parfum",
+      "Sa couleur"
      ],
      "a": 1,
-     "e": "getElementById renvoie un seul élément."
+     "e": "Les glucosides (coco glucoside, lauryl glucoside) sont réputés doux pour la peau."
     },
     {
-     "q": "Que fait « addEventListener(\"click\", fn) » ?",
+     "q": "Quel pH viser pour un gel douche respectueux de la peau ?",
      "o": [
-      "Exécute fn immédiatement",
-      "Enregistre fn pour l'événement click",
-      "Supprime le nœud",
-      "Modifie le style"
+      "pH 2",
+      "Autour de 5,5 (pH physiologique)",
+      "pH 9",
+      "pH 12"
      ],
      "a": 1,
-     "e": "On attache un écouteur déclenché à chaque clic."
+     "e": "Le film hydrolipidique est légèrement acide : on ajuste vers pH 5,5."
+    },
+    {
+     "q": "Pourquoi un gel douche aqueux a-t-il besoin d’un conservateur ?",
+     "o": [
+      "Pour mousser",
+      "Parce que l’eau favorise bactéries et moisissures",
+      "Pour épaissir",
+      "Pour colorer"
+     ],
+     "a": 1,
+     "e": "Toute formule contenant de l’eau doit être protégée des contaminations."
+    },
+    {
+     "q": "Comment épaissit-on naturellement un gel douche ?",
+     "o": [
+      "En ajoutant du sel ou un épaississant végétal",
+      "En le chauffant",
+      "En ajoutant de l’huile",
+      "En le congelant"
+     ],
+     "a": 0,
+     "e": "Le chlorure de sodium ou une gomme (xanthane) augmentent la viscosité."
+    },
+    {
+     "q": "Quel test valide la douceur d’un shampoing solide ?",
+     "o": [
+      "La couleur",
+      "Le pH une fois dissous et la tolérance cutanée",
+      "Le poids",
+      "L’odeur"
+     ],
+     "a": 1,
+     "e": "On mesure le pH en solution diluée et on fait un test d’usage."
     }
    ]
   },
   "c3": {
-   "titre": "Data Science avec Python",
-   "duree": 480,
+   "titre": "Émulsions et soin du visage",
+   "duree": 600,
    "questions": [
     {
-     "q": "Quelle fonction lit un fichier CSV avec Pandas ?",
+     "q": "Une émulsion, c’est…",
      "o": [
-      "pd.read_csv()",
-      "pd.load_csv()",
-      "pd.open_csv()",
-      "pd.csv()"
+      "Un mélange d’eau et d’huile stabilisé par un émulsifiant",
+      "Une huile pure",
+      "Un gel d’eau",
+      "Une poudre"
      ],
      "a": 0,
-     "e": "pandas.read_csv charge un CSV dans un DataFrame."
+     "e": "L’émulsifiant abaisse la tension entre les deux phases et stabilise le mélange."
     },
     {
-     "q": "Que renvoie df.head() ?",
+     "q": "Une crème « H/E » désigne…",
      "o": [
-      "Les 10 dernières lignes",
-      "Les 5 premières lignes",
-      "Le nombre de lignes",
-      "Les colonnes"
+      "Huile dans eau : phase externe aqueuse, toucher frais",
+      "Eau dans huile : toucher riche",
+      "Un mélange à parts égales",
+      "Une crème sans émulsifiant"
+     ],
+     "a": 0,
+     "e": "H/E = huile dispersée dans l’eau ; E/H donne au contraire une crème plus riche."
+    },
+    {
+     "q": "Quel ingrédient sert d’actif hydratant capteur d’eau ?",
+     "o": [
+      "L’acide hyaluronique",
+      "La cire d’abeille",
+      "L’huile de coco",
+      "Le talc"
+     ],
+     "a": 0,
+     "e": "L’acide hyaluronique retient plusieurs centaines de fois son poids en eau."
+    },
+    {
+     "q": "À quelle température ajoute-t-on le conservateur ?",
+     "o": [
+      "À chaud, 70 °C",
+      "Sous 40 °C",
+      "À 100 °C",
+      "Peu importe"
      ],
      "a": 1,
-     "e": "head(n=5) affiche les 5 premières lignes."
+     "e": "Au-delà de 40 °C beaucoup de conservateurs et d’actifs sont dégradés."
     },
     {
-     "q": "Quel attribut donne les dimensions d'un DataFrame ?",
+     "q": "Que signifie « déphasage » ?",
      "o": [
-      "df.size",
-      "df.len",
-      "df.shape",
-      "df.count"
+      "La crème mousse",
+      "L’eau et l’huile se séparent",
+      "La crème durcit",
+      "Le parfum s’évapore"
      ],
-     "a": 2,
-     "e": "df.shape renvoie (lignes, colonnes)."
+     "a": 1,
+     "e": "L’émulsion casse : trop peu d’émulsifiant, mauvais brassage ou choc de température."
     },
     {
-     "q": "Quel outil sert à afficher un graphique avec Matplotlib ?",
+     "q": "Quel test est obligatoire avant de commercialiser une crème ?",
      "o": [
-      "plt.show()",
-      "plt.display()",
-      "plt.render()",
-      "plt.plot.show"
-     ],
-     "a": 0,
-     "e": "plt.show() affiche la figure courante."
-    },
-    {
-     "q": "Quelle bibliothèque est optimisée pour le calcul numérique ?",
-     "o": [
-      "NumPy",
-      "Pillow",
-      "Requests",
-      "Flask"
+      "Le test de stabilité (chaleur, froid, vieillissement)",
+      "Le test de mousse",
+      "Le test de couleur",
+      "Aucun"
      ],
      "a": 0,
-     "e": "NumPy fournit des tableaux ndarray vectorisés."
+     "e": "Chaleur, froid et vieillissement accéléré vérifient la tenue de la formule."
     }
    ]
   },
   "c4": {
-   "titre": "Marketing digital",
-   "duree": 360,
+   "titre": "Laits corporels et karité",
+   "duree": 600,
    "questions": [
     {
-     "q": "Que signifie SEO ?",
+     "q": "Quelle est la différence entre un lait et un baume ?",
      "o": [
-      "Search Engine Optimization",
-      "Social Engagement Online",
-      "Sales Efficiency Output",
-      "Site Editing Order"
+      "La couleur",
+      "Le lait est fluide (beaucoup d’eau), le baume est anhydre et riche",
+      "Le baume contient plus d’eau",
+      "Aucune"
+     ],
+     "a": 1,
+     "e": "Le lait corporel est une émulsion fluide ; le baume est un mélange de beurres et d’huiles."
+    },
+    {
+     "q": "Le beurre de karité est surtout…",
+     "o": [
+      "Filmogène et nourrissant",
+      "Détachant",
+      "Exfoliant",
+      "Astringent"
      ],
      "a": 0,
-     "e": "Optimisation pour les moteurs de recherche."
+     "e": "Riche en acides gras et insaponifiables, il nourrit et protège la barrière cutanée."
     },
     {
-     "q": "Quel indicateur mesure l'engagement sur un réseau social ?",
+     "q": "Comment éviter un lait corporel « collant » ?",
      "o": [
-      "Le nombre de serveurs",
-      "Le taux d'engagement",
-      "Le poids des images",
-      "Le taux de conversion d'un site"
+      "Augmenter l’huile",
+      "Réduire la phase grasse et choisir des huiles pénétrantes",
+      "Ajouter du sucre",
+      "Chauffer plus fort"
      ],
      "a": 1,
-     "e": "Interactions / impressions ou abonnés."
+     "e": "Jojoba, amande douce ou coco fractionnée pénètrent vite ; on dose le karité."
     },
     {
-     "q": "Un « CTA » est…",
+     "q": "À quoi sert la vitamine E dans une formule ?",
      "o": [
-      "Un budget publicitaire",
-      "Un appel à l'action",
-      "Une campagne d'e-mailing",
-      "Une audience"
+      "À parfumer",
+      "À limiter l’oxydation des huiles (antioxydant)",
+      "À épaissir",
+      "À conserver"
      ],
      "a": 1,
-     "e": "Call To Action : invite à une action précise."
+     "e": "Antioxydant : elle protège les huiles du rancissement."
     },
     {
-     "q": "Quel canal est « owned » (possédé) ?",
+     "q": "Quelle précaution avec les huiles essentielles ?",
      "o": [
-      "Une publicité payante",
-      "Votre blog",
-      "Un article de presse",
-      "Un avis client"
+      "Doser à 15 %",
+      "Respecter un dosage faible et éviter chez la femme enceinte",
+      "Les chauffer à 80 °C",
+      "Les mélanger à l’eau"
      ],
      "a": 1,
-     "e": "Owned media : vous en maîtrisez le contenu et la diffusion."
+     "e": "Généralement 0,5 à 1 % maximum, avec contre-indications à connaître."
+    },
+    {
+     "q": "Que doit contenir une fiche de fabrication ?",
+     "o": [
+      "Uniquement le prix",
+      "Numéro de lot, date, ingrédients et quantités",
+      "Le nom du client",
+      "Rien"
+     ],
+     "a": 1,
+     "e": "La traçabilité du lot est indispensable pour la qualité et la vente."
     }
    ]
   },
   "c5": {
-   "titre": "Business English B2",
-   "duree": 420,
+   "titre": "Ingrédients africains",
+   "duree": 600,
    "questions": [
     {
-     "q": "Comment refuser poliment en réunion ?",
+     "q": "Le savon noir africain traditionnel est fabriqué à partir de…",
      "o": [
-      "I don't care.",
-      "I'm afraid I'd have to disagree.",
-      "No way.",
-      "That's wrong."
-     ],
-     "a": 1,
-     "e": "Formule atténuée et professionnelle."
-    },
-    {
-     "q": "Quelle formule ouvre un e-mail professionnel ?",
-     "o": [
-      "Hey!",
-      "Dear Ms Clark,",
-      "Yo,",
-      "To whom it may concern,"
-     ],
-     "a": 1,
-     "e": "« Dear + titre + nom » reste la référence formelle."
-    },
-    {
-     "q": "Que signifie « to follow up on something » ?",
-     "o": [
-      "Annuler",
-      "Relancer / faire un suivi",
-      "Renvoyer un colis",
-      "Signer un contrat"
-     ],
-     "a": 1,
-     "e": "Faire un suivi d'un dossier ou d'un échange."
-    },
-    {
-     "q": "Comment demander une reformulation ?",
-     "o": [
-      "Could you clarify that, please?",
-      "Speak louder.",
-      "What?",
-      "Say it again, fast."
+      "Cendres de cabosses ou de plantes et huile de palmiste",
+      "Savon de Marseille et argile",
+      "Beurre de cacao uniquement",
+      "Soude pure"
      ],
      "a": 0,
-     "e": "« Could you clarify… » demande une précision avec courtoisie."
+     "e": "La potasse issue des cendres saponifie l’huile de palmiste : c’est un savon à chaud."
+    },
+    {
+     "q": "Quelle argile est la plus adaptée à une peau sensible ?",
+     "o": [
+      "L’argile rose ou blanche",
+      "L’argile verte",
+      "Le sable",
+      "Le talc"
+     ],
+     "a": 0,
+     "e": "Rose et blanche sont les plus douces ; la verte est plus absorbante."
+    },
+    {
+     "q": "Un macérat, c’est…",
+     "o": [
+      "Une plante infusée dans une huile",
+      "Une huile essentielle",
+      "Un conservateur",
+      "Un émulsifiant"
+     ],
+     "a": 0,
+     "e": "On laisse infuser une plante séchée dans une huile végétale à l’abri de la lumière."
+    },
+    {
+     "q": "Quel ingrédient du terroir est riche en vitamine E et en acides gras essentiels ?",
+     "o": [
+      "L’huile de baobab",
+      "Le sable",
+      "Le sel",
+      "Le talc"
+     ],
+     "a": 0,
+     "e": "L’huile de baobab est réputée nourrissante et antioxydante."
+    },
+    {
+     "q": "Pourquoi contrôler le pH d’un savon traditionnel ?",
+     "o": [
+      "Pour la couleur",
+      "Parce qu’un savon trop alcalin agresse la peau",
+      "Pour le poids",
+      "Pour l’odeur"
+     ],
+     "a": 1,
+     "e": "Un pH élevé irrite : on vérifie et on laisse reposer le savon."
+    },
+    {
+     "q": "Comment garantir la qualité d’un beurre de karité artisanal ?",
+     "o": [
+      "Filtrer, contrôler l’odeur et l’absence d’impuretés",
+      "Le colorer",
+      "Le chauffer fort",
+      "Le diluer à l’eau"
+     ],
+     "a": 0,
+     "e": "Filtration et contrôle sensoriel font la différence pour l’export."
     }
    ]
   },
   "c6": {
-   "titre": "Cybersécurité — Fondamentaux",
-   "duree": 420,
+   "titre": "Étiquetage, sécurité et vente",
+   "duree": 600,
    "questions": [
     {
-     "q": "Quel signe évoque un e-mail de phishing ?",
+     "q": "Que signifie INCI ?",
      "o": [
-      "Un domaine d'expéditeur douteux",
-      "Une signature professionnelle",
-      "Un objet clair",
-      "Un PDF joint à votre demande"
+      "International Nomenclature of Cosmetic Ingredients",
+      "Indice National Cosmétique",
+      "Inventaire des Colorants",
+      "Norme Internationale de Conditionnement"
      ],
      "a": 0,
-     "e": "Le domaine de l'expéditeur est le premier indice."
+     "e": "C’est la nomenclature internationale des ingrédients cosmétiques."
     },
     {
-     "q": "La double authentification (2FA)…",
+     "q": "Dans quel ordre apparaissent les ingrédients d’une liste INCI ?",
      "o": [
-      "Remplace le mot de passe",
-      "Ajoute une seconde preuve",
-      "Chiffre le disque",
-      "Supprime les cookies"
+      "Par ordre alphabétique",
+      "Par ordre décroissant de quantité",
+      "Par couleur",
+      "Au hasard"
      ],
      "a": 1,
-     "e": "Un second facteur : code, application, clé matérielle."
+     "e": "Du plus concentré au moins concentré ; sous 1 % l’ordre est libre."
     },
     {
-     "q": "Un mot de passe robuste est…",
+     "q": "Quelle mention est obligatoire sur un cosmétique ?",
      "o": [
-      "Un mot du dictionnaire",
-      "Long, unique et aléatoire",
-      "Votre date de naissance",
-      "Le même partout"
-     ],
-     "a": 1,
-     "e": "Longueur + unicité + aléatoire = robustesse."
-    },
-    {
-     "q": "Le chiffrement garantit…",
-     "o": [
-      "La confidentialité des données",
-      "La vitesse du réseau",
-      "La sauvegarde automatique",
-      "L'anonymat total"
+      "La date limite d’utilisation ou la période après ouverture (PAO)",
+      "Le numéro de téléphone du client",
+      "Le prix d’achat",
+      "Le nom du fournisseur"
      ],
      "a": 0,
-     "e": "Les données restent illisibles sans la clé."
+     "e": "DLUO ou PAO (pot ouvert avec un mois), plus le lot et le responsable de mise sur le marché."
+    },
+    {
+     "q": "Une allégation interdite serait…",
+     "o": [
+      "« Hydrate la peau »",
+      "« Guérit l’eczéma »",
+      "« Texture légère »",
+      "« Parfum de rose »"
+     ],
+     "a": 1,
+     "e": "Un cosmétique ne peut revendiquer un effet thérapeutique : c’est un médicament."
+    },
+    {
+     "q": "À quoi sert un test de stabilité ?",
+     "o": [
+      "À vérifier que la formule tient dans le temps",
+      "À mesurer la mousse",
+      "À calculer la marge",
+      "À choisir la couleur"
+     ],
+     "a": 0,
+     "e": "Cycles chaud/froid et vieillissement accéléré révèlent séparations et contaminations."
+    },
+    {
+     "q": "Comment fixer un prix de vente cohérent ?",
+     "o": [
+      "Au hasard",
+      "Coût des matières + contenant + temps + marge",
+      "En copiant le voisin",
+      "Au poids du produit"
+     ],
+     "a": 1,
+     "e": "On part du prix de revient complet : matières, emballage, énergie, temps de travail."
     }
    ]
   }
@@ -953,9 +1337,9 @@
  "DEVOIRS": [
   {
    "id": "d1",
-   "cours": "c2",
-   "titre": "Quiz — Les composants Material 3",
-   "type": "Quiz noté",
+   "cours": "c1",
+   "titre": "Formule de savon — 500 g à 8 % de surgraissage",
+   "type": "Exercice noté",
    "points": 20,
    "echeance": {
     "j": 0,
@@ -963,196 +1347,256 @@
    },
    "niveau": "urgent",
    "consignes": [
-    "Révisez les rôles de couleur et les styles typographiques M3.",
-    "Le quiz comporte 6 questions à choix unique.",
-    "Un seul essai possible avant la clôture à 18:00."
-   ],
-   "quiz": "c2"
+    "Calculez la soude nécessaire avec un calculateur (SoapCalc ou Mendrulandia).",
+    "Justifiez le choix des huiles et le surgraissage retenu.",
+    "Déposez une fiche de formule PDF ou une photo de votre feuille de calcul.",
+    "Indiquez le temps de cure prévu et la date de disponibilité."
+   ]
   },
   {
    "id": "d2",
-   "cours": "c1",
-   "titre": "Projet — Portfolio responsive",
-   "type": "Projet",
-   "points": 40,
+   "cours": "c2",
+   "titre": "Recette de gel douche doux — 250 ml",
+   "type": "Devoir noté",
+   "points": 30,
    "echeance": {
-    "j": 1,
-    "h": "23:59"
+    "j": 2,
+    "h": "12:00"
    },
    "niveau": "soon",
    "consignes": [
-    "Livrez une page portfolio responsive (mobile-first).",
-    "Utilisez des composants réutilisables en JavaScript.",
-    "Déposez une archive .zip contenant le code source.",
-    "Bonus : intégrez une barre de navigation type Material 3."
+    "Choisissez un tensioactif doux et justifiez-le.",
+    "Indiquez les pourcentages de chaque phase et le pH visé.",
+    "Précisez le système conservateur utilisé.",
+    "Rendez une fiche technique d’une page (PDF)."
    ]
   },
   {
    "id": "d3",
    "cours": "c3",
-   "titre": "Devoir — Régression linéaire",
-   "type": "Devoir noté",
-   "points": 30,
+   "titre": "Crème de visage 100 ml — émulsion H/E",
+   "type": "Projet",
+   "points": 40,
    "echeance": {
-    "j": 4,
-    "h": "12:00"
+    "j": 5,
+    "h": "23:59"
    },
    "niveau": "normal",
    "consignes": [
-    "Chargez le jeu de données fourni avec Pandas.",
-    "Nettoyez les valeurs manquantes et justifiez vos choix.",
-    "Entraînez une régression linéaire simple et commentez le R².",
-    "Rendez un notebook .ipynb commenté."
+    "Formulez une crème H/E adaptée à un type de peau précis.",
+    "Détaillez phases aqueuse et grasse, émulsifiant et actifs.",
+    "Ajoutez le protocole de fabrication et le pH cible.",
+    "Bonus : joignez une photo de la crème réalisée."
    ]
   },
   {
    "id": "d4",
    "cours": "c4",
-   "titre": "Étude de cas — Lancement produit",
-   "type": "Étude de cas",
+   "titre": "Lait corporel au karité — 300 ml",
+   "type": "Exercice noté",
    "points": 25,
    "echeance": {
-    "j": -3,
+    "j": 3,
+    "h": "19:00"
+   },
+   "niveau": "normal",
+   "consignes": [
+    "Construisez une formule fluide non collante.",
+    "Respectez un dosage raisonnable en karité et justifiez-le.",
+    "Précisez les précautions liées aux huiles essentielles si vous en utilisez."
+   ]
+  },
+  {
+   "id": "d5",
+   "cours": "c5",
+   "titre": "Dossier matières premières du terroir",
+   "type": "Étude de cas",
+   "points": 30,
+   "echeance": {
+    "j": -2,
     "h": "23:59"
    },
    "niveau": "past",
    "consignes": [
-    "Analysez la campagne de lancement d'une marque locale.",
-    "Proposez un plan média sur 30 jours."
+    "Choisissez trois matières premières locales.",
+    "Documentez leur origine, leurs propriétés et leurs usages cosmétiques.",
+    "Comparez deux méthodes de fabrication du savon noir."
    ],
-   "note": 17
+   "note": 18
   },
   {
-   "id": "d5",
+   "id": "d6",
    "cours": "c6",
-   "titre": "Exercice — Repérer un phishing",
+   "titre": "Fiche produit, étiquette et liste INCI",
+   "type": "Devoir noté",
+   "points": 35,
+   "echeance": {
+    "j": 6,
+    "h": "23:59"
+   },
+   "niveau": "normal",
+   "consignes": [
+    "Rédigez la liste INCI complète de votre produit.",
+    "Ajoutez les mentions obligatoires (lot, PAO ou DLUO, responsable de mise sur le marché).",
+    "Vérifiez qu’aucune allégation interdite n’est présente.",
+    "Joignez la maquette d’étiquette."
+   ]
+  },
+  {
+   "id": "d7",
+   "cours": "c6",
+   "titre": "Prix de revient et tarif de vente",
    "type": "Exercice",
-   "points": 15,
+   "points": 20,
    "echeance": {
     "j": -1,
     "h": "20:00"
    },
    "niveau": "past",
    "consignes": [
-    "Identifiez 5 indices de phishing dans l'e-mail fourni.",
-    "Expliquez la conduite à tenir pour chacun."
+    "Calculez le prix de revient d’un lot de 20 savons.",
+    "Intégrez matières, emballage, énergie et temps de travail.",
+    "Proposez un prix de vente et une marge argumentée."
    ],
    "attente": true
+  },
+  {
+   "id": "d8",
+   "cours": "c1",
+   "titre": "Sécurité à l’atelier — protocole",
+   "type": "Exercice",
+   "points": 15,
+   "echeance": {
+    "j": 8,
+    "h": "18:00"
+   },
+   "niveau": "calme",
+   "consignes": [
+    "Listez les risques liés à la soude et les équipements de protection.",
+    "Rédigez la procédure d’urgence en cas de projection.",
+    "Proposez un rangement type de l’atelier."
+   ]
   }
  ],
  "RESSOURCES": {
   "c1": [
    {
-    "n": "Support de cours — API REST",
-    "t": "PDF · 2,4 Mo",
-    "ico": "task",
+    "n": "Fiche de sécurité — soude caustique",
+    "t": "PDF · 320 Ko",
+    "ico": "shield",
     "acc": "purple"
    },
    {
-    "n": "Code source du module 3",
-    "t": "ZIP · 8,1 Mo",
-    "ico": "code",
+    "n": "Tableau des indices SAP",
+    "t": "PDF · 180 Ko",
+    "ico": "chart",
     "acc": "blue"
    },
    {
-    "n": "Mémo JavaScript (aide-mémoire)",
-    "t": "PDF · 640 Ko",
-    "ico": "layers",
+    "n": "Journal de fabrication vierge",
+    "t": "XLSX · 90 Ko",
+    "ico": "grid",
     "acc": "green"
-   },
-   {
-    "n": "Maquette de départ",
-    "t": "Figma · lien",
-    "ico": "edit",
-    "acc": "amber"
    }
   ],
   "c2": [
    {
-    "n": "Grille et espacements M3",
-    "t": "PDF · 1,1 Mo",
-    "ico": "grid",
-    "acc": "purple"
-   },
-   {
-    "n": "Kit de composants Figma",
-    "t": "Figma · lien",
-    "ico": "layers",
+    "n": "Guide des tensioactifs doux",
+    "t": "PDF · 420 Ko",
+    "ico": "info",
     "acc": "blue"
    },
    {
-    "n": "Palette et rôles de couleur",
-    "t": "PDF · 820 Ko",
-    "ico": "sliders",
-    "acc": "amber"
+    "n": "Fiche formule — gel douche 250 ml",
+    "t": "PDF · 260 Ko",
+    "ico": "task",
+    "acc": "purple"
    },
    {
-    "n": "Checklist accessibilité",
-    "t": "PDF · 380 Ko",
-    "ico": "shield",
-    "acc": "green"
+    "n": "Tableau pH et conservateurs",
+    "t": "PDF · 300 Ko",
+    "ico": "sliders",
+    "acc": "amber"
    }
   ],
   "c3": [
    {
-    "n": "Notebook de régression linéaire",
-    "t": "IPYNB · 1,8 Mo",
-    "ico": "chart",
-    "acc": "green"
-   },
-   {
-    "n": "Jeu de données Titanic",
-    "t": "CSV · 60 Ko",
-    "ico": "layers",
-    "acc": "blue"
-   },
-   {
-    "n": "Mémo Pandas",
-    "t": "PDF · 900 Ko",
+    "n": "Fiche formule — crème H/E 100 ml",
+    "t": "PDF · 340 Ko",
     "ico": "task",
+    "acc": "pink"
+   },
+   {
+    "n": "Guide des actifs et dosages",
+    "t": "PDF · 620 Ko",
+    "ico": "layers",
     "acc": "purple"
+   },
+   {
+    "n": "Protocole de test de stabilité",
+    "t": "PDF · 280 Ko",
+    "ico": "clock",
+    "acc": "green"
    }
   ],
   "c4": [
    {
-    "n": "Plan de contenu (modèle)",
-    "t": "XLSX · 240 Ko",
-    "ico": "grid",
+    "n": "Fiche formule — lait corporel 300 ml",
+    "t": "PDF · 300 Ko",
+    "ico": "task",
     "acc": "amber"
    },
    {
-    "n": "Étude de cas — lancement produit",
-    "t": "PDF · 1,5 Mo",
-    "ico": "task",
-    "acc": "purple"
-   }
-  ],
-  "c5": [
-   {
-    "n": "Vocabulaire des affaires (200 mots)",
-    "t": "PDF · 700 Ko",
-    "ico": "globe",
-    "acc": "pink"
-   },
-   {
-    "n": "Sujets d'entraînement B2",
-    "t": "PDF · 1,2 Mo",
-    "ico": "task",
-    "acc": "blue"
-   }
-  ],
-  "c6": [
-   {
-    "n": "Guide d'hygiène numérique",
-    "t": "PDF · 1,3 Mo",
+    "n": "Dosages huiles essentielles",
+    "t": "PDF · 210 Ko",
     "ico": "shield",
     "acc": "teal"
    },
    {
-    "n": "Exemples d'e-mails frauduleux",
-    "t": "PDF · 900 Ko",
+    "n": "Recettes de baumes et beurres fouettés",
+    "t": "PDF · 480 Ko",
+    "ico": "leaf",
+    "acc": "green"
+   }
+  ],
+  "c5": [
+   {
+    "n": "Fiche matières premières locales",
+    "t": "PDF · 540 Ko",
+    "ico": "globe",
+    "acc": "teal"
+   },
+   {
+    "n": "Protocole savon noir traditionnel",
+    "t": "PDF · 380 Ko",
+    "ico": "fire",
+    "acc": "amber"
+   },
+   {
+    "n": "Contrôle qualité du karité",
+    "t": "PDF · 240 Ko",
+    "ico": "check-circle",
+    "acc": "green"
+   }
+  ],
+  "c6": [
+   {
+    "n": "Modèle d’étiquette conforme",
+    "t": "PDF · 400 Ko",
     "ico": "task",
-    "acc": "purple"
+    "acc": "green"
+   },
+   {
+    "n": "Grille de vérification INCI",
+    "t": "PDF · 190 Ko",
+    "ico": "check-circle",
+    "acc": "blue"
+   },
+   {
+    "n": "Feuille de calcul du prix de revient",
+    "t": "XLSX · 120 Ko",
+    "ico": "grid",
+    "acc": "amber"
    }
   ]
  },
@@ -1161,143 +1605,142 @@
    "id": "s1",
    "jour": 0,
    "heure": "09:00",
-   "titre": "Live — Composants Material 3",
+   "titre": "Live — Calcul de soude en direct",
    "type": "Visioconférence",
    "duree": "1 h 30",
    "salle": "Salle virtuelle A",
-   "cours": "c2",
-   "prof": "Mme Adjovi",
+   "cours": "c1",
+   "prof": "Awa Sossou",
    "tags": [
     "Live",
-    "UI/UX"
+    "Savon"
    ],
    "acc": "purple",
-   "ico": "video",
-   "desc": "Composants M3 en direct : cartes, chips, navigation et états d'interaction. Questions ouvertes en fin de séance."
+   "ico": "flask",
+   "desc": "On calcule ensemble une formule complète : indice SAP, surgraissage et quantité d’eau. Apportez votre calculateur ouvert."
   },
   {
    "id": "s2",
    "jour": 0,
-   "heure": "14:00",
-   "titre": "Atelier — Maquette responsive",
+   "heure": "16:00",
+   "titre": "Atelier — Pesée et sécurité à l’atelier",
    "type": "Présentiel",
    "duree": "2 h",
-   "salle": "Amphi 2 · Calavi",
-   "cours": "c2",
-   "prof": "M. Kouassi",
+   "salle": "Atelier · Calavi",
+   "cours": "c1",
+   "prof": "Awa Sossou",
    "tags": [
     "Atelier"
    ],
    "acc": "blue",
-   "ico": "grid",
-   "desc": "Atelier pratique : passez la maquette Figma en HTML/CSS responsive. Apportez votre ordinateur."
+   "ico": "shield",
+   "desc": "Pesée précise, équipements de protection, gestion des projections : les bons réflexes avant de produire."
   },
   {
    "id": "s3",
    "jour": 1,
    "heure": "10:30",
-   "titre": "Cours — Hooks React avancés",
+   "titre": "Cours — Émulsions et actifs",
    "type": "Live",
    "duree": "1 h",
    "salle": "Salle virtuelle B",
-   "cours": "c1",
-   "prof": "M. Kouassi",
+   "cours": "c3",
+   "prof": "Dr. Chabi",
    "tags": [
-    "Dev",
-    "React"
+    "Visage"
    ],
-   "acc": "green",
-   "ico": "code",
-   "desc": "useMemo, useCallback et effets : quand optimiser, quand s'abstenir."
+   "acc": "pink",
+   "ico": "jar",
+   "desc": "Phase aqueuse, phase grasse, émulsifiant et actifs : construire une crème stable et agréable."
   },
   {
    "id": "s4",
    "jour": 2,
    "heure": "16:00",
-   "titre": "Tutorat Data Science",
+   "titre": "Tutorat — Votre formule de gel douche",
    "type": "Tutorat",
    "duree": "45 min",
    "salle": "Visio individuelle",
-   "cours": "c3",
-   "prof": "Dr. Bio",
+   "cours": "c2",
+   "prof": "Bénédicte Ahouan",
    "tags": [
     "Tutorat"
    ],
    "acc": "amber",
-   "ico": "chart",
-   "desc": "Séance individuelle : revue de votre notebook de régression linéaire."
+   "ico": "drop",
+   "desc": "Revue individuelle de votre recette : choix du tensioactif, pH, viscosité et conservation."
   },
   {
    "id": "s5",
    "jour": 4,
    "heure": "11:00",
-   "titre": "Examen blanc — Anglais B2",
-   "type": "Évaluation",
-   "duree": "2 h",
-   "salle": "Centre d'examen",
+   "titre": "Atelier — Savon noir et karité",
+   "type": "Présentiel",
+   "duree": "3 h",
+   "salle": "Atelier · Cotonou",
    "cours": "c5",
-   "prof": "Ms. Clark",
+   "prof": "Rachidath Adjibi",
    "tags": [
-    "Examen"
+    "Terroir"
    ],
-   "acc": "pink",
-   "ico": "globe",
-   "desc": "Épreuve blanche complète : compréhension, expression écrite et orale."
+   "acc": "teal",
+   "ico": "leaf",
+   "desc": "Fabrication traditionnelle du savon noir, filtration du karité et contrôle de qualité du lot."
   },
   {
    "id": "s6",
    "jour": 6,
    "heure": "18:30",
-   "titre": "Q&A communauté LearnHub",
+   "titre": "Q&A communauté CosmétiLab",
    "type": "Discussion",
    "duree": "1 h",
-   "salle": "Discord LearnHub",
+   "salle": "Salon communauté",
    "cours": "",
-   "prof": "Équipe LearnHub",
+   "prof": "Équipe CosmétiLab",
    "tags": [
     "Communauté"
    ],
-   "acc": "teal",
+   "acc": "green",
    "ico": "chat",
-   "desc": "Questions libres, retours d'expérience et entraide entre étudiants."
+   "desc": "Questions libres, retours d’expérience et entraide entre apprenants et formatrices."
   }
  ],
  "BADGES_DEF": [
   {
-   "id": "streak",
-   "nom": "Marathonien",
-   "ico": "fire",
-   "acc": "amber",
-   "desc": "Se connecter 7 jours d'affilée",
-   "cible": 7
+   "id": "premier",
+   "nom": "Premier savon",
+   "ico": "flask",
+   "acc": "purple",
+   "desc": "Terminer sa première leçon",
+   "cible": 1
   },
   {
    "id": "assidu",
-   "nom": "Assidu",
+   "nom": "Assidu·e",
    "ico": "school",
    "acc": "green",
    "desc": "Terminer 20 leçons",
    "cible": 20
   },
   {
-   "id": "premier",
-   "nom": "Premier pas",
-   "ico": "check-circle",
-   "acc": "blue",
-   "desc": "Terminer sa première leçon",
-   "cible": 1
-  },
-  {
    "id": "regulier",
-   "nom": "Régulier",
+   "nom": "Régulier·ère",
    "ico": "clock",
-   "acc": "purple",
-   "desc": "Terminer 10 leçons ce mois-ci",
+   "acc": "blue",
+   "desc": "Terminer 10 leçons",
    "cible": 10
   },
   {
-   "id": "explo",
-   "nom": "Explorateur",
+   "id": "streak",
+   "nom": "Marathonien·ne",
+   "ico": "fire",
+   "acc": "amber",
+   "desc": "Apprendre 7 jours d’affilée",
+   "cible": 7
+  },
+  {
+   "id": "explor",
+   "nom": "Explorateur·rice",
    "ico": "globe",
    "acc": "teal",
    "desc": "Suivre les 6 cours du catalogue",
@@ -1307,13 +1750,13 @@
    "id": "perf",
    "nom": "Perfectionniste",
    "ico": "star",
-   "acc": "blue",
+   "acc": "amber",
    "desc": "Obtenir 5 quiz parfaits (100 %)",
    "cible": 5
   },
   {
    "id": "mentor",
-   "nom": "Mentor",
+   "nom": "Mentor·e",
    "ico": "chat",
    "acc": "purple",
    "desc": "Publier 10 messages dans les discussions",
@@ -1321,18 +1764,18 @@
   },
   {
    "id": "data",
-   "nom": "Data Analyst",
-   "ico": "chart",
-   "acc": "green",
-   "desc": "Terminer « Data Science avec Python »",
+   "nom": "Maître des émulsions",
+   "ico": "jar",
+   "acc": "pink",
+   "desc": "Terminer « Crème de visage : émulsions & actifs »",
    "cible": 100
   },
   {
    "id": "cyber",
-   "nom": "Cyber-défenseur",
-   "ico": "shield",
-   "acc": "teal",
-   "desc": "Terminer « Cybersécurité — Fondamentaux »",
+   "nom": "Étiquette conforme",
+   "ico": "check-circle",
+   "acc": "green",
+   "desc": "Terminer « Étiquetage, sécurité & vente »",
    "cible": 100
   }
  ],
@@ -1340,9 +1783,9 @@
   {
    "id": "n1",
    "type": "devoir",
-   "t": "Quiz Material 3 à rendre aujourd'hui",
-   "b": "Clôture à 18:00 — 6 questions, 20 points.",
-   "min": 8,
+   "t": "Formule de savon à rendre aujourd’hui",
+   "b": "Clôture à 18:00 — 20 points.",
+   "min": 6,
    "lu": 0,
    "go": [
     "devoir",
@@ -1352,73 +1795,10 @@
   {
    "id": "n2",
    "type": "message",
-   "t": "Nouveau commentaire de Mme Adjovi",
-   "b": "« Maquette M3 » : vos espacements sont bien meilleurs 👏",
-   "min": 52,
+   "t": "Nouveau message de Awa Sossou",
+   "b": "« Votre surgraissage est un peu haut, corrigez la soude. »",
+   "min": 48,
    "lu": 0,
-   "go": [
-    "cours",
-    "c2",
-    {
-     "tab": "discussion"
-    }
-   ]
-  },
-  {
-   "id": "n3",
-   "type": "cours",
-   "t": "Nouvelle leçon disponible",
-   "b": "Développement Web Full-Stack — « Consommer une API REST ».",
-   "min": 180,
-   "lu": 0,
-   "go": [
-    "cours",
-    "c1"
-   ]
-  },
-  {
-   "id": "n4",
-   "type": "badge",
-   "t": "Badge débloqué : Marathonien 🎉",
-   "b": "12 jours d'affilée — continu comme ça !",
-   "min": 420,
-   "lu": 1,
-   "go": [
-    "badges",
-    ""
-   ]
-  },
-  {
-   "id": "n5",
-   "type": "quiz",
-   "t": "Résultat du quiz Data Science",
-   "b": "Score : 80 % — les bases sont solides.",
-   "min": 1500,
-   "lu": 1,
-   "go": [
-    "quiz",
-    "c3"
-   ]
-  },
-  {
-   "id": "n6",
-   "type": "systeme",
-   "t": "Téléchargement terminé",
-   "b": "UI/UX Design & Material 3 disponible hors-ligne (240 Mo).",
-   "min": 1800,
-   "lu": 1,
-   "go": [
-    "telechargements",
-    ""
-   ]
-  },
-  {
-   "id": "n7",
-   "type": "message",
-   "t": "M. Kouassi a répondu à votre question",
-   "b": "« Oui, tu peux utiliser des Web Components sans framework. »",
-   "min": 2600,
-   "lu": 1,
    "go": [
     "cours",
     "c1",
@@ -1428,11 +1808,74 @@
    ]
   },
   {
+   "id": "n3",
+   "type": "cours",
+   "t": "Nouvelle leçon disponible",
+   "b": "Crème de visage — « Que faire quand la crème déphase ? ».",
+   "min": 170,
+   "lu": 0,
+   "go": [
+    "cours",
+    "c3"
+   ]
+  },
+  {
+   "id": "n4",
+   "type": "badge",
+   "t": "Badge débloqué : Premier savon 🎉",
+   "b": "Votre première leçon de savonnerie est terminée.",
+   "min": 400,
+   "lu": 1,
+   "go": [
+    "badges",
+    ""
+   ]
+  },
+  {
+   "id": "n5",
+   "type": "quiz",
+   "t": "Résultat du quiz Savonnerie",
+   "b": "Score : 83 % — attention à la leçon sur la cure.",
+   "min": 1440,
+   "lu": 1,
+   "go": [
+    "quiz",
+    "c1"
+   ]
+  },
+  {
+   "id": "n6",
+   "type": "systeme",
+   "t": "Téléchargement terminé",
+   "b": "Savonnerie à froid disponible hors-ligne.",
+   "min": 1700,
+   "lu": 1,
+   "go": [
+    "telechargements",
+    ""
+   ]
+  },
+  {
+   "id": "n7",
+   "type": "message",
+   "t": "Dr. Chabi a répondu à votre question",
+   "b": "« Un déphasage se rattrape en réchauffant doucement l’émulsion. »",
+   "min": 2500,
+   "lu": 1,
+   "go": [
+    "cours",
+    "c3",
+    {
+     "tab": "discussion"
+    }
+   ]
+  },
+  {
    "id": "n8",
    "type": "cours",
    "t": "Session live demain à 10:30",
-   "b": "Hooks React avancés — salle virtuelle B.",
-   "min": 3100,
+   "b": "Émulsions et actifs — salle virtuelle B.",
+   "min": 3000,
    "lu": 1,
    "go": [
     "session",
@@ -1443,85 +1886,85 @@
  "DL_SEED": [
   {
    "id": "dl1",
-   "ref": "c2",
-   "t": "UI/UX Design & Material 3",
-   "s": "3 leçons · 240 Mo",
+   "ref": "c1",
+   "t": "Savonnerie à froid",
+   "s": "3 leçons · 180 Mo",
    "p": 100,
    "st": "done",
-   "size": 240
+   "size": 180
   },
   {
    "id": "dl2",
-   "ref": "c1",
-   "t": "Développement Web Full-Stack",
-   "s": "Module 3 · 180 Mo",
-   "p": 46,
+   "ref": "c3",
+   "t": "Crème de visage : émulsions",
+   "s": "Module 2 · 140 Mo",
+   "p": 52,
    "st": "pause",
-   "size": 180
+   "size": 140
   },
   {
    "id": "dl3",
    "ref": "v",
-   "t": "Pandas Python — analyse du Titanic",
-   "s": "Vidéo · 17 min · 42 Mo",
+   "t": "Saponification à froid : le tutoriel complet",
+   "s": "Vidéo · 42 Mo",
    "p": 100,
    "st": "done",
    "size": 42,
-   "v": "zZkNOdBWgFQ"
+   "v": "Ka6h2cM2Vrw"
   },
   {
    "id": "dl4",
    "ref": "v",
-   "t": "Tout savoir sur Material Design 3",
-   "s": "Vidéo · 24 min · 88 Mo",
-   "p": 24,
+   "t": "Formuler une émulsion : crème hydratante visage",
+   "s": "Vidéo · 13 min · 38 Mo",
+   "p": 18,
    "st": "dl",
-   "size": 88,
-   "v": "h_JYW2hdI8U"
+   "size": 38,
+   "v": "bEToJO9DpFY"
   }
  ],
  "DISC_SEED": {
   "c1": [
    {
     "id": "m1",
-    "a": "M. Kouassi",
-    "role": "Formateur",
-    "ini": "MK",
-    "acc": "blue",
-    "min": 120,
-    "txt": "Bonjour à tous 👋 Le module 3 est en ligne. Commencez par la leçon sur les API REST, puis attaquez le projet portfolio.",
-    "likes": 4
+    "a": "Awa Sossou",
+    "role": "Formatrice",
+    "ini": "AS",
+    "acc": "purple",
+    "min": 180,
+    "txt": "Bienvenue dans l’atelier 🧼 Commencez par le module 1 : on ne touche à la soude qu’après avoir lu la fiche sécurité.",
+    "likes": 6
    },
    {
     "id": "m2",
     "a": "Ibrahim S.",
-    "role": "Étudiant",
+    "role": "Apprenant",
     "ini": "IS",
     "acc": "green",
-    "min": 95,
-    "txt": "Merci ! Est-ce qu'on peut utiliser des Web Components sans framework pour le projet ?",
+    "min": 120,
+    "txt": "J’ai calculé un surgraissage de 5 % avec 60 % d’huile d’olive : est-ce assez doux pour une peau sensible ?",
     "likes": 2
    },
    {
     "id": "m3",
-    "a": "M. Kouassi",
-    "role": "Formateur",
-    "ini": "MK",
-    "acc": "blue",
-    "min": 88,
-    "txt": "Oui, c'est même recommandé pour ce module : composants natifs + fetch, sans dépendance.",
-    "likes": 6
+    "a": "Awa Sossou",
+    "role": "Formatrice",
+    "ini": "AS",
+    "acc": "purple",
+    "min": 95,
+    "txt": "Oui, 5 % convient. Passez à 8 % si vous ajoutez du karité : le savon restera plus crémeux.",
+    "likes": 4
    }
   ],
   "c2": [
    {
     "id": "m4",
-    "a": "Mme Adjovi",
-    "role": "Formateur",
-    "ini": "MA",
-    "acc": "purple",
-    "min": 60,
-    "txt": "Vos maquettes avancent bien 👏 Pensez à vérifier le contraste texte/fond (ratio 4.5:1 minimum) avant de rendre.",
+    "a": "Bénédicte Ahouan",
+    "role": "Formatrice",
+    "ini": "BA",
+    "acc": "blue",
+    "min": 150,
+    "txt": "Pour un gel douche doux, visez pH 5,5 et moins de 10 % de tensioactif moussant. Le reste : eau, actifs et conservateur.",
     "likes": 5
    },
    {
@@ -1530,62 +1973,115 @@
     "role": "Vous",
     "ini": "AD",
     "acc": "amber",
-    "min": 45,
-    "txt": "Merci ! J'ai retravaillé les espacements avec l'échelle 4/8/12 et une teinte surface-container-high sur les cartes.",
+    "min": 70,
+    "txt": "J’ai testé le coco glucoside : mousse plus fine mais beaucoup plus douce sur ma peau. Merci pour le conseil !",
     "likes": 3,
     "me": 1
    },
    {
     "id": "m6",
-    "a": "Mme Adjovi",
-    "role": "Formateur",
-    "ini": "MA",
-    "acc": "purple",
-    "min": 38,
-    "txt": "« Maquette M3 » : vos espacements sont bien meilleurs 👏 Continuez sur la hiérarchie typographique.",
-    "likes": 7
+    "a": "Bénédicte Ahouan",
+    "role": "Formatrice",
+    "ini": "BA",
+    "acc": "blue",
+    "min": 40,
+    "txt": "Parfait 👏 Notez bien le pH dans votre fiche de fabrication, c’est ce qui garantit la stabilité du lot.",
+    "likes": 2
    }
   ],
   "c3": [
    {
     "id": "m7",
-    "a": "Dr. Bio",
-    "role": "Formateur",
-    "ini": "DB",
-    "acc": "green",
-    "min": 200,
-    "txt": "Rappel : le devoir de régression linéaire se rend en notebook commenté (.ipynb). Posez vos questions ici.",
+    "a": "Dr. Chabi",
+    "role": "Formatrice",
+    "ini": "DC",
+    "acc": "pink",
+    "min": 210,
+    "txt": "Rappel : les phases se chauffent séparément à 70 °C, puis on verse l’eau dans l’huile hors du feu en fouettant.",
+    "likes": 7
+   },
+   {
+    "id": "m8",
+    "a": "Sylvie D.",
+    "role": "Apprenante",
+    "ini": "SD",
+    "acc": "teal",
+    "min": 60,
+    "txt": "Ma crème a déphasé au bout de trois jours. J’ai utilisé 4 % d’émulsifiant seulement — c’est la cause ?",
+    "likes": 1
+   },
+   {
+    "id": "m9",
+    "a": "Dr. Chabi",
+    "role": "Formatrice",
+    "ini": "DC",
+    "acc": "pink",
+    "min": 35,
+    "txt": "Très probablement : passez à 6 % et allongez le refroidissement sous agitation. Regardez la leçon « déphasage ».",
     "likes": 3
    }
   ],
-  "c4": [],
-  "c5": [],
-  "c6": []
+  "c4": [
+   {
+    "id": "m10",
+    "a": "Sylvie Dossou",
+    "role": "Formatrice",
+    "ini": "SD",
+    "acc": "amber",
+    "min": 300,
+    "txt": "Astuce : fouettez le karité avec un peu de coco fractionnée pour obtenir une chantilly légère qui pénètre vite.",
+    "likes": 4
+   }
+  ],
+  "c5": [
+   {
+    "id": "m11",
+    "a": "Rachidath Adjibi",
+    "role": "Formatrice",
+    "ini": "RA",
+    "acc": "teal",
+    "min": 420,
+    "txt": "Le savon noir traditionnel se cuit plusieurs heures : patience et remuer sans arrêt 💪 la vidéo d’immersion au Bénin montre tout le procédé.",
+    "likes": 8
+   }
+  ],
+  "c6": [
+   {
+    "id": "m12",
+    "a": "Josiane Kponou",
+    "role": "Formatrice",
+    "ini": "JK",
+    "acc": "green",
+    "min": 520,
+    "txt": "Avant de vendre, vérifiez trois choses : liste INCI complète, numéro de lot et responsable de mise sur le marché sur l’étiquette.",
+    "likes": 5
+   }
+  ]
  },
  "FAQ": [
   {
-   "q": "Comment reprendre une leçon là où je l'avais laissée ?",
-   "r": "Ouvrez un cours depuis l'accueil ou l'onglet Cours : la leçon en cours est marquée « En cours ». Votre progression vidéo est enregistrée automatiquement, vous reprenez au bon moment."
+   "q": "Comment créer mon compte CosmétiLab ?",
+   "r": "Depuis l’écran d’accueil, choisissez « Créer un compte » : nom, e-mail, mot de passe, ville et votre profil (apprenant ou formateur). Votre compte est créé sur le serveur et votre progression démarre à zéro."
   },
   {
-   "q": "Puis-je télécharger les cours pour les suivre hors-ligne ?",
-   "r": "Oui. Dans une fiche de cours, utilisez « Télécharger hors-ligne », ou passez par Profil → Téléchargements pour gérer les contenus déjà enregistrés."
+   "q": "Mes données sont-elles séparées de celles des autres ?",
+   "r": "Oui. Chaque compte possède son propre espace : progression, notes, quiz, devoirs et favoris sont enregistrés sur le serveur avec votre jeton personnel. Personne d’autre ne voit votre travail."
+  },
+  {
+   "q": "Comment ma progression se synchronise-t-elle ?",
+   "r": "L’application pousse chaque changement au serveur et interroge l’API toutes les quelques secondes : si vous continuez sur un autre appareil, c’est repris ici automatiquement, sans recharger la page."
+  },
+  {
+   "q": "Puis-je travailler sans connexion ?",
+   "r": "Oui. Hors-ligne, tout reste enregistré sur l’appareil (y compris les vidéos repliées en extrait intégré) et se synchronise dès que le réseau revient."
   },
   {
    "q": "Comment déposer un devoir ?",
-   "r": "Ouvrez le devoir depuis l'accueil (Échéances) ou l'agenda, joignez votre fichier, ajoutez un commentaire facultatif puis validez « Déposer le devoir ». Le statut passe à « Rendu »."
+   "r": "Ouvrez le devoir depuis l’accueil ou l’agenda, lisez les consignes, joignez votre fichier (PDF, photo ou archive) et validez « Déposer le devoir ». Votre formateur le reçoit immédiatement."
   },
   {
-   "q": "Mes quiz sont-ils notés ?",
-   "r": "Chaque quiz enregistre votre meilleur score. Un score ≥ 80 % compte pour le badge « Éclair » et 100 % alimente « Perfectionniste »."
-  },
-  {
-   "q": "Comment activer le thème sombre ?",
-   "r": "Utilisez l'icône lune en haut à droite, ou Profil → Paramètres → Apparence : Clair, Sombre ou Système (suit votre téléphone)."
-  },
-  {
-   "q": "Que faire si une vidéo ne se lance pas ?",
-   "r": "Les vidéos sont hébergées par YouTube. Si la lecture est bloquée (hors-ligne, réseau d'entreprise), le lecteur affiche un bouton « Ouvrir sur YouTube »."
+   "q": "Je suis formateur : où sont les copies à corriger ?",
+   "r": "Dans Profil → Corrections (visible avec un compte formateur) : vous y trouvez les dépôts de tous les apprenants, avec la note et le commentaire à saisir en un geste."
   }
  ]
 }

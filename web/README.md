@@ -6,18 +6,19 @@ téléphone. C'est un fichier **généré** : on modifie les sources dans `src/`
 
 | | |
 |---|---|
-| Taille | 769 Ko (787 222 octets) |
+| Taille | 1 392 Ko (≈ 1,4 Mo) |
 | Extérieur | aucune dépendance (pas de CDN, pas de police externe, pas de script distant) |
 | Exception | l'iframe YouTube du lecteur vidéo (exigence produit), avec repli intégré si elle échoue |
-| Poids des médias | ~304 Ko d'images, ~190 Ko d'extrait vidéo (MP4 + WebM) |
+| Poids des médias | ~885 Ko d'images, ~189 Ko d'extrait vidéo (MP4 + WebM) |
 | Thème | clair / sombre / système, au choix dans Paramètres |
 
 ## Commandes
 
 ```bash
-npm run build      # src/ → index.html (8 contrôles d'intégrité)
-npm run verify     # 13 contrôles, dont l'anti-dérive sources ↔ livrable
+npm run build      # src/ → index.html (10 contrôles d'intégrité)
+npm run verify     # 15 contrôles, dont l'anti-dérive sources ↔ livrable
 npm run test       # suite navigateur réelle (Chromium mobile 390 × 844)
+npm run test:comptes  # comptes, données séparées, temps réel, corrections (API requise)
 npm run serve      # aperçu local sur http://localhost:8000
 ```
 

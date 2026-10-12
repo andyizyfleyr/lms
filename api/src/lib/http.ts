@@ -53,7 +53,7 @@ export async function auth(req: Request, roles?: Array<'etudiant' | 'enseignant'
 /** Enveloppe : capture les erreurs inattendues et évite les 500 muets. */
 export function handler(fn: () => Promise<Response>) {
   return fn().catch(e => {
-    console.error('[learnhub] ' + (e instanceof Error ? e.message : String(e)));
+    console.error('[cosmetilab] ' + (e instanceof Error ? e.message : String(e)));
     return fail('Erreur serveur : ' + (e instanceof Error ? e.message : 'inconnue'), 500, 'erreur_serveur');
   });
 }

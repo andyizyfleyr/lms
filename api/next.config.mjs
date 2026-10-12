@@ -7,7 +7,7 @@ const config = {
   // L'application peut aussi être servie depuis un AUTRE domaine (site statique
   // Netlify, GitHub Pages, site Vercel séparé, copie locale…) : on autorise donc
   // les appels depuis n'importe quelle origine, avec des en-têtes explicites.
-  // Les pré-vols OPTIONS sont exportés par chaque route (43 routes) via src/lib/http.ts.
+  // Les pré-vols OPTIONS sont exportés par chaque route (44 routes) via src/lib/http.ts.
 
   // Déploiement « tout sur une seule adresse » : l'application (fichier unique)
   // est servie sur / et l'API sur /api/*, dans le même projet Vercel.
