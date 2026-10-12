@@ -98,6 +98,11 @@
    RESET & BASE
    ============================================================ */
 *,*::before,*::after{box-sizing:border-box}
+/* Les contrôles de navigation sont de vrais liens <a> (clic droit, nouvel onglet,
+   copier le lien, rechargement) : ils gardent l'apparence des boutons, donc
+   aucun soulignement ni bleu par défaut — le texte s'affiche comme prévu. */
+a{color:inherit;text-decoration:none;background-color:transparent;-webkit-tap-highlight-color:transparent}
+a:focus-visible{outline:2px solid var(--md-primary);outline-offset:2px}
 html,body{height:100%}
 body{
   margin:0;

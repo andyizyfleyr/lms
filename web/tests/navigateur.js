@@ -1132,6 +1132,15 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
     test('les contrôles de navigation sont de vrais liens', liens.total > 5 && liens.sansHref === 0,
          liens.total + ' lien(s) · ex. ' + liens.exemples.join(', '));
 
+    /* un lien porte l'apparence du bouton d'origine : jamais de texte souligné */
+    const soulignes = await page.evaluate(() => {
+      const tous = [...document.querySelectorAll('a')].filter(a2 => a2.offsetParent !== null);
+      const mauvais = tous.filter(a2 => getComputedStyle(a2).textDecorationLine.indexOf('underline') >= 0);
+      return { total: tous.length, mauvais: mauvais.slice(0, 4).map(a2 => ((a2.textContent || '').trim().slice(0, 28) || a2.getAttribute('aria-label') || '?') + ' → ' + a2.getAttribute('href')) };
+    });
+    test('aucun texte de lien souligné', soulignes.mauvais.length === 0,
+         soulignes.total + ' lien(s) à l\'écran · ' + (soulignes.mauvais.length ? soulignes.mauvais.join(' | ') : 'aucun soulignement'));
+
     /* rechargement sur une adresse profonde : on retrouve le même écran */
     await page.goto(base + '/cours/c1?onglet=ressources', { waitUntil: 'load' });
     await dormir(2400);
