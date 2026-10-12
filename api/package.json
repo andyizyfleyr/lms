@@ -15,7 +15,8 @@
     "smoke": "node scripts/smoke.js",
     "site:sync": "node scripts/sync-site.js",
     "site:verifier": "node scripts/sync-site.js --verifier",
-    "comptes": "node scripts/nettoyer-comptes.js"
+    "comptes": "node scripts/nettoyer-comptes.js",
+    "demo:reset": "node scripts/reinitialiser-demo.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

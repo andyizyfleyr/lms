@@ -227,6 +227,59 @@ function refreshPages(){
 const topPage = () => pageStack[pageStack.length - 1] || null;
 
 /* ------------------------------------------------------------
+   3 ter. DÉFILEMENT MAÎTRISÉ (et racines toujours en place)
+   scrollIntoView() déplace TOUTE la chaîne des conteneurs défilables, y
+   compris les racines de l'application : un élément en overflow:hidden
+   reste défilable par programme. L'application se retrouvait ainsi
+   décalée vers le bas (ou le haut) sans qu'aucun geste ne puisse la
+   remettre en place. On calcule donc nous-mêmes la position, dans le
+   seul conteneur réellement concerné, puis on repose les racines.
+   ------------------------------------------------------------ */
+function conteneurDefilable(noeud){
+  let p = noeud && noeud.parentElement;
+  while (p && p !== document.body){
+    const oy = getComputedStyle(p).overflowY;
+    if ((oy === 'auto' || oy === 'scroll' || oy === 'overlay') && p.scrollHeight > p.clientHeight + 1) return p;
+    p = p.parentElement;
+  }
+  return null;
+}
+function defilerVers(cible, conteneur, align){
+  if (!cible) return false;
+  const c = conteneur || conteneurDefilable(cible);
+  if (!c) return false;
+  const rc = cible.getBoundingClientRect(), rp = c.getBoundingClientRect();
+  let haut = c.scrollTop + (rc.top - rp.top);
+  if (align === 'centre')   haut -= (c.clientHeight - rc.height) / 2;
+  else if (align === 'fin') haut -= (c.clientHeight - rc.height - 12);
+  else                      haut -= 12;                       /* « début » */
+  haut = Math.max(0, Math.min(Math.round(haut), c.scrollHeight - c.clientHeight));
+  try { c.scrollTo({ top:haut, behavior:'smooth' }); } catch (e) { c.scrollTop = haut; }
+  remettreEnPlace();
+  return true;
+}
+/* Aucune racine ne doit défiler : si un navigateur l'a déplacée (appel
+   interne à scrollIntoView, focus d'un champ, clavier virtuel), on la
+   remet aussitôt en place. */
+function remettreEnPlace(){
+  const racines = [document.scrollingElement, document.documentElement, document.body,
+                   $('.app'), $('#pageStack'), $('#player')];
+  for (const r of racines){
+    if (r && (r.scrollTop || r.scrollLeft)){
+      try { r.scrollTop = 0; r.scrollLeft = 0; } catch (e) {}
+    }
+  }
+  $$('section.page').forEach(p => { if (p.scrollTop) p.scrollTop = 0; });
+}
+document.addEventListener('scroll', e => {
+  const t = e.target;
+  if (!t || !t.classList) return;
+  if (t === document.scrollingElement || t === document.documentElement || t === document.body ||
+      t.classList.contains('app') || t.classList.contains('page') ||
+      t.classList.contains('page-stack') || t.id === 'player') remettreEnPlace();
+}, true);
+
+/* ------------------------------------------------------------
    4. DIALOG + BOTTOM SHEET GÉNÉRIQUES
    ------------------------------------------------------------ */
 function dialog(opt){
@@ -1621,6 +1674,7 @@ window.APPX = {
   applyProfileUI: applyProfileUI, appliquerIdentiteLocale: appliquerIdentiteLocale,
   definirProfil: definirProfil, appliquerUtilisateur: appliquerUtilisateur,
   rafraichirStats: rafraichirStats, updateStats: updateStats, stats: () => STATS,
+  conteneurDefilable: conteneurDefilable, defilerVers: defilerVers, remettreEnPlace: remettreEnPlace,
   openVideo: openVideo, vstate: vstate, store: store
 };
 })();

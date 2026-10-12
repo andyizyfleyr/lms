@@ -153,7 +153,7 @@ body::before{
   width:100%;max-width:440px;margin:0 auto;
   height:100dvh;height:100vh;
   background:var(--md-surface);
-  display:flex;flex-direction:column;overflow:hidden;
+  display:flex;flex-direction:column;overflow:hidden;overflow:clip;
   isolation:isolate;
 }
 @supports (height:100dvh){.app{height:100dvh}}
@@ -570,7 +570,8 @@ main::-webkit-scrollbar{display:none}
   transform:translateY(103%);transition:transform .38s var(--ease-emph);
   box-shadow:0 -6px 24px rgba(0,0,0,.18);max-height:82%;overflow-y:auto;scrollbar-width:none;
 }
-.sheet.is-open{transform:none}
+.sheet:not(.is-open){pointer-events:none}
+.sheet.is-open{transform:none;pointer-events:auto}
 .sheet::-webkit-scrollbar{display:none}
 .sheet__handle{width:34px;height:4px;border-radius:var(--r-full);background:var(--md-outline-variant);margin:0 auto 14px}
 .sheet h3{font-size:16px;font-weight:600;padding:0 6px;margin-bottom:10px}

@@ -153,7 +153,7 @@ body::before{
   width:100%;max-width:440px;margin:0 auto;
   height:100dvh;height:100vh;
   background:var(--md-surface);
-  display:flex;flex-direction:column;overflow:hidden;
+  display:flex;flex-direction:column;overflow:hidden;overflow:clip;
   isolation:isolate;
 }
 @supports (height:100dvh){.app{height:100dvh}}
@@ -570,7 +570,8 @@ main::-webkit-scrollbar{display:none}
   transform:translateY(103%);transition:transform .38s var(--ease-emph);
   box-shadow:0 -6px 24px rgba(0,0,0,.18);max-height:82%;overflow-y:auto;scrollbar-width:none;
 }
-.sheet.is-open{transform:none}
+.sheet:not(.is-open){pointer-events:none}
+.sheet.is-open{transform:none;pointer-events:auto}
 .sheet::-webkit-scrollbar{display:none}
 .sheet__handle{width:34px;height:4px;border-radius:var(--r-full);background:var(--md-outline-variant);margin:0 auto 14px}
 .sheet h3{font-size:16px;font-weight:600;padding:0 6px;margin-bottom:10px}
@@ -3277,6 +3278,59 @@ function refreshPages(){
 const topPage = () => pageStack[pageStack.length - 1] || null;
 
 /* ------------------------------------------------------------
+   3 ter. DÉFILEMENT MAÎTRISÉ (et racines toujours en place)
+   scrollIntoView() déplace TOUTE la chaîne des conteneurs défilables, y
+   compris les racines de l'application : un élément en overflow:hidden
+   reste défilable par programme. L'application se retrouvait ainsi
+   décalée vers le bas (ou le haut) sans qu'aucun geste ne puisse la
+   remettre en place. On calcule donc nous-mêmes la position, dans le
+   seul conteneur réellement concerné, puis on repose les racines.
+   ------------------------------------------------------------ */
+function conteneurDefilable(noeud){
+  let p = noeud && noeud.parentElement;
+  while (p && p !== document.body){
+    const oy = getComputedStyle(p).overflowY;
+    if ((oy === 'auto' || oy === 'scroll' || oy === 'overlay') && p.scrollHeight > p.clientHeight + 1) return p;
+    p = p.parentElement;
+  }
+  return null;
+}
+function defilerVers(cible, conteneur, align){
+  if (!cible) return false;
+  const c = conteneur || conteneurDefilable(cible);
+  if (!c) return false;
+  const rc = cible.getBoundingClientRect(), rp = c.getBoundingClientRect();
+  let haut = c.scrollTop + (rc.top - rp.top);
+  if (align === 'centre')   haut -= (c.clientHeight - rc.height) / 2;
+  else if (align === 'fin') haut -= (c.clientHeight - rc.height - 12);
+  else                      haut -= 12;                       /* « début » */
+  haut = Math.max(0, Math.min(Math.round(haut), c.scrollHeight - c.clientHeight));
+  try { c.scrollTo({ top:haut, behavior:'smooth' }); } catch (e) { c.scrollTop = haut; }
+  remettreEnPlace();
+  return true;
+}
+/* Aucune racine ne doit défiler : si un navigateur l'a déplacée (appel
+   interne à scrollIntoView, focus d'un champ, clavier virtuel), on la
+   remet aussitôt en place. */
+function remettreEnPlace(){
+  const racines = [document.scrollingElement, document.documentElement, document.body,
+                   $('.app'), $('#pageStack'), $('#player')];
+  for (const r of racines){
+    if (r && (r.scrollTop || r.scrollLeft)){
+      try { r.scrollTop = 0; r.scrollLeft = 0; } catch (e) {}
+    }
+  }
+  $$('section.page').forEach(p => { if (p.scrollTop) p.scrollTop = 0; });
+}
+document.addEventListener('scroll', e => {
+  const t = e.target;
+  if (!t || !t.classList) return;
+  if (t === document.scrollingElement || t === document.documentElement || t === document.body ||
+      t.classList.contains('app') || t.classList.contains('page') ||
+      t.classList.contains('page-stack') || t.id === 'player') remettreEnPlace();
+}, true);
+
+/* ------------------------------------------------------------
    4. DIALOG + BOTTOM SHEET GÉNÉRIQUES
    ------------------------------------------------------------ */
 function dialog(opt){
@@ -4671,6 +4725,7 @@ window.APPX = {
   applyProfileUI: applyProfileUI, appliquerIdentiteLocale: appliquerIdentiteLocale,
   definirProfil: definirProfil, appliquerUtilisateur: appliquerUtilisateur,
   rafraichirStats: rafraichirStats, updateStats: updateStats, stats: () => STATS,
+  conteneurDefilable: conteneurDefilable, defilerVers: defilerVers, remettreEnPlace: remettreEnPlace,
   openVideo: openVideo, vstate: vstate, store: store
 };
 })();
@@ -4685,7 +4740,7 @@ const A = window.APPX;
 const { svg, IC, PAGES, pushPage, popPage, dialog, openSheet, closeSheet, barPage, emptyBox,
         S, persist, refreshUI, refreshPages, LESSONS, PROGRAMMES, QUIZZES, DEVOIRS, RESSOURCES, SESS,
         totalLecons, leconsFaites, progCours, isFav, toggleFav, devoirStatut, devoirDate,
-        fmtQuand, badgeVal, badgeUnlocked, BADGES_DEF, notification, addDownload, initials } = A;
+        fmtQuand, badgeVal, badgeUnlocked, BADGES_DEF, notification, addDownload, initials, defilerVers } = A;
 
 const lessonIcon = k => k === 'video' ? 'play' : k === 'quiz' ? 'help' : k === 'devoir' ? 'upload' : k === 'exercice' ? 'edit' : k === 'projet' ? 'layers' : 'task';
 const lessonLabel = k => ({video:'Vidéo', quiz:'Quiz', devoir:'Devoir', exercice:'Exercice', projet:'Projet', lecture:'Lecture'})[k] || 'Leçon';
@@ -4955,7 +5010,7 @@ function focusLesson(el, coursId){
   mods.forEach((m, i) => m.classList.toggle('is-open', i === l.mi));
   const row = $('.lesson.is-current', el) || $$('.lesson', el)[cur];
   if (!row) return;
-  if (row.scrollIntoView) row.scrollIntoView({behavior:'smooth', block:'center'});
+  defilerVers(row, $('.c-scroll', el) || $('.page__scroll', el), 'centre');
   row.style.boxShadow = 'inset 0 0 0 2px var(--md-primary)';
   setTimeout(() => { row.style.boxShadow = ''; }, 1800);
   toast(l.done ? ('Leçon ' + (cur + 1) + ' : ' + l.t) : ('Reprise — leçon ' + (cur + 1) + ' : ' + l.t));
@@ -5223,7 +5278,7 @@ function showResult(el, def, bon, n, score){
       }).join('')}
     </div>`;
   animateProgress(body);
-  if (body.scrollIntoView) body.scrollIntoView({behavior:'smooth', block:'start'});
+  defilerVers(body, $('.page__scroll', el), 'debut');   /* haut des résultats, sans déplacer l'application */
 }
 const msgsFirst = s => s === 100 ? 'Sans faute ! 🎉' : s >= 80 ? 'Bravo ! 👏' : s >= 60 ? 'C\'est validé ✅' : 'Presque !';
 document.addEventListener('click', e => {

@@ -206,6 +206,98 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
   await dormir(600);
   test('lien direct (#videos) ouvre la page', (await dessus(page)) === 'videos', 'page du dessus : ' + (await dessus(page)));
 
+  /* ============ C bis. La fiche de cours ne se bloque jamais en bas ============
+     Bug signalé : « la page sur laquelle s'affiche le cours de leçons reste
+     coincée totalement en bas ». Cause : scrollIntoView() (ouverture de la
+     leçon en cours) déplaçait aussi les racines de l'application — un élément
+     en overflow:hidden reste défilable par programme — et la fiche restait
+     décalée sans qu'aucun geste ne puisse la remettre en place.
+     Ces contrôles interdisent le retour du bug. */
+  titre('C bis. Défilement de la fiche de cours');
+  await page.evaluate(() => { while (window.APPX.topPage()) window.APPX.popPage(); });
+  await dormir(500);
+  const racines = () => page.evaluate(() => {
+    const app = document.querySelector('.app');
+    const p = document.querySelector('section.page[data-page="cours"]');
+    const sc = p && p.querySelector('.c-scroll');
+    const bas = document.elementFromPoint(195, window.innerHeight - 14);
+    return {
+      app: app ? Math.round(app.scrollTop) : -1,
+      html: Math.round(document.scrollingElement.scrollTop),
+      win: Math.round(window.scrollY),
+      pages: Array.from(document.querySelectorAll('section.page')).filter(e => e.scrollTop).length,
+      pageTop: p ? Math.round(p.getBoundingClientRect().top) : null,
+      mediaTop: p && p.querySelector('.page__media') ? Math.round(p.querySelector('.page__media').getBoundingClientRect().top) : null,
+      cScroll: sc ? Math.round(sc.scrollTop) : null,
+      cMax: sc ? Math.round(sc.scrollHeight - sc.clientHeight) : null,
+      bas: bas ? (bas.id || bas.className || bas.tagName).toString().slice(0, 30) : null,
+      sheet: (() => { const sh = document.querySelector('#sheet'); return sh ? sh.classList.contains('is-open') : null; })()
+    };
+  });
+  const geste = async (y1, y2, n) => {
+    const cdp = await contexte.newCDPSession(page);
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: 195, y: y1 }] });
+    const pas = (y1 - y2) / n;
+    for (let i = 1; i <= n; i++) { await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 195, y: Math.round(y1 - pas * i) }] }); await dormir(16); }
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await dormir(450);
+    await cdp.detach();
+  };
+
+  await taper(page, '#navBar .nav-item[data-nav="cours"]', { delai: 450 });
+  await taper(page, '#view-cours [data-course="' + carte + '"]', { delai: 900 });
+  let r = await racines();
+  test('ouverture : la fiche est bien en haut', r.pageTop === 0 && r.mediaTop === 0 && r.cScroll === 0,
+       'page = ' + r.pageTop + ' px · média = ' + r.mediaTop + ' px · défilement = ' + r.cScroll);
+  test('ouverture : aucune racine défilée', r.app === 0 && r.html === 0 && r.win === 0 && r.pages === 0,
+       'app = ' + r.app + ' · html = ' + r.html + ' · fenêtre = ' + r.win + ' · pages = ' + r.pages);
+  test('aucune feuille fermée ne masque le bas de l\'écran', r.sheet === false && !/sheet/.test(String(r.bas)), 'élément au bas : ' + r.bas);
+
+  /* « Continuer » amène la leçon en cours à l'écran sans déplacer l'appli */
+  await taper(page, 'section.page[data-page="cours"] [data-act="continue"]', { delai: 1300 });
+  r = await racines();
+  test('« Continuer » : l\'application ne se décale pas', r.pageTop === 0 && r.mediaTop === 0 && r.app === 0 && r.html === 0 && r.win === 0,
+       'page = ' + r.pageTop + ' px · app = ' + r.app + ' px');
+  const cible = await page.evaluate(() => {
+    const p = document.querySelector('section.page[data-page="cours"]');
+    const row = p && (p.querySelector('.lesson.is-current') || p.querySelector('.lesson'));
+    const sc = p && p.querySelector('.c-scroll');
+    if (!row || !sc) return null;
+    const a = row.getBoundingClientRect(), b = sc.getBoundingClientRect();
+    return { dedans: a.top >= b.top - 2 && a.bottom <= b.bottom + 2, haut: Math.round(a.top), zh: Math.round(b.top), zb: Math.round(b.bottom) };
+  });
+  test('la leçon en cours est amenée dans la zone visible', !!(cible && cible.dedans),
+       cible ? 'leçon y = ' + cible.haut + ' · zone ' + cible.zh + '→' + cible.zb : 'introuvable');
+
+  /* une racine défilée de force doit se remettre en place toute seule */
+  await page.evaluate(() => { document.querySelector('.app').scrollTop = 60; });
+  await dormir(250);
+  r = await racines();
+  test('racine défilée de force : remise en place automatique', r.app === 0 && r.pageTop === 0 && r.mediaTop === 0,
+       'app = ' + r.app + ' px · page = ' + r.pageTop + ' px');
+
+  /* onglets de la fiche : le contenu repart du haut, la fiche ne bouge pas */
+  for (const [tab, nom] of [['ressources', 'Ressources'], ['discussion', 'Discussion'], ['notes', 'Notes'], ['programme', 'Programme']]) {
+    await taper(page, 'section.page[data-page="cours"] [data-ctab="' + tab + '"]', { delai: 500 });
+    r = await racines();
+    test('onglet « ' + nom + ' » : contenu en haut, fiche immobile', r.cScroll === 0 && r.pageTop === 0 && r.app === 0,
+         'défilement = ' + r.cScroll + ' px · page = ' + r.pageTop + ' px');
+  }
+
+  /* gestes tactiles réels : descendre dans la liste puis remonter */
+  await geste(700, 260, 20);
+  const descendu = await racines();
+  await geste(260, 700, 20);
+  await geste(260, 700, 20);
+  const remonte = await racines();
+  test('défilement tactile : descendre puis remonter', descendu.cScroll > 0 && remonte.cScroll === 0,
+       'bas = ' + descendu.cScroll + ' px → haut = ' + remonte.cScroll + ' px (course ' + remonte.cMax + ' px)');
+  test('aucune racine défilée après les gestes', remonte.app === 0 && remonte.html === 0 && remonte.win === 0,
+       'app = ' + remonte.app + ' · html = ' + remonte.html + ' · fenêtre = ' + remonte.win);
+
+  await page.evaluate(() => { while (window.APPX.topPage()) window.APPX.popPage(); });
+  await dormir(600);
+
   /* ============ D. pages pédagogiques ============ */
   titre('D. Quiz et devoirs');
   const texteQuiz = await page.evaluate(() => {

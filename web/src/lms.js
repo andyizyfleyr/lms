@@ -7,7 +7,7 @@ const A = window.APPX;
 const { svg, IC, PAGES, pushPage, popPage, dialog, openSheet, closeSheet, barPage, emptyBox,
         S, persist, refreshUI, refreshPages, LESSONS, PROGRAMMES, QUIZZES, DEVOIRS, RESSOURCES, SESS,
         totalLecons, leconsFaites, progCours, isFav, toggleFav, devoirStatut, devoirDate,
-        fmtQuand, badgeVal, badgeUnlocked, BADGES_DEF, notification, addDownload, initials } = A;
+        fmtQuand, badgeVal, badgeUnlocked, BADGES_DEF, notification, addDownload, initials, defilerVers } = A;
 
 const lessonIcon = k => k === 'video' ? 'play' : k === 'quiz' ? 'help' : k === 'devoir' ? 'upload' : k === 'exercice' ? 'edit' : k === 'projet' ? 'layers' : 'task';
 const lessonLabel = k => ({video:'Vidéo', quiz:'Quiz', devoir:'Devoir', exercice:'Exercice', projet:'Projet', lecture:'Lecture'})[k] || 'Leçon';
@@ -277,7 +277,7 @@ function focusLesson(el, coursId){
   mods.forEach((m, i) => m.classList.toggle('is-open', i === l.mi));
   const row = $('.lesson.is-current', el) || $$('.lesson', el)[cur];
   if (!row) return;
-  if (row.scrollIntoView) row.scrollIntoView({behavior:'smooth', block:'center'});
+  defilerVers(row, $('.c-scroll', el) || $('.page__scroll', el), 'centre');
   row.style.boxShadow = 'inset 0 0 0 2px var(--md-primary)';
   setTimeout(() => { row.style.boxShadow = ''; }, 1800);
   toast(l.done ? ('Leçon ' + (cur + 1) + ' : ' + l.t) : ('Reprise — leçon ' + (cur + 1) + ' : ' + l.t));
@@ -545,7 +545,7 @@ function showResult(el, def, bon, n, score){
       }).join('')}
     </div>`;
   animateProgress(body);
-  if (body.scrollIntoView) body.scrollIntoView({behavior:'smooth', block:'start'});
+  defilerVers(body, $('.page__scroll', el), 'debut');   /* haut des résultats, sans déplacer l'application */
 }
 const msgsFirst = s => s === 100 ? 'Sans faute ! 🎉' : s >= 80 ? 'Bravo ! 👏' : s >= 60 ? 'C\'est validé ✅' : 'Presque !';
 document.addEventListener('click', e => {

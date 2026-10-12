@@ -21,7 +21,8 @@ const path = require('path');
 const RACINE = path.join(__dirname, '..');
 const GARDES = ['amina@cosmetilab.bj', 'awa@cosmetilab.bj', 'admin@cosmetilab.bj'];
 const MOTIFS_TEST = ['eleve-%@cosmetilab.bj', 'direct-%@cosmetilab.bj',
-                     'verif-%@cosmetilab.bj', 'dbg-%@cosmetilab.bj', 'dbg2-%@cosmetilab.bj'];
+                     'verif-%@cosmetilab.bj', 'dbg-%@cosmetilab.bj', 'dbg2-%@cosmetilab.bj',
+                     'ident-%@cosmetilab.bj', 'apercu-%@cosmetilab.bj', 'test-%@cosmetilab.bj'];
 
 /* --- chaîne de connexion : .env.local, puis environnement --- */
 function chaine() {
