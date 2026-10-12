@@ -5,6 +5,9 @@ depuis le même dépôt GitHub. Guide complet du dépôt : `../DEPLOIEMENT-GITHU
 
 ## Réglages du projet Vercel
 
+Ce dossier est **le projet Vercel** (un seul, qui sert aussi l'application) : Next.js publie
+`api/public/index.html` — copie du livrable `web/index.html` — sur `/`, et l'API sur `/api/*`.
+
 | Réglage | Valeur |
 |---|---|
 | Root Directory | **`api`** |
@@ -17,6 +20,21 @@ depuis le même dépôt GitHub. Guide complet du dépôt : `../DEPLOIEMENT-GITHU
 
 > Ne surcharge *Build Command* / *Install Command* / *Output Directory* dans l'interface **que** si tu
 > sais pourquoi : `vercel.json` est la source de vérité, et il est versionné.
+
+## Ce que le projet sert
+
+| URL | Contenu | Origine |
+|---|---|---|
+| `/` | l'application LearnHub (mobile) | `api/public/index.html` (copie de `web/index.html`) |
+| `/api/*` | l'API JSON (43 routes) | `src/app/api/**/route.ts` |
+| `/api-doc` | documentation des routes | `src/app/api-doc/page.tsx` |
+
+Le renvoi de `/` vers le fichier statique est déclaré dans `next.config.mjs` (`rewrites`) : l'application
+est servie par le CDN, sans passer par une fonction serverless.
+
+**Avant chaque déploiement**, la copie doit être à jour : `npm run site:sync` (ou `npm run build` depuis la
+racine, qui enchaîne l'assemblage du site et la copie). Le contrôle `npm run site:verifier` échoue si les
+deux fichiers divergent.
 
 ## Variables d'environnement (obligatoires)
 

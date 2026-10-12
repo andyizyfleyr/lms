@@ -179,6 +179,9 @@ voir `api/README.md` et `api/API.md`, et **`DEPLOIEMENT-GITHUB-VERCEL.md`** pour
    → adresse de l'API + e-mail + mot de passe. Ou plus court :
    `https://ton-site.netlify.app/?api=https://ton-api.vercel.app`.
 
+Si l'API et le site sont servis **sur la même adresse** (déploiement Vercel « une seule URL » décrit dans
+`DEPLOIEMENT-GITHUB-VERCEL.md`), il n'y a **rien à configurer** : l'application détecte l'API au démarrage.
+
 Hors-ligne, tout continue de fonctionner sur l'appareil ; la synchronisation reprend au retour du réseau.
 
 ## Nom de domaine personnalisé (facultatif)

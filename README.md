@@ -4,7 +4,8 @@ Tableau de bord **LMS mobile** (Material Design 3) livré sous forme de **fichie
 
 - **Le site** : `web/index.html` — 769 Ko, HTML + CSS + JavaScript + images (base64) + extrait vidéo intégré. Aucune dépendance externe (la seule exception est l'iframe YouTube du lecteur vidéo). Il se publie sur n'importe quel hébergeur statique.
 - **L'API** : `api/` — Next.js 15 (App Router) + TypeScript + Neon/PostgreSQL, **43 routes** et 26 tables. Elle sert la synchronisation de la progression (et tout le reste : cours, quiz, devoirs, ressources, notifications, recherche, statistiques).
-- **Le tout vit dans un seul dépôt**, déployable sur Vercel en **deux projets** indépendants — voir [`DEPLOIEMENT-GITHUB-VERCEL.md`](DEPLOIEMENT-GITHUB-VERCEL.md).
+- **Le tout tient sur une seule adresse** : un seul projet Vercel sert l'application sur `/` et l'API sur `/api/*`
+  (Next.js publie `api/public/index.html`, copie du livrable). Voir [`DEPLOIEMENT-GITHUB-VERCEL.md`](DEPLOIEMENT-GITHUB-VERCEL.md).
 
 L'application fonctionne **toute seule** (progression dans le navigateur) : l'API est facultative, mais dès qu'elle est configurée, la progression se retrouve sur tous les appareils.
 
@@ -27,9 +28,13 @@ npm run db:seed                # insère les données de démonstration
 npm run dev                    # http://localhost:3000  (GET /api/health pour vérifier)
 
 # 3. Relier le site à l'API
-#    Dans le site : Profil → Paramètres → Synchronisation serveur
-#    → adresse http://localhost:3000 + un compte de démo ci-dessous.
-#    Raccourci équivalent : ouvrir le site avec ?api=http://localhost:3000
+#    Déployés ensemble (une seule adresse) : rien à configurer, l'application
+#    détecte l'API du même domaine et il ne reste qu'à se connecter.
+#    En local ou sur un site séparé : Profil → Paramètres → Synchronisation serveur
+#    → adresse http://localhost:3000 + un compte de démo ci-dessous,
+#    ou ouvrir le site avec ?api=http://localhost:3000
+#    (l'aperçu « une seule URL » s'obtient avec : npm --prefix api run build && npm --prefix api start,
+#     puis http://localhost:3000/       )
 ```
 
 Comptes de démonstration : `amina@learnhub.bj` / `demo1234` (étudiante), `adjovi@learnhub.bj` / `prof1234` (enseignante), `admin@learnhub.bj` / `admin1234` (administrateur).
@@ -42,7 +47,8 @@ Depuis la **racine** (raccourcis, aucun paquet à installer à ce niveau) :
 
 | Commande | Effet |
 |---|---|
-| `npm run build` | Assemble le site (`web/src/` → `web/index.html`) |
+| `npm run build` | Assemble le site (`web/src/` → `web/index.html`) **et** publie la copie servie par l'API |
+| `npm run site:sync` / `site:verifier` | (Re)publie `api/public/index.html` / vérifie qu'il n'a pas divergé |
 | `npm run verifier` | 13 contrôles sur le livrable, dont l'anti-dérive sources ↔ index.html |
 | `npm run test` | Suite navigateur (Chromium mobile 390 × 844) sur le site |
 | `npm run apercu` | Sert le site sur http://localhost:8000 |
@@ -70,11 +76,13 @@ learnhub/
 │   ├── src/                   Sources : shell.html, app.js, core.js, lms.js, images.json, clip.json
 │   └── tests/                 serveur.js (aperçu local) + navigateur.js (suite réelle)
 │
-├── api/                       Le backend Next.js + TypeScript
+├── api/                       Le backend Next.js + TypeScript (projet Vercel unique)
 │   ├── src/app/api/**         43 routes (cours, leçons, quiz, devoirs, auth, progression…)
+│   ├── src/app/api-doc/       Page de documentation des routes (sur /api-doc)
 │   ├── src/lib/**             db.ts (Neon), auth.ts (scrypt + jetons), http.ts, validation.ts
+│   ├── public/index.html      Copie publiée du site, servie sur / (régénérée, ne pas éditer)
 │   ├── db/                    schema.sql, seed.sql, data.json (contenus de démo versionnés)
-│   ├── scripts/               db.js (migrate/seed/check/reset), extract-data.js, gen-seed.js
+│   ├── scripts/               db.js (migrate/seed/check/reset), smoke.js, sync-site.js, gen-seed.js
 │   ├── vercel.json            Réglages Vercel du projet Next.js
 │   ├── README.md · API.md · vercel.md
 │   └── .env.example           Modèle : DATABASE_URL + AUTH_SECRET (jamais de secret dans le dépôt)
@@ -98,7 +106,7 @@ learnhub/
 |---|---|
 | Assemblage du site (`build.js`) | 8 contrôles d'intégrité · 769 Ko |
 | Contrôles statiques (`verify.js`) | **13 OK / 0** |
-| Suite navigateur (Chromium mobile, 42 contrôles) | **42 OK / 0** (37 sans API) |
+| Suite navigateur (Chromium mobile) | **37 OK / 0** sans API · **42 OK / 0** avec API · **43 OK / 0** en mode « une seule URL » |
 | API fonctionnelle (43 routes, tous les cas, erreurs incluses) | **81 OK / 0** |
 | Test de fumée de l'API (`npm run api:smoke`) | **34 OK / 0** |
 | Types de l'API (`tsc --noEmit`) | 0 erreur |
@@ -111,11 +119,15 @@ La suite navigateur vérifie ce qui doit rester vrai : navigation entre les quat
 
 ## Publier
 
-- **Le site seul** (hébergeur statique) → [`docs/HEBERGEMENT.md`](docs/HEBERGEMENT.md)
-- **Le dépôt complet** (GitHub → Vercel, API + base Neon) → [`DEPLOIEMENT-GITHUB-VERCEL.md`](DEPLOIEMENT-GITHUB-VERCEL.md)
+- **Tout en une seule URL** (recommandé) : un projet Vercel, Root Directory `api` → l'application sur `/`,
+  l'API sur `/api/*` → [`DEPLOIEMENT-GITHUB-VERCEL.md`](DEPLOIEMENT-GITHUB-VERCEL.md)
   — dépôt cible : <https://github.com/andyizyfleyr/lms>, envoi en une commande avec `./publier-sur-github.sh`
+- **Le site seul** sur un hébergeur statique (Netlify, GitHub Pages, Cloudflare…) → [`docs/HEBERGEMENT.md`](docs/HEBERGEMENT.md)
 
-Résumé : deux projets Vercel pointant sur le même dépôt — **Root Directory `api`** (framework Next.js, variables `DATABASE_URL` et `AUTH_SECRET`) et **Root Directory `web`** (framework *Other*, aucun réglage à faire : `web/vercel.json` s'en charge). Puis on relie le site à l'API depuis *Paramètres → Synchronisation serveur*.
+Résumé : **un seul projet Vercel** — *Root Directory* `api`, framework Next.js, variables `DATABASE_URL` et
+`AUTH_SECRET`. Next.js sert alors l'application (fichier unique publié dans `api/public/`) sur `/` et l'API sur
+`/api/*` : l'application détecte le serveur toute seule, il ne reste qu'à se connecter avec un compte de démo.
+(La variante « deux projets » — site statique d'un côté, API de l'autre — reste possible : voir la fin du guide.)
 
 ---
 

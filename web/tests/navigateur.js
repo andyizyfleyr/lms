@@ -23,6 +23,7 @@ const { demarrer } = require('./serveur');
 const WEB = path.join(__dirname, '..');
 const PAGE = path.join(WEB, 'index.html');
 const API = (process.env.LEARNHUB_API_URL || '').replace(/\/+$/, '');
+const SITE_EXTERNE = (process.env.LEARNHUB_SITE_URL || '').replace(/\/+$/, '');   // ex. http://127.0.0.1:3000 (site + API même domaine)
 const COMPTE = { email: process.env.LEARNHUB_COMPTE || 'amina@learnhub.bj', mdp: process.env.LEARNHUB_MDP || 'demo1234' };
 
 /* ---------- playwright-core : on cherche sans imposer d'installation ---------- */
@@ -74,7 +75,8 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
   if (!fs.existsSync(PAGE)) { console.error('❌ index.html absent — lancez d\'abord : node build.js'); process.exit(2); }
   const taille = Math.round(fs.statSync(PAGE).size / 1024);
 
-  const site = await demarrer(WEB, 0);
+  /* soit on sert nous-mêmes le fichier, soit on teste une URL déjà en ligne */
+  const site = SITE_EXTERNE ? { url: SITE_EXTERNE, port: 0, fermer: async () => {} } : await demarrer(WEB, 0);
   const nav = await chromium.launch({
     args: ['--no-sandbox', '--disable-dev-shm-usage', '--autoplay-policy=no-user-gesture-required', '--mute-audio']
   });
@@ -101,11 +103,12 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
     } catch (_) {}
   });
 
-  console.log('LearnHub — suite navigateur · index.html ' + taille + ' Ko · ' + new Date().toLocaleString('fr-FR'));
+  console.log('LearnHub — suite navigateur · ' + (SITE_EXTERNE ? 'URL en ligne ' + site.url : 'index.html ' + taille + ' Ko') +
+              ' · ' + new Date().toLocaleString('fr-FR'));
 
   /* ============ A. chargement du fichier unique ============ */
   titre('A. Chargement (fichier unique)');
-  await page.goto(site.url + '/index.html', { waitUntil: 'load' });
+  await page.goto(SITE_EXTERNE ? site.url + '/' : site.url + '/index.html', { waitUntil: 'load' });
   await page.waitForFunction(() => !!(window.APPX && window.LHSYNC), null, { timeout: 20000 });
 
   test('titre de la page', /LearnHub/i.test(await page.title()), await page.title());
@@ -252,17 +255,27 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
   await dormir(800);
   await taper(page, 'section.page[data-page="videos"] [data-video]', { delai: 1200 });
   await taper(page, '#playerPlay', { delai: 1200 });
-  let lecture = { iframe: false, statut: '' };
-  for (let i = 0; i < 15 && !lecture.iframe; i++) {
+  let lecture = { iframe: false, local: false, joue: false, statut: '' };
+  for (let i = 0; i < 15 && !lecture.joue; i++) {
     await dormir(1000);
     lecture = await page.evaluate(() => {
       const ifr = document.querySelector('iframe.yt-host, #playerStage iframe');
+      const loc = document.querySelector('#offlineVid');
+      const local = !!loc && !loc.hidden;
       return { iframe: !!(ifr && /youtube\.com\/embed/.test(ifr.src || '')),
+               local: local, joue: !!ifr || (local && loc.currentTime > 0.2),
                statut: ((document.querySelector('#playerStatusTxt') || {}).textContent || '').trim() };
     });
   }
-  test('vidéo YouTube lue dans le site (sans quitter l’app)', lecture.iframe, lecture.iframe ? 'embed chargé' : lecture.statut.slice(0, 60));
-  test('aucun message « contenu bloqué »', !/bloqu/i.test(await page.evaluate(() => document.body.innerText)));
+  /* L'essentiel : une vidéo joue DANS le site, quel que soit le chemin
+     (lecteur YouTube intégré ou extrait intégré). Le second point vérifie
+     qu'on ne voit jamais le message de blocage émis par YouTube lui-même. */
+  test('vidéo lue dans le site (YouTube ou extrait intégré)', lecture.joue,
+       lecture.iframe ? 'lecteur YouTube intégré' : ('repli sur l\'extrait intégré — ' + lecture.statut.slice(0, 60)));
+  const sansMessageYt = await page.evaluate(() =>
+    !/ce contenu est bloqué|contactez le propriétaire|contenu bloqué/i.test(document.body.innerText));
+  test('jamais le message YouTube « Ce contenu est bloqué »', sansMessageYt);
+  console.log('  ℹ️  chemin de lecture : ' + (lecture.iframe ? 'embed YouTube (réseau OK)' : 'extrait intégré (YouTube indisponible ici : normal en test hors navigateur réel)'));
   await page.evaluate(() => { const c = document.querySelector('#playerClose'); if (c) c.click(); while (window.APPX.topPage()) window.APPX.popPage(); });
   await dormir(700);
 
@@ -304,6 +317,12 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
       catch (e) { return null; }
     }, API);
     test('API joignable (/api/health)', !!sante, sante ? 'base ' + sante.base + ' · ' + sante.tables + ' tables' : 'injoignable');
+
+    const memeDomaine = (() => { try { return new URL(site.url).origin === new URL(API).origin; } catch (e) { return false; } })();
+    if (memeDomaine) {
+      const auto = await page.evaluate(() => window.LHSYNC.etat().serveur || '');
+      test('serveur détecté automatiquement (site servi par l\'API, même domaine)', auto === new URL(site.url).origin, auto || 'non détecté');
+    }
 
     const avant = await page.evaluate(() => Object.keys(window.APPX.S.lessons || {}).filter(k => window.APPX.S.lessons[k]).length);
     await page.evaluate(async () => { await window.LHSYNC.ouvrirUI(); });

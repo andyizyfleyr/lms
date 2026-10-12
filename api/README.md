@@ -6,6 +6,9 @@ statistiques, recherche, réglages et téléchargements hors-ligne.
 
 **43 routes API**, base **PostgreSQL Neon** (26 tables), prêtes pour Vercel.
 
+Le projet Vercel qui héberge cette API sert aussi l'application mobile : `public/index.html` (copie du
+livrable `web/index.html`) est renvoyé sur `/`, l'API occupe `/api/*` et la documentation `/api-doc`.
+
 ---
 
 ## 1. Démarrage
@@ -18,7 +21,8 @@ npm run db:seed             # charge les données de démonstration
 npm run dev                 # http://localhost:3000
 ```
 
-Ouvre <http://localhost:3000> : la page d'accueil liste **tous les points d'entrée** de l'API.
+Ouvre <http://localhost:3000/api-doc> : la page liste **tous les points d'entrée** de l'API.
+(`http://localhost:3000/` sert l'application mobile, la copie publiée du site.)
 
 ### Comptes de démonstration
 

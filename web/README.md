@@ -58,7 +58,12 @@ Résultat de référence : **42 OK / 0** (37 sans API).
 
 ## Relier le site à l'API
 
-Trois façons équivalentes, dans cet ordre de priorité :
+**Déployé « tout sur une seule URL » (recommandé) : rien à faire.** Si l'application est servie par l'API
+elle-même (même domaine, voir `../DEPLOIEMENT-GITHUB-VERCEL.md`), `LHSYNC` interroge `/api/health` au
+démarrage et adopte automatiquement le serveur : il ne reste qu'à se connecter avec un compte.
+Pour publier la copie servie sur `/` : `npm run site:sync` depuis la racine du dépôt (ou `npm run build`).
+
+Sinon, trois façons équivalentes, dans cet ordre de priorité :
 
 1. `Paramètres → Synchronisation serveur` : adresse + e-mail + mot de passe (conservés dans le
    navigateur) ;
@@ -67,7 +72,9 @@ Trois façons équivalentes, dans cet ordre de priorité :
 
 ## Publier
 
-- **Vercel** : Root Directory = `web`, framework *Other*. `vercel.json` contient déjà
+- **Vercel, une seule URL pour le site et l'API** (recommandé) : un seul projet avec Root Directory `api` ;
+  l'application est servie sur `/` à partir de la copie `api/public/index.html` (`npm run site:sync`).
+- **Vercel, site statique séparé** : Root Directory = `web`, framework *Other*. `vercel.json` contient déjà
   `buildCommand: node build.js`, `outputDirectory: "."`, `cleanUrls: true` et les en-têtes de cache/sécurité.
 - **Netlify / Cloudflare Pages** : déposer `index.html` (et `_headers` à côté, il contient les mêmes
   en-têtes). Guide détaillé : `../docs/HEBERGEMENT.md`.

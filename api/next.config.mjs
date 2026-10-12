@@ -4,10 +4,21 @@ const config = {
   poweredByHeader: false,
   compress: true,
 
-  // L'application HTML (fichier unique) est servie depuis un autre domaine
-  // (site Vercel statique, Netlify, file://, aperçu local…).
-  // → on autorise les appels API depuis n'importe quelle origine, avec en-têtes explicites.
-  // Les pré-vols OPTIONS sont exportés par chaque route (45 routes) via src/lib/http.ts.
+  // L'application peut aussi être servie depuis un AUTRE domaine (site statique
+  // Netlify, GitHub Pages, site Vercel séparé, copie locale…) : on autorise donc
+  // les appels depuis n'importe quelle origine, avec des en-têtes explicites.
+  // Les pré-vols OPTIONS sont exportés par chaque route (43 routes) via src/lib/http.ts.
+
+  // Déploiement « tout sur une seule adresse » : l'application (fichier unique)
+  // est servie sur / et l'API sur /api/*, dans le même projet Vercel.
+  // public/index.html est une copie publiée de web/index.html
+  // (régénérée par : node api/scripts/sync-site.js).
+  // La documentation de l'API reste disponible sur /api-doc.
+  async rewrites() {
+    return [
+      { source: '/', destination: '/index.html' }
+    ];
+  },
   async headers() {
     return [
       {

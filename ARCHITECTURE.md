@@ -5,45 +5,49 @@ future reste compatible avec le déploiement (Vercel, Netlify, GitHub Pages) et 
 
 ---
 
-## 1. Un dépôt, deux projets, zéro ambiguïté
+## 1. Un seul projet Vercel, une seule adresse
 
 ```
-                    ┌──────────────────────────────────────────────┐
-   Navigateur  ───► │  web/index.html   (site statique, 769 Ko)     │
-   (mobile)         │  HTML + CSS + JS + images + extrait vidéo      │
-                    └───────────────┬──────────────────────────────┘
-                                    │  fetch JSON (facultatif)
-                                    │  Authorization: Bearer <jeton>
-                                    ▼
-                    ┌──────────────────────────────────────────────┐
-                    │  api/   Next.js 15 + TypeScript (43 routes)   │
-                    └───────────────┬──────────────────────────────┘
-                                    │  @neondatabase/serverless (HTTP/SSL)
-                                    ▼
-                    ┌──────────────────────────────────────────────┐
-                    │  Neon PostgreSQL — 26 tables                   │
-                    └──────────────────────────────────────────────┘
+   Navigateur (mobile)
+        │
+        ▼
+   https://mon-projet.vercel.app/
+        │
+        ├── /            ──►  l'application LearnHub  (api/public/index.html,
+        │                     copie publiée de web/index.html — 770 Ko, autonome)
+        │
+        ├── /api/*       ──►  API Next.js (43 routes) ──► Neon PostgreSQL (26 tables)
+        │
+        └── /api-doc     ──►  documentation des routes
 ```
 
-| Dossier | Nature | Hébergement | Point d'entrée |
-|---|---|---|---|
-| `web/` | Site statique (un seul fichier) | Vercel *framework Other*, Netlify, Pages, Cloudflare… | `web/index.html` |
-| `api/` | Application Next.js | Vercel *framework Next.js* | `api/src/app/api/**/route.ts` |
-| `docs/` | Documentation et captures | — (non déployé) | — |
+| Chemin servi | D'où il vient | Rôle |
+|---|---|---|
+| `/` et `/index.html` | `api/public/index.html` ← copie de `web/index.html` | l'application (HTML + CSS + JS + images + extrait vidéo) |
+| `/api/*` | `api/src/app/api/**/route.ts` | l'API JSON (43 routes) |
+| `/api-doc` | `api/src/app/api-doc/page.tsx` | documentation des routes |
+| — | `web/src/**` | sources du fichier unique (assemblées par `web/build.js`) |
 
-**Pourquoi séparer ?** Les deux moitiés n'ont ni le même mode de publication, ni le même cycle de
-vie : le site est un fichier qu'on construit localement et qu'on peut déposer n'importe où ; l'API est
-une application serveur qui a besoin de variables d'environnement secrètes. Les mélanger dans un seul
-projet Vercel provoque les erreurs les plus fréquentes : détection de framework erronée, page blanche,
-`DATABASE_URL` manquante. Ici, **un déploiement = un dossier** :
+**Trois pièces suffisent :**
 
-- projet Vercel n° 1 → **Root Directory = `api`** → `api/vercel.json` (`framework: nextjs`, `npm ci`, région `iad1`)
-- projet Vercel n° 2 → **Root Directory = `web`** → `web/vercel.json` (`framework: null`, `node build.js`, `outputDirectory: "."`, `cleanUrls: true`)
+1. `web/index.html` reste la **source de vérité** du site (assemblé depuis `web/src/` par `web/build.js`).
+2. `api/scripts/sync-site.js` en publie une copie dans `api/public/index.html` :
+   `npm run build` (racine) enchaîne les deux, et `npm run site:verifier` échoue si les fichiers divergent —
+   impossible de déployer un site périmé.
+3. `api/next.config.mjs` renvoie `/` vers ce fichier (`rewrites`), tandis que l'API occupe `/api/*`.
+   Next.js sert donc les deux depuis **un seul projet Vercel** (Root Directory = `api`, framework Next.js).
 
-Aucune variable d'environnement n'est nécessaire pour le site ; `DATABASE_URL` et `AUTH_SECRET` ne sont
-déclarées que dans le projet `api`. Le site trouve l'API par configuration utilisateur
-(*Paramètres → Synchronisation serveur*, conservée dans `localStorage`) ou par l'adresse
-`?api=https://…` / `#api=https://…` — donc aucun secret, et aucune URL en dur à modifier dans le code.
+**Côté application, aucun réglage.** Au démarrage, `LHSYNC` interroge `/api/health` sur l'origine
+courante : si l'API répond (même domaine), elle est adoptée automatiquement et il ne reste qu'à saisir
+ses identifiants. Sur un hébergeur purement statique, la sonde échoue en silence : l'application reste
+100 % utilisable en local, et une API distante peut être indiquée à la main (`?api=…` ou l'écran
+*Paramètres → Synchronisation*).
+
+**Pourquoi un seul projet plutôt que deux ?** Moins de réglages, donc moins d'erreurs : un seul
+*Root Directory*, un seul jeu de variables d'environnement (`DATABASE_URL`, `AUTH_SECRET`), aucun appel
+inter-domaines à autoriser, et un seul déploiement à surveiller. La variante « site statique d'un côté,
+API de l'autre » reste possible (Netlify, second projet Vercel) : le CORS est déjà ouvert
+(`Access-Control-Allow-Origin: *`) et l'application accepte une API distante.
 
 ---
 
@@ -152,7 +156,8 @@ identique en deux commandes (`npm run db:reset`), sans dépendre d'un fichier lo
 |---|---|---|
 | Intégrité de l'assemblage | `cd web && npm run build` | 8 contrôles, 769 Ko |
 | Contrôles statiques + anti-dérive | `cd web && npm run verify` | 13 OK / 0 |
-| Suite navigateur (mobile 390 × 844) | `cd web && npm run test` | 42 OK / 0 (37 sans API) |
+| Copie publiée du site (celle servie sur `/`) | `npm run site:verifier` | identique à `web/index.html` |
+| Suite navigateur (mobile 390 × 844) | `cd web && npm run test` | 37 OK / 0 sans API · 42 avec API · 43 en mode « une seule URL » |
 | Types de l'API | `cd api && npm run typecheck` | 0 erreur |
 | Test de fumée de l'API | `cd api && npm run smoke` | 34 OK / 0 |
 | Build Next.js | `cd api && npm run build` | 43 routes |
@@ -178,3 +183,6 @@ envoi d'une leçon terminée dans l'app, relecture côté serveur).
 | Iframe YouTube en `file://` ou aperçu | YouTube affiche « Ce contenu est bloqué… » | lecteur YouTube masqué jusqu'à lecture réelle + extrait intégré |
 | Vidéo trop lourde dans le fichier | site lent à charger | extrait 24 s deux encodages, ~190 Ko ; images ~304 Ko |
 | Édition directe de `index.html` | sources et livrable divergents | `verify.js` échoue (anti-dérive) → relancer `build.js` |
+| Copie publiée oubliée après une modification du site | la racine sert une version périmée | `npm run build` (ou `site:sync`) puis commit ; `site:verifier` détecte la divergence |
+| Route `/` encore occupée par une page Next | la racine n'affiche pas l'application | la page de documentation vit sur `/api-doc`, `/` est renvoyé vers `public/index.html` |
+| Sonde `/api/health` sur un hébergeur statique | aucun effet : l'app reste en mode local | comportement voulu, aucune erreur affichée à l'utilisateur |

@@ -12,7 +12,9 @@
     "db:seed": "node scripts/db.js seed",
     "db:reset": "node scripts/db.js reset",
     "db:check": "node scripts/db.js check",
-    "smoke": "node scripts/smoke.js"
+    "smoke": "node scripts/smoke.js",
+    "site:sync": "node scripts/sync-site.js",
+    "site:verifier": "node scripts/sync-site.js --verifier"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

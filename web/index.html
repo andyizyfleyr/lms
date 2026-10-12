@@ -4183,6 +4183,8 @@ setTimeout(() => { if (S.logged && !pageStack.length) openFromHash(); }, 500);
    configuré, la progression, les quiz, les dépôts, les notes et les
    téléchargements sont synchronisés en arrière-plan.
    Configurer : #api=… / ?api=https://mon-api.vercel.app ou Paramètres → Synchronisation.
+   Cas particulier : si le site est servi par l'API elle-même (même domaine), le
+   serveur est détecté automatiquement — rien à configurer.
    ============================================================ */
 window.LHSYNC = (function(){
   const CLE_API = 'lh_api', CLE_TOKEN = 'lh_token';
@@ -4407,16 +4409,37 @@ window.LHSYNC = (function(){
     }
   }
 
+  /* ---------- même domaine : le site est servi par l'API elle-même ----------
+     Déploiement « tout sur une seule adresse » : l'application sur /, l'API sur /api/*.
+     On interroge /api/health sur l'origine courante : si l'API répond, on l'adopte
+     sans que l'utilisateur ait quoi que ce soit à configurer. Sur un hébergeur
+     purement statique (Netlify, Pages…) la sonde échoue : on reste simplement
+     en mode local, comme avant. */
+  async function detecterMemeOrigine(){
+    if (!/^https?:$/.test(location.protocol)) return false;      // file:// ou aperçu en iframe : rien à détecter
+    const origine = location.origin.replace(/\/+$/, '');
+    try {
+      const ctl = new AbortController();
+      const minuteur = setTimeout(() => ctl.abort(), 4000);
+      const r = await fetch(origine + '/api/health', { signal:ctl.signal, cache:'no-store' });
+      clearTimeout(minuteur);
+      const j = await r.json().catch(() => null);
+      if (j && j.ok){ base = origine; ecrire(CLE_API, base); return true; }
+    } catch (e) {}
+    return false;
+  }
+
   /* ---------- amorçage : ?api=… dans l'adresse, puis vérification du jeton ---------- */
-  function amorcer(){
+  async function amorcer(){
     try {
       const p = new URLSearchParams(location.search).get('api') || (location.hash.indexOf('#api=') === 0 ? location.hash.slice(5) : '');
       if (p){ base = decodeURIComponent(p).replace(/\/+$/, ''); ecrire(CLE_API, base); }
     } catch (e) {}
+    if (!base) await detecterMemeOrigine();        // site + API sur la même adresse
     if (actif()){ verifier().then(r => { if (r.ok) refreshUI(); }); }
   }
 
-  return { actif, etat, connecter, deconnecter, verifier, hydrater, changed, pousser, quiz, rendre, retirerRendu, note, ouvrirUI, soumettre, amorcer, req };
+  return { actif, etat, connecter, deconnecter, verifier, hydrater, changed, pousser, quiz, rendre, retirerRendu, note, ouvrirUI, soumettre, amorcer, detecterMemeOrigine, req };
 })();
 window.LHSYNC = LHSYNC;
 setTimeout(() => LHSYNC.amorcer(), 600);          // ?api=… puis vérification du jeton enregistré
