@@ -32,7 +32,8 @@ const TITRES = {
   parametres: 'Paramètres', compte: 'Mon compte', corrections: 'Corrections',
   'profil-edit': 'Modifier le profil', quiz: 'Quiz', devoir: 'Devoir',
   abonnement: 'Abonnement', 'espace-formateur': 'Espace formateur',
-  tentatives: 'Mes tentatives', certificats: 'Mes attestations', 'hors-ligne': 'Mode hors-ligne'
+  tentatives: 'Mes tentatives', certificats: 'Mes attestations', 'hors-ligne': 'Mode hors-ligne',
+  connexion: 'Connexion', inscription: 'Créer un compte', invite: 'Explorer sans compte'
 };
 
 /* onglets de la fiche cours */

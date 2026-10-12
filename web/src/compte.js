@@ -170,6 +170,8 @@ function ecranAccueil(){
   </div>`;
   requestAnimationFrame(() => { const s = $('#loginScreen'); if (s) s.classList.add('is-open'); });
   vueAccueil();
+  /* le texte de l'onglet suit l'écran affiché (ici l'écran d'entrée, adresse /connexion) */
+  if (window.LHROUTES && window.LHROUTES.titreDe) document.title = window.LHROUTES.titreDe('connexion', {}) + ' · CosmétiLab';
   setTimeout(() => { const i = $('#ctMail'); if (i) i.focus(); }, 500);
 }
 
@@ -555,6 +557,8 @@ function poserAdresseEntree(chemin, remplacer){
     if (remplacer) history.replaceState({ entree: chemin }, '', chemin);
     else history.pushState({ entree: chemin }, '', chemin);
   } catch (e) {}
+  const nu = chemin.replace(/^\//, '');
+  if (window.LHROUTES && window.LHROUTES.titreDe) document.title = window.LHROUTES.titreDe(nu, {}) + ' · CosmétiLab';
 }
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-ct]');

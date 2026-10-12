@@ -169,7 +169,7 @@ function montrerEntree(nom){
   if (nom === 'connexion' && C.connexion) C.connexion();
   else if (nom === 'inscription' && C.inscription) C.inscription();
   else if (nom === 'invite' && C.invite) C.invite();
-  document.title = ROUTES().titreDe('', {}) + ' · CosmétiLab';
+  document.title = ROUTES().titreDe(nom, {}) + ' · CosmétiLab';
   return true;
 }
 function setVue(nom, remplacer){
