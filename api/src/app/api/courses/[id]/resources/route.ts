@@ -1,6 +1,7 @@
 import { q, q1 } from '@/lib/db';
 import { auth, ok, parseBody, OPTIONS, handler } from '@/lib/http';
 import { ressource } from '@/lib/validation';
+import { controleAccesPublic } from '@/lib/paiement';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -10,6 +11,8 @@ export { OPTIONS };
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   return handler(async () => {
     const { id } = await params;
+    const acces = await controleAccesPublic(_req, id);
+    if (acces) return acces;
     const rows = await q('select * from resources where course_id = $1 order by ordre', [id]);
     return ok({ ressources: rows, total: rows.length });
   });

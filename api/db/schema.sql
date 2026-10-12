@@ -306,3 +306,59 @@ create table if not exists downloads (
   updated_at   timestamptz not null default now()
 );
 create index if not exists downloads_user_idx on downloads(user_id, created_at desc);
+
+-- ---------------------------------------------------------- paiements (NOVA Checkout)
+-- Chaque commande suit une session NOVA : ouverte → payée / annulée / expirée.
+create table if not exists orders (
+  id              uuid primary key default gen_random_uuid(),
+  user_id         uuid not null references users(id) on delete cascade,
+  type            text not null,                        -- cours | abonnement
+  course_id       text references courses(id) on delete set null,
+  plan_id         text,
+  amount          int  not null,
+  currency        text not null default 'xof',
+  description     text not null,
+  status          text not null default 'open',         -- open | paid | cancelled | expired | failed
+  nova_session_id text unique,
+  nova_reference  text,
+  method          text,
+  paid_at         timestamptz,
+  expires_at      timestamptz,
+  created_at      timestamptz not null default now(),
+  updated_at      timestamptz not null default now()
+);
+create index if not exists orders_user_idx   on orders(user_id, created_at desc);
+create index if not exists orders_statut_idx on orders(status, created_at desc);
+
+-- Accès débloqués : un cours par ligne (achat à l'unité, abonnement, offre commerciale).
+create table if not exists course_access (
+  user_id    uuid not null references users(id) on delete cascade,
+  course_id  text not null references courses(id) on delete cascade,
+  source     text not null default 'achat',             -- achat | abonnement | offre
+  order_id   uuid references orders(id) on delete set null,
+  started_at timestamptz not null default now(),
+  expires_at timestamptz,                               -- null = définitif
+  primary key (user_id, course_id)
+);
+
+-- Abonnement en cours (NOVA v1 n'effectue pas de prélèvement récurrent :
+-- l'abonnement est une période payée, que le client renouvelle).
+create table if not exists subscriptions (
+  user_id            uuid primary key references users(id) on delete cascade,
+  plan_id            text not null,
+  statut             text not null default 'actif',     -- actif | expire
+  started_at         timestamptz not null default now(),
+  current_period_end timestamptz not null,
+  order_id           uuid references orders(id) on delete set null,
+  renewed_count      int not null default 0,
+  updated_at         timestamptz not null default now()
+);
+
+-- Journal des évènements NOVA reçus (idempotence des webhooks).
+create table if not exists payment_events (
+  id          text primary key,                         -- evt_…
+  type        text not null,
+  order_id    uuid references orders(id) on delete set null,
+  payload     jsonb,
+  received_at timestamptz not null default now()
+);

@@ -25,6 +25,7 @@ const API = (process.env.LEARNHUB_API_URL || 'http://127.0.0.1:3000').replace(/\
 const SITE_EXTERNE = (process.env.LEARNHUB_SITE_URL || '').replace(/\/+$/, '');
 const ELEVE = { email: process.env.LEARNHUB_COMPTE || 'amina@cosmetilab.bj', mdp: process.env.LEARNHUB_MDP || 'demo1234' };
 const PROF  = { email: process.env.LEARNHUB_PROF || 'awa@cosmetilab.bj', mdp: process.env.LEARNHUB_PROF_MDP || 'prof1234' };
+const ADMIN = { email: process.env.LEARNHUB_ADMIN || 'admin@cosmetilab.bj', mdp: process.env.LEARNHUB_ADMIN_MDP || 'admin1234' };
 
 function chargerPlaywright() {
   const essais = [
@@ -220,6 +221,19 @@ const leconsFaites = page => page.evaluate(() =>
   }).then(r => r.json()).catch(() => null);
   const corps = cree && (cree.data || cree);
   test('compte neuf créé pour le test temps réel', !!(corps && corps.token));
+
+  /* Les cours sont payants : l'administrateur ouvre le cours c1 à ce compte
+     (même mécanisme que l'offre commerciale), sinon aucune leçon ne peut
+     être terminée. */
+  const jetonAdm = await fetch(API + '/api/auth/login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: ADMIN.email, motDePasse: ADMIN.mdp })
+  }).then(r => r.json()).then(j => (j.data || j).token).catch(() => '');
+  const offre = jetonAdm ? await fetch(API + '/api/acces/offrir', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + jetonAdm },
+    body: JSON.stringify({ email: rt, cours: ['c1'], jours: 30 })
+  }) : null;
+  test('accès au cours offert par l’administrateur (cours payant)', !!(offre && offre.ok), offre ? 'cours c1 ouvert' : 'échec de l’offre');
 
   await connecterViaEcran(page, { email: rt, mdp: 'test1234' });
   const avant = await leconsFaites(page);

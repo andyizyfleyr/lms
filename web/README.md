@@ -34,14 +34,15 @@ LEARNHUB_API_URL=http://127.0.0.1:3000 npm run test   # pour inclure le test de 
 
 | Fichier | Rôle |
 |---|---|
-| `shell.html` | structure HTML, `<style>` complet (Material Design 3) et sprite de 48 icônes SVG |
+| `shell.html` | structure HTML, `<style>` complet (Material Design 3) et sprite de 55 icônes SVG |
 | `app.js` | données de démonstration, utilitaires, lecteur vidéo, module de synchronisation `LHSYNC` |
 | `core.js` | état persistant (`localStorage`), routeur de pages (`pushPage` / `popPage`), tableau de bord, paramètres |
 | `lms.js` | pages pédagogiques : fiche de cours, quiz, devoirs |
+| `paiement.js` | cours payants et abonnements : cadenas et prix sur les cartes, bandeau et feuille d'achat, écran « Abonnement & achats », parcours NOVA Checkout (session → redirection → vérification au retour) |
 | `images.json` | `const IMG = { … }` — 7 visuels en base64 |
 | `clip.json` | `const CLIP_MP4` / `const CLIP_WEBM` — extrait vidéo 24 s (640 × 360, muet) |
 
-Le script d'assemblage (`build.js`) recopie ces briques dans l'ordre et vérifie les 8 éléments
+Le script d'assemblage (`build.js`) recopie ces briques dans l'ordre et vérifie les 12 éléments
 obligatoires ; il échoue si l'un manque. `verify.js` réassemble ensuite dans un fichier temporaire et
 compare octet par octet avec `index.html` : **toute modification manuelle du livrable est détectée**.
 
@@ -55,7 +56,10 @@ compare octet par octet avec `index.html` : **toute modification manuelle du liv
   thème, persistance, écran de synchronisation, puis — si `LEARNHUB_API_URL` est défini — connexion,
   hydratation et envoi d'une leçon terminée vers l'API.
 
-Résultat de référence : **42 OK / 0** (37 sans API).
+Résultat de référence : **58 OK / 0** avec l'API (**36 OK / 0** sans API). La suite vérifie aussi les
+cours payants : bandeau et bouton « Débloquer » sur une fiche fermée, feuille d'achat au toucher d'une
+leçon, lecteur vidéo qui reste fermé, page de quiz réservée, puis accès complet une fois l'abonnement
+actif (connexion par l'écran de compte).
 
 ## Relier le site à l'API
 

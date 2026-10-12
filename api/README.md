@@ -4,7 +4,7 @@ Backend complet du tableau de bord mobile **CosmétiLab** : authentification, co
 quiz corrigés côté serveur, devoirs et dépôts de fichiers, notes, agenda, notifications, badges,
 statistiques, recherche, réglages et téléchargements hors-ligne.
 
-**44 routes API**, base **PostgreSQL Neon** (26 tables), prêtes pour Vercel.
+**50 routes API** (dont 7 pour les paiements), base **PostgreSQL Neon** (30 tables), prêtes pour Vercel.
 
 Le projet Vercel qui héberge cette API sert aussi l'application mobile : `public/index.html` (copie du
 livrable `web/index.html`) est renvoyé sur `/`, l'API occupe `/api/*` et la documentation `/api-doc`.
@@ -16,7 +16,7 @@ livrable `web/index.html`) est renvoyé sur `/`, l'API occupe `/api/*` et la doc
 ```bash
 npm install                 # une fois
 cp .env.example .env.local  # puis colle ta chaîne Neon dans DATABASE_URL
-npm run db:migrate          # crée les 26 tables
+npm run db:migrate          # crée les 30 tables
 npm run db:seed             # charge les données de démonstration
 npm run dev                 # http://localhost:3000
 ```
@@ -57,13 +57,13 @@ Ouvre <http://localhost:3000/api-doc> : la page liste **tous les points d'entré
   (Netlify, aperçu local, `file://`).
 - **Fichiers de devoirs** : transmis en base64 et stockés dans Neon (limite conseillée **2,5 Mo**).
 
-## 4. Base de données (26 tables)
+## 4. Base de données (30 tables)
 
 `users` · `auth_tokens` · `courses` · `lessons` · `resources` · `videos` · `enrollments` ·
 `lesson_progress` · `video_state` · `activity` · `quizzes` · `quiz_questions` · `quiz_options` ·
 `quiz_attempts` · `quiz_answers` · `assignments` · `submissions` · `notes` · `messages` ·
 `notifications` · `calendar_sessions` · `session_reminders` · `badges` · `user_badges` ·
-`settings` · `downloads`
+`settings` · `downloads` · `orders` · `course_access` · `subscriptions` · `payment_events`
 
 Le schéma est dans `db/schema.sql`, les données de démo dans `db/seed.sql` (généré depuis
 l'application par `node scripts/gen-seed.js`).

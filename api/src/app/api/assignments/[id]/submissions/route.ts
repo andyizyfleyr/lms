@@ -1,6 +1,7 @@
 import { q, q1 } from '@/lib/db';
 import { auth, ok, notFound, fail, parseBody, OPTIONS, handler } from '@/lib/http';
 import { depot } from '@/lib/validation';
+import { controleAccesRessource } from '@/lib/paiement';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -15,6 +16,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const a = await auth(req);
     if ('error' in a) return a.error;
     const { id } = await params;
+    const acces = await controleAccesRessource(a.session, 'assignments', id);
+    if (acces) return acces;
     const devoir = await q1('select id, points from assignments where id = $1', [id]);
     if (!devoir) return notFound('Devoir');
     const parsed = await parseBody(req, depot);
@@ -42,6 +45,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const a = await auth(req);
     if ('error' in a) return a.error;
     const { id } = await params;
+    const acces = await controleAccesRessource(a.session, 'assignments', id);
+    if (acces) return acces;
     if (a.session.user.role === 'etudiant') {
       const rows = await q(
         `select id, statut, note, commentaire, lien, fichier_nom, fichier_taille, created_at

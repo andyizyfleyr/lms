@@ -1,6 +1,7 @@
 import { q1, exec } from '@/lib/db';
 import { auth, ok, notFound, parseBody, OPTIONS, handler } from '@/lib/http';
 import { progressionLecon } from '@/lib/validation';
+import { controleAccesRessource } from '@/lib/paiement';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -32,6 +33,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const a = await auth(req);
     if ('error' in a) return a.error;
     const { id } = await params;
+    const acces = await controleAccesRessource(a.session, 'lessons', id);
+    if (acces) return acces;
     const exist = await q1('select id from lessons where id = $1', [id]);
     if (!exist) return notFound('Leçon');
 
@@ -63,6 +66,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const a = await auth(req);
     if ('error' in a) return a.error;
     const { id } = await params;
+    const acces = await controleAccesRessource(a.session, 'lessons', id);
+    if (acces) return acces;
     await exec('delete from lesson_progress where user_id = $1 and lesson_id = $2', [a.session.user.id, id]);
     const progression = await recalculer(a.session.user.id, id);
     return ok({ lecon: id, done: false, progression });

@@ -22,6 +22,15 @@ const GROUPES: Array<{ titre: string; emoji: string; routes: Array<[string, stri
     ['GET|POST', '/api/courses/{id}/messages', 'Fil de discussion du cours'],
     ['POST|DELETE', '/api/courses/{id}/enroll', 'S’inscrire / quitter le cours']
   ] },
+  { titre: 'Paiements et abonnements', emoji: '💳', routes: [
+    ['GET', '/api/paiements/catalogue', 'Tarifs publics : cours à l’unité + formules d’abonnement'],
+    ['POST', '/api/paiements/session', 'Ouvrir une session NOVA Checkout (cours ou abonnement) → url de paiement'],
+    ['POST', '/api/paiements/verifier', 'Vérifier une commande auprès de NOVA, puis ouvrir l’accès'],
+    ['GET', '/api/paiements', 'Mes achats, mon abonnement et les accès ouverts'],
+    ['GET', '/api/acces', 'Accès de l’apprenant : cours débloqués, abonnement en cours'],
+    ['POST', '/api/acces/offrir', 'Offrir un accès à un compte (administrateur)'],
+    ['POST', '/api/webhooks/nova', 'Webhook signé NOVA : checkout.session.paid / checkout.session.expired']
+  ] },
   { titre: 'Temps réel', emoji: '🔄', routes: [
     ['GET', '/api/sync', 'Révision de l’espace du compte (l’app s’en sert pour se mettre à jour toute seule)']
   ] },
@@ -82,7 +91,8 @@ export default function Accueil() {
         <h1 style={{ margin: '6px 0 4px', fontSize: 30 }}>API REST — Next.js + Neon</h1>
         <p style={{ margin: 0, opacity: .9, fontSize: 15 }}>
           {total} points d’entrée couvrant toute l’application mobile : authentification, cours, leçons, vidéos,
-          quiz corrigés côté serveur, devoirs et dépôts de fichiers, notes, agenda, notifications, badges et statistiques.
+          quiz corrigés côté serveur, devoirs et dépôts de fichiers, notes, agenda, notifications, badges,
+          statistiques, et le paiement par NOVA Checkout (cours à l’unité ou abonnement).
         </p>
         <p style={{ margin: '16px 0 0', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           <a href="/api/health" style={{ background: 'rgba(255,255,255,.18)', color: '#fff', textDecoration: 'none', padding: '10px 16px', borderRadius: 999, fontSize: 15 }}>Vérifier l’état de l’API</a>

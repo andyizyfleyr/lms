@@ -130,7 +130,7 @@ Trois façons de faire, de la plus simple à la plus automatisée.
 
 1. Va sur **https://app.netlify.com** → clique sur **ton site**.
 2. Onglet **Deploys** → en bas, zone **« Drag and drop your site output folder here »**.
-3. Glisse le dossier **`deploy-netlify/`** (il contient `index.html` = la nouvelle version, et `_headers`) — ou le fichier **`learnhub-pour-netlify.zip`** fourni juste à côté.
+3. Glisse le dossier **`deploy-netlify/`** (il contient `index.html` = la nouvelle version, et `_headers`) — ou le fichier **`cosmetilab-pour-netlify.zip`** fourni juste à côté.
 4. Le nouveau déploiement passe de *Building* à **Published** en quelques secondes. L'URL est inchangée.
 
 > Si la mise à jour n'apparaît pas, c'est du cache : **Deploys → Trigger deploy → « Clear cache and deploy site »**, puis recharge la page (`Ctrl+F5`, ou onglet privé sur téléphone).
@@ -200,7 +200,7 @@ Pour un vrai domaine, il en coûte environ 5 à 12 €/an :
 - ❌ Ne pas renommer en `.txt`, ni ouvrir/renregistrer le fichier dans un traitement de texte (il serait corrompu).
 - ❌ Pas besoin d'un hébergement « Node », « PHP » ou d'une base de données : tout tourne côté navigateur.
 - ❌ Inutile de mettre en ligne `web/src/` (les sources du fichier unique), `api/` ou `docs/` sur un hébergeur statique : seul `web/index.html` est nécessaire au site.
-- ℹ️ Sur Netlify, tu peux glisser-déposer le dossier **`deploy-netlify/`** fourni (il contient `index.html` + `_headers`) ou l'archive **`learnhub-pour-netlify.zip`**.
+- ℹ️ Sur Netlify, tu peux glisser-déposer le dossier **`deploy-netlify/`** fourni (il contient `index.html` + `_headers`) ou l'archive **`cosmetilab-pour-netlify.zip`**.
 
 ---
 

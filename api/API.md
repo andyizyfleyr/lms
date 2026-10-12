@@ -39,6 +39,27 @@ Authentification : en-tête `Authorization: Bearer <jeton>` (jeton renvoyé par 
 | POST | `/api/courses/{id}/enroll` | S'inscrire au cours |
 | DELETE | `/api/courses/{id}/enroll` | Quitter le cours |
 
+## Paiements, abonnements et accès
+
+Tous les cours sont payants : un cours s'achète à l'unité (accès définitif) ou via un abonnement qui
+ouvre **tous** les cours. Les contenus protégés répondent `402 acces_paye_requis` sans accès
+(leçon à terminer, ressources, messages, quiz, devoirs, inscription au cours, fiche vidéo).
+
+| Méthode | Chemin | Description |
+|---|---|---|
+| GET | `/api/paiements/catalogue` | Tarifs publics : prix de chaque cours, formules d'abonnement, conditions, `paiementActif` (clé NOVA présente ou non) |
+| POST | `/api/paiements/session` | `{type:"cours",courseId}` ou `{type:"abonnement",planId}` → `201 {commande, url}` : ouvre une session NOVA Checkout et renvoie l'adresse de paiement. `402 acces_paye_requis` si l'accès est déjà ouvert par un abonnement, `409 deja_debloque`, `502 nova_indisponible` si les clés ne sont pas configurées |
+| POST | `/api/paiements/verifier` | `{orderId}` ou `{sessionId}` → interroge NOVA, marque la commande payée et ouvre l'accès. À appeler **au retour du paiement** : le navigateur ne fait jamais foi |
+| GET | `/api/paiements` | Mes commandes (statut, montant, référence) et l'état de mon abonnement |
+| GET | `/api/acces` | `{abonnement:{actif,planNom,fin,joursRestants}, toutPaye, cours:[…], gratuit}` — ce que l'application utilise pour afficher ou masquer |
+| POST | `/api/acces/offrir` | (administrateur) `{email|userId, cours:[…], jours}` → ouvre un accès sans paiement |
+| POST | `/api/webhooks/nova` | Webhook **signé** (`NOVA-Signature: t=…,v1=…`, HMAC-SHA256 sur `t.corps` brut, tolérance 300 s). Traite `checkout.session.paid` et `checkout.session.expired`, répond 2xx en moins de 5 s et ignore les rejeux (table `payment_events`). `503` sans `NOVA_WEBHOOK_SECRET` |
+
+Variables d'environnement du paiement : `NOVA_SECRET_KEY` (`sk_live_…`), `NOVA_WEBHOOK_SECRET`
+(`whsec_…`), `SITE_URL` (adresse de retour après paiement). **NOVA n'a pas de mode test.**
+
+Tables : `orders`, `course_access`, `subscriptions`, `payment_events`.
+
 ## Temps réel
 
 | Méthode | Chemin | Description |

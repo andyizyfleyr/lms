@@ -1,6 +1,7 @@
 import { q, q1, exec } from '@/lib/db';
 import { auth, ok, notFound, parseBody, OPTIONS, handler } from '@/lib/http';
 import { tentativeQuiz } from '@/lib/validation';
+import { controleAccesRessource } from '@/lib/paiement';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -15,6 +16,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const a = await auth(req);
     if ('error' in a) return a.error;
     const { id } = await params;
+    const acces = await controleAccesRessource(a.session, 'quizzes', id);
+    if (acces) return acces;
 
     const quiz = await q1<{ id: string; course_id: string; note_min: number }>(
       'select id, course_id, note_min from quizzes where id = $1', [id]

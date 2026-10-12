@@ -12,6 +12,7 @@
     "db:seed": "node scripts/db.js seed",
     "db:reset": "node scripts/db.js reset",
     "db:check": "node scripts/db.js check",
+    "paie:verif": "node scripts/verifier-paiement.js",
     "smoke": "node scripts/smoke.js",
     "site:sync": "node scripts/sync-site.js",
     "site:verifier": "node scripts/sync-site.js --verifier",

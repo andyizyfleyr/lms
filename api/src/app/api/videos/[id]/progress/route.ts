@@ -1,6 +1,7 @@
 import { q1, exec } from '@/lib/db';
 import { auth, ok, notFound, parseBody, OPTIONS, handler } from '@/lib/http';
 import { etatVideo } from '@/lib/validation';
+import { controleAccesRessource } from '@/lib/paiement';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -12,6 +13,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const a = await auth(req);
     if ('error' in a) return a.error;
     const { id } = await params;
+    const acces = await controleAccesRessource(a.session, 'videos', id);
+    if (acces) return acces;
     const exist = await q1('select id from videos where id = $1', [id]);
     if (!exist) return notFound('Vidéo');
     const parsed = await parseBody(req, etatVideo);

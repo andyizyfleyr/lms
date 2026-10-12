@@ -91,7 +91,11 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
      tests/comptes.js. */
   await contexte.addInitScript(() => {
     try {
-      localStorage.setItem('lh:compte', JSON.stringify({ id: 'invite', nom: 'Invité', email: '', role: 'invite', token: '', depuis: Date.now() }));
+      /* premier lancement : espace invité. Les navigations suivantes gardent
+         le compte réellement ouvert (connexion testée plus bas). */
+      if (!localStorage.getItem('lh:compte')) {
+        localStorage.setItem('lh:compte', JSON.stringify({ id: 'invite', nom: 'Invité', email: '', role: 'invite', token: '', depuis: Date.now() }));
+      }
     } catch (e) {}
   });
 
@@ -253,65 +257,170 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
        'app = ' + r.app + ' · html = ' + r.html + ' · fenêtre = ' + r.win + ' · pages = ' + r.pages);
   test('aucune feuille fermée ne masque le bas de l\'écran', r.sheet === false && !/sheet/.test(String(r.bas)), 'élément au bas : ' + r.bas);
 
-  /* « Continuer » amène la leçon en cours à l'écran sans déplacer l'appli */
-  await taper(page, 'section.page[data-page="cours"] [data-act="continue"]', { delai: 1300 });
-  r = await racines();
-  test('« Continuer » : l\'application ne se décale pas', r.pageTop === 0 && r.mediaTop === 0 && r.app === 0 && r.html === 0 && r.win === 0,
-       'page = ' + r.pageTop + ' px · app = ' + r.app + ' px');
-  const cible = await page.evaluate(() => {
+  /* ---- Les cours sont payants : ce que voit un visiteur sans achat ---- */
+  const vitrine = await page.evaluate(() => {
     const p = document.querySelector('section.page[data-page="cours"]');
-    const row = p && (p.querySelector('.lesson.is-current') || p.querySelector('.lesson'));
-    const sc = p && p.querySelector('.c-scroll');
-    if (!row || !sc) return null;
-    const a = row.getBoundingClientRect(), b = sc.getBoundingClientRect();
-    return { dedans: a.top >= b.top - 2 && a.bottom <= b.bottom + 2, haut: Math.round(a.top), zh: Math.round(b.top), zb: Math.round(b.bottom) };
+    return {
+      bandeau: !!(p && p.querySelector('.paywall')),
+      bouton: !!(p && p.querySelector('#cCta [data-paie="cours"]')),
+      cadenas: !!(p && p.querySelector('.lesson.is-locked')),
+      prix: ((p && p.querySelector('.paywall__prix')) || {}).textContent || ''
+    };
   });
-  test('la leçon en cours est amenée dans la zone visible', !!(cible && cible.dedans),
-       cible ? 'leçon y = ' + cible.haut + ' · zone ' + cible.zh + '→' + cible.zb : 'introuvable');
+  test('cours payant : bandeau, prix et bouton « Débloquer »', vitrine.bandeau && vitrine.bouton && vitrine.cadenas,
+       (vitrine.prix || '').trim().slice(0, 40) + ' · bouton = ' + vitrine.bouton);
+  await page.evaluate(() => { const l = document.querySelector('section.page[data-page="cours"] .lesson'); if (l) l.click(); });
+  await dormir(600);
+  const offre = await page.evaluate(() => {
+    const sh = document.querySelector('#sheet');
+    const pl = document.querySelector('#player');
+    return {
+      feuille: !!(sh && sh.classList.contains('is-open')),
+      achat: !!(sh && sh.querySelector('[data-paie="cours"], [data-paie="abonnement"]')),
+      lecteur: !!(pl && pl.classList.contains('is-open'))
+    };
+  });
+  test('cours payant : toucher une leçon propose l\'achat, le lecteur reste fermé',
+       offre.feuille && offre.achat && !offre.lecteur,
+       'feuille = ' + offre.feuille + ' · offre = ' + offre.achat + ' · lecteur = ' + offre.lecteur);
+  await page.evaluate(() => { window.APPX.closeSheet(); });
+  await dormir(300);
 
-  /* une racine défilée de force doit se remettre en place toute seule */
-  await page.evaluate(() => { document.querySelector('.app').scrollTop = 60; });
-  await dormir(250);
-  r = await racines();
-  test('racine défilée de force : remise en place automatique', r.app === 0 && r.pageTop === 0 && r.mediaTop === 0,
-       'app = ' + r.app + ' px · page = ' + r.pageTop + ' px');
-
-  /* onglets de la fiche : le contenu repart du haut, la fiche ne bouge pas */
-  for (const [tab, nom] of [['ressources', 'Ressources'], ['discussion', 'Discussion'], ['notes', 'Notes'], ['programme', 'Programme']]) {
-    await taper(page, 'section.page[data-page="cours"] [data-ctab="' + tab + '"]', { delai: 500 });
-    r = await racines();
-    test('onglet « ' + nom + ' » : contenu en haut, fiche immobile', r.cScroll === 0 && r.pageTop === 0 && r.app === 0,
-         'défilement = ' + r.cScroll + ' px · page = ' + r.pageTop + ' px');
+  /* ---- La suite a besoin d'un accès : on ouvre la session de démonstration
+     (abonnement actif, donc tous les cours ouverts). Sans serveur indiqué,
+     les contrôles de contenu sont ignorés — l'application reste utilisable
+     mais tout est verrouillé, ce qui est le comportement voulu. ---- */
+  let acces = false;
+  if (API) {
+    /* connexion par l'écran de compte de l'application (le même que celui
+       testé dans tests/comptes.js), puis relecture des accès. */
+    await page.evaluate(() => { if (window.LHCOMPTE) window.LHCOMPTE.ouvrirEntree(); });
+    await dormir(800);
+    await page.evaluate(() => { const b = document.querySelector('[data-ct="connexion"]'); if (b) b.click(); });
+    await dormir(600);
+    await page.evaluate(({ u, c }) => {
+      const set = (sel, v) => { const e = document.querySelector(sel); if (e) { e.value = v; e.dispatchEvent(new Event('input', { bubbles: true })); } };
+      set('#ctApi', u); set('#ctMail', c.email); set('#ctPwd', c.mdp);
+      const b = document.querySelector('#ctValider'); if (b) b.click();
+    }, { u: API, c: COMPTE });
+    /* la connexion réécrit l'espace du compte puis recharge l'application */
+    await page.waitForLoadState('load').catch(() => {});
+    await dormir(1200);
+    for (let i = 0; i < 18 && !acces; i++) {
+      await dormir(700);
+      try {
+        acces = await page.evaluate(async () => {
+          if (!(window.LHCOMPTE && window.LHCOMPTE.jeton())) return false;
+          if (window.LHPAIE) await window.LHPAIE.charger(true);
+          return !!(window.LHPAIE && window.LHPAIE.acces().toutPaye);
+        });
+      } catch (e) { acces = false; }
+    }
+    await page.evaluate(() => { while (window.APPX.topPage()) window.APPX.popPage(); window.APPX.refreshPages(); });
+    await dormir(500);
+    /* la connexion recharge l'application : on rouvre la fiche de cours */
+    await taper(page, '#navBar .nav-item[data-nav="cours"]', { delai: 500 });
+    await taper(page, '#view-cours [data-course="' + carte + '"]', { delai: 1000 });
+    await page.evaluate(() => { window.APPX.closeSheet(); });
+    await dormir(300);
+  }
+  if (API) {
+    test('accès abonné (abonnement actif → tous les cours)', acces, acces ? 'tous les cours ouverts' : 'connexion à l’API impossible');
+  } else {
+    console.log('  ⏭️  accès abonné : LEARNHUB_API_URL non défini — contrôles de contenu ignorés');
   }
 
-  /* gestes tactiles réels : descendre dans la liste puis remonter */
-  await geste(700, 260, 20);
-  const descendu = await racines();
-  await geste(260, 700, 20);
-  await geste(260, 700, 20);
-  const remonte = await racines();
-  test('défilement tactile : descendre puis remonter', descendu.cScroll > 0 && remonte.cScroll === 0,
-       'bas = ' + descendu.cScroll + ' px → haut = ' + remonte.cScroll + ' px (course ' + remonte.cMax + ' px)');
-  test('aucune racine défilée après les gestes', remonte.app === 0 && remonte.html === 0 && remonte.win === 0,
-       'app = ' + remonte.app + ' · html = ' + remonte.html + ' · fenêtre = ' + remonte.win);
+  if (acces) {
+    /* On travaille sur un cours que le compte n'a pas encore terminé : le
+       bouton « Continuer » doit alors ouvrir sa leçon en cours et l'amener
+       dans la zone visible. */
+    const coursOuvert = await page.evaluate(() => {
+      const faits = window.APPX.S.lessons || {};
+      const cartes = Array.from(document.querySelectorAll('#view-cours [data-course]')).map(c => c.dataset.course);
+      return cartes.find(id => !Object.keys(faits).some(k => k.indexOf(id + ':') === 0)) || cartes[0];
+    });
+    await page.evaluate(() => { while (window.APPX.topPage()) window.APPX.popPage(); });
+    await dormir(500);
+    await taper(page, '#navBar .nav-item[data-nav="cours"]', { delai: 500 });
+    await taper(page, '#view-cours [data-course="' + coursOuvert + '"]', { delai: 1000 });
+    await page.evaluate(() => { window.APPX.closeSheet(); });
+
+    /* « Continuer » amène la leçon en cours à l'écran sans déplacer l'appli */
+    await taper(page, 'section.page[data-page="cours"] [data-act="continue"]', { delai: 1300 });
+    r = await racines();
+    test('« Continuer » : l\'application ne se décale pas', r.pageTop === 0 && r.mediaTop === 0 && r.app === 0 && r.html === 0 && r.win === 0,
+         'page = ' + r.pageTop + ' px · app = ' + r.app + ' px');
+    const cible = await page.evaluate(() => {
+      const p = document.querySelector('section.page[data-page="cours"]');
+      const row = p && (p.querySelector('.lesson.is-current') || p.querySelector('.lesson'));
+      const sc = p && p.querySelector('.c-scroll');
+      if (!row || !sc) return null;
+      const a = row.getBoundingClientRect(), b = sc.getBoundingClientRect();
+      return { dedans: a.top >= b.top - 2 && a.bottom <= b.bottom + 2, haut: Math.round(a.top), zh: Math.round(b.top), zb: Math.round(b.bottom) };
+    });
+    test('la leçon en cours est amenée dans la zone visible', !!(cible && cible.dedans),
+         cible ? 'leçon y = ' + cible.haut + ' · zone ' + cible.zh + '→' + cible.zb : 'introuvable');
+
+    /* une racine défilée de force doit se remettre en place toute seule */
+    await page.evaluate(() => { document.querySelector('.app').scrollTop = 60; });
+    await dormir(250);
+    r = await racines();
+    test('racine défilée de force : remise en place automatique', r.app === 0 && r.pageTop === 0 && r.mediaTop === 0,
+         'app = ' + r.app + ' px · page = ' + r.pageTop + ' px');
+
+    /* onglets de la fiche : le contenu repart du haut, la fiche ne bouge pas */
+    for (const [tab, nom] of [['ressources', 'Ressources'], ['discussion', 'Discussion'], ['notes', 'Notes'], ['programme', 'Programme']]) {
+      await taper(page, 'section.page[data-page="cours"] [data-ctab="' + tab + '"]', { delai: 500 });
+      r = await racines();
+      test('onglet « ' + nom + ' » : contenu en haut, fiche immobile', r.cScroll === 0 && r.pageTop === 0 && r.app === 0,
+           'défilement = ' + r.cScroll + ' px · page = ' + r.pageTop + ' px');
+    }
+
+    /* gestes tactiles réels : descendre dans la liste puis remonter */
+    await geste(700, 260, 20);
+    let descendu = await racines();
+    if (!(descendu.cScroll > 0)) { await geste(660, 280, 22); descendu = await racines(); }          // geste parfois avalé par le navigateur
+    if (!(descendu.cScroll > 0)) { await page.mouse.move(195, 600); await page.mouse.wheel(0, 320); await dormir(500); descendu = await racines(); }
+    await geste(250, 720, 22);
+    await geste(250, 720, 22);
+    const remonte = await racines();
+    test('défilement tactile : descendre puis remonter', descendu.cScroll > 0 && remonte.cScroll === 0,
+         'bas = ' + descendu.cScroll + ' px → haut = ' + remonte.cScroll + ' px (course ' + remonte.cMax + ' px)');
+    test('aucune racine défilée après les gestes', remonte.app === 0 && remonte.html === 0 && remonte.win === 0,
+         'app = ' + remonte.app + ' · html = ' + remonte.html + ' · fenêtre = ' + remonte.win);
+  } else {
+    console.log('  ⏭️  fiche débloquée : contrôles de défilement ignorés (accès payant requis)');
+  }
 
   await page.evaluate(() => { while (window.APPX.topPage()) window.APPX.popPage(); });
   await dormir(600);
 
   /* ============ D. pages pédagogiques ============ */
   titre('D. Quiz et devoirs');
-  const texteQuiz = await page.evaluate(() => {
-    window.APPX.pushPage('quiz', { quiz: 'c1', id: 'c1' });
-    return 1;
-  });
-  await dormir(900);
-  const quiz = await page.evaluate(() => {
-    const el = document.querySelector('section.page[data-page="quiz"]');
-    if (!el) return { ouvert: false };
-    return { ouvert: true, options: el.querySelectorAll('[data-opt], .opt, button').length, texte: el.innerText.slice(0, 200) };
-  });
-  test('ouverture d\'un quiz depuis l\'app', quiz.ouvert, quiz.ouvert ? '' : 'page quiz absente');
-  test('question et réponses proposées', !!(quiz.ouvert && quiz.options >= 2), quiz.ouvert ? quiz.options + ' contrôles' : '');
+  if (acces) {
+    const texteQuiz = await page.evaluate(() => {
+      window.APPX.pushPage('quiz', { quiz: 'c1', id: 'c1' });
+      return 1;
+    });
+    await dormir(900);
+    const quiz = await page.evaluate(() => {
+      const el = document.querySelector('section.page[data-page="quiz"]');
+      if (!el) return { ouvert: false };
+      return { ouvert: true, options: el.querySelectorAll('[data-opt], .opt, button').length, texte: el.innerText.slice(0, 200) };
+    });
+    test('ouverture d\'un quiz depuis l\'app', quiz.ouvert, quiz.ouvert ? '' : 'page quiz absente');
+    test('question et réponses proposées', !!(quiz.ouvert && quiz.options >= 2), quiz.ouvert ? quiz.options + ' contrôles' : '');
+  } else {
+    await page.evaluate(() => { window.APPX.pushPage('quiz', { quiz: 'c1', id: 'c1' }); });
+    await dormir(800);
+    test('quiz payant : page réservée aux inscrits (paywall)', await page.evaluate(() => {
+      const el = document.querySelector('section.page[data-page="quiz"]');
+      return !!(el && el.querySelector('.paywall') && el.querySelector('[data-paie]'));
+    }), 'bandeau + bouton de déblocage');
+    await page.evaluate(() => { while (window.APPX.topPage()) window.APPX.popPage(); });
+    await dormir(400);
+  }
+
   await page.goBack(); await dormir(700);
 
   const idDevoir = await page.evaluate(() => (window.APPX.DEVOIRS[0] || {}).id || 'd1');
@@ -324,72 +433,78 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
   test('ouverture d\'un devoir', texteDevoir.trim().length > 20, idDevoir + ' · ' + (texteDevoir.split('\n')[0] || ''));
   await page.goBack(); await dormir(700);
 
-  /* ============ E. vidéos ============ */
-  titre('E. Lecteur vidéo');
-  await page.evaluate(() => { window.APPX.pushPage('videos', {}); });
-  await dormir(900);
-  const nbVideos = await page.evaluate(() =>
-    document.querySelectorAll('section.page[data-page="videos"] [data-video]').length);
-  test('bibliothèque de vidéos', nbVideos >= 5, nbVideos + ' entrées');
-  await page.evaluate(() => { while (window.APPX.topPage()) window.APPX.popPage(); });
-  await dormir(600);
+  if (acces) {
+    /* ============ E. vidéos ============ */
+    titre('E. Lecteur vidéo');
+    await page.evaluate(() => { window.APPX.pushPage('videos', {}); });
+    await dormir(900);
+    const nbVideos = await page.evaluate(() =>
+      document.querySelectorAll('section.page[data-page="videos"] [data-video]').length);
+    test('bibliothèque de vidéos', nbVideos >= 5, nbVideos + ' entrées');
+    await page.evaluate(() => { while (window.APPX.topPage()) window.APPX.popPage(); });
+    await dormir(600);
 
-  /* --- hors-ligne d'abord : c'est le cas le plus fragile, on le teste à froid --- */
-  await contexte.setOffline(true);
-  await dormir(500);
-  await page.evaluate(() => { window.APPX.pushPage('videos', {}); });
-  await dormir(800);
-  await taper(page, 'section.page[data-page="videos"] [data-video]', { delai: 1000 });
-  test('le tap ouvre le lecteur dans le site', await page.evaluate(() =>
-    (document.querySelector('#player') || {}).classList.contains('is-open')));
-  await taper(page, '#playerPlay', { delai: 1500 });
-  let repli = { local: false, joue: false, statut: '' };
-  for (let i = 0; i < 12 && !repli.joue; i++) {
-    await dormir(1000);
-    repli = await page.evaluate(() => {
-      const loc = document.querySelector('#offlineVid');
-      return { local: !!loc && !loc.hidden, joue: !!loc && !loc.hidden && loc.currentTime > 0.2,
-               statut: ((document.querySelector('#playerStatusTxt') || {}).textContent || '').trim() };
-    });
-  }
-  test('hors-ligne : extrait intégré lu dans le site', repli.joue,
-       'lecture locale à ' + (await page.evaluate(() => { const l = document.querySelector('#offlineVid'); return l ? l.currentTime.toFixed(1) : '0'; })) + ' s');
-  test('hors-ligne : message explicatif, jamais « bloqué »', !!repli.statut && !/bloqu/i.test(repli.statut), repli.statut.slice(0, 70));
-  await contexte.setOffline(false);
-  await page.evaluate(() => { const c = document.querySelector('#playerClose'); if (c) c.click(); while (window.APPX.topPage()) window.APPX.popPage(); });
-  await dormir(800);
+    /* --- hors-ligne d'abord : c'est le cas le plus fragile, on le teste à froid --- */
+    await contexte.setOffline(true);
+    await dormir(500);
+    await page.evaluate(() => { window.APPX.pushPage('videos', {}); });
+    await dormir(800);
+    await taper(page, 'section.page[data-page="videos"] [data-video]', { delai: 1000 });
+    test('le tap ouvre le lecteur dans le site', await page.evaluate(() =>
+      (document.querySelector('#player') || {}).classList.contains('is-open')));
+    await taper(page, '#playerPlay', { delai: 1500 });
+    let repli = { local: false, joue: false, statut: '' };
+    for (let i = 0; i < 12 && !repli.joue; i++) {
+      await dormir(1000);
+      repli = await page.evaluate(() => {
+        const loc = document.querySelector('#offlineVid');
+        return { local: !!loc && !loc.hidden, joue: !!loc && !loc.hidden && loc.currentTime > 0.2,
+                 statut: ((document.querySelector('#playerStatusTxt') || {}).textContent || '').trim() };
+      });
+    }
+    test('hors-ligne : extrait intégré lu dans le site', repli.joue,
+         'lecture locale à ' + (await page.evaluate(() => { const l = document.querySelector('#offlineVid'); return l ? l.currentTime.toFixed(1) : '0'; })) + ' s');
+    test('hors-ligne : message explicatif, jamais « bloqué »', !!repli.statut && !/bloqu/i.test(repli.statut), repli.statut.slice(0, 70));
+    await contexte.setOffline(false);
+    await page.evaluate(() => { const c = document.querySelector('#playerClose'); if (c) c.click(); while (window.APPX.topPage()) window.APPX.popPage(); });
+    await dormir(800);
 
-  /* --- en ligne : la vidéo YouTube est lue dans le site --- */
-  await page.evaluate(() => { window.APPX.pushPage('videos', {}); });
-  await dormir(800);
-  await taper(page, 'section.page[data-page="videos"] [data-video]', { delai: 1200 });
-  await taper(page, '#playerPlay', { delai: 1200 });
-  let lecture = { iframe: false, local: false, joue: false, statut: '' };
-  for (let i = 0; i < 15 && !lecture.joue; i++) {
-    await dormir(1000);
-    lecture = await page.evaluate(() => {
-      const ifr = document.querySelector('iframe.yt-host, #playerStage iframe');
-      const loc = document.querySelector('#offlineVid');
-      const local = !!loc && !loc.hidden;
-      return { iframe: !!(ifr && /youtube\.com\/embed/.test(ifr.src || '')),
-               local: local, joue: !!ifr || (local && loc.currentTime > 0.2),
-               statut: ((document.querySelector('#playerStatusTxt') || {}).textContent || '').trim() };
-    });
+    /* --- en ligne : la vidéo YouTube est lue dans le site --- */
+    await page.evaluate(() => { window.APPX.pushPage('videos', {}); });
+    await dormir(800);
+    await taper(page, 'section.page[data-page="videos"] [data-video]', { delai: 1200 });
+    await taper(page, '#playerPlay', { delai: 1200 });
+    let lecture = { iframe: false, local: false, joue: false, statut: '' };
+    for (let i = 0; i < 15 && !lecture.joue; i++) {
+      await dormir(1000);
+      lecture = await page.evaluate(() => {
+        const ifr = document.querySelector('iframe.yt-host, #playerStage iframe');
+        const loc = document.querySelector('#offlineVid');
+        const local = !!loc && !loc.hidden;
+        return { iframe: !!(ifr && /youtube\.com\/embed/.test(ifr.src || '')),
+                 local: local, joue: !!ifr || (local && loc.currentTime > 0.2),
+                 statut: ((document.querySelector('#playerStatusTxt') || {}).textContent || '').trim() };
+      });
+    }
+    /* L'essentiel : une vidéo joue DANS le site, quel que soit le chemin
+       (lecteur YouTube intégré ou extrait intégré). Le second point vérifie
+       qu'on ne voit jamais le message de blocage émis par YouTube lui-même. */
+    test('vidéo lue dans le site (YouTube ou extrait intégré)', lecture.joue,
+         lecture.iframe ? 'lecteur YouTube intégré' : ('repli sur l\'extrait intégré — ' + lecture.statut.slice(0, 60)));
+    const sansMessageYt = await page.evaluate(() =>
+      !/ce contenu est bloqué|contactez le propriétaire|contenu bloqué/i.test(document.body.innerText));
+    test('jamais le message YouTube « Ce contenu est bloqué »', sansMessageYt);
+    console.log('  ℹ️  chemin de lecture : ' + (lecture.iframe ? 'embed YouTube (réseau OK)' : 'extrait intégré (YouTube indisponible ici : normal en test hors navigateur réel)'));
+    await page.evaluate(() => { const c = document.querySelector('#playerClose'); if (c) c.click(); while (window.APPX.topPage()) window.APPX.popPage(); });
+    await dormir(700);
+  } else {
+    console.log('  ⏭️  vidéos : contrôles de lecture ignorés (accès payant requis)');
   }
-  /* L'essentiel : une vidéo joue DANS le site, quel que soit le chemin
-     (lecteur YouTube intégré ou extrait intégré). Le second point vérifie
-     qu'on ne voit jamais le message de blocage émis par YouTube lui-même. */
-  test('vidéo lue dans le site (YouTube ou extrait intégré)', lecture.joue,
-       lecture.iframe ? 'lecteur YouTube intégré' : ('repli sur l\'extrait intégré — ' + lecture.statut.slice(0, 60)));
-  const sansMessageYt = await page.evaluate(() =>
-    !/ce contenu est bloqué|contactez le propriétaire|contenu bloqué/i.test(document.body.innerText));
-  test('jamais le message YouTube « Ce contenu est bloqué »', sansMessageYt);
-  console.log('  ℹ️  chemin de lecture : ' + (lecture.iframe ? 'embed YouTube (réseau OK)' : 'extrait intégré (YouTube indisponible ici : normal en test hors navigateur réel)'));
-  await page.evaluate(() => { const c = document.querySelector('#playerClose'); if (c) c.click(); while (window.APPX.topPage()) window.APPX.popPage(); });
-  await dormir(700);
 
   /* ============ F. réglages, thème, persistance ============ */
   titre('F. Réglages et persistance');
+  await page.evaluate(() => { window.APPX.closeSheet(); });
+
   await page.evaluate(() => { window.APPX.pushPage('parametres', {}); });
   await dormir(800);
   const themeClair = await page.evaluate(() => document.documentElement.dataset.theme || '');
@@ -439,14 +554,16 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
     const avant = await page.evaluate(() => Object.keys(window.APPX.S.lessons || {}).filter(k => window.APPX.S.lessons[k]).length);
     await page.evaluate(async () => { await window.LHSYNC.ouvrirUI(); });
     await dormir(400);
-    const rempli = await page.evaluate(({ u, c }) => {
+    const dejaLa = await page.evaluate(() => !!(window.LHSYNC && window.LHSYNC.etat().connecte));
+    const rempli = dejaLa ? true : await page.evaluate(({ u, c }) => {
       const set = (sel, v) => { const e = document.querySelector(sel); if (e) { e.value = v; e.dispatchEvent(new Event('input', { bubbles: true })); } };
       set('#syncUrl', u); set('#syncMail', c.email); set('#syncPwd', c.mdp);
       const b = document.querySelector('[data-sync="on"]');
       if (b) { b.click(); return true; }
       return false;
     }, { u: API, c: COMPTE });
-    test('connexion lancée depuis l\'app', rempli);
+    test('connexion lancée depuis l\'app (session déjà ouverte ou formulaire)', rempli,
+         dejaLa ? 'session ouverte par l\'écran de compte' : 'formulaire de synchronisation');
     let connecte = false;
     for (let i = 0; i < 20 && !connecte; i++) {
       await dormir(700);

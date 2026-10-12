@@ -2,14 +2,13 @@
 
 Tableau de bord **LMS mobile** (Material Design 3) livré sous forme de **fichier HTML unique**, accompagné de son **API Next.js + base Neon**.
 
-- **Le site** : `web/index.html` — 1 392 Ko, HTML + CSS + JavaScript + images (base64) + extrait vidéo intégré. Aucune dépendance externe (la seule exception est l'iframe YouTube du lecteur vidéo). Il se publie sur n'importe quel hébergeur statique.
-- **L'API** : `api/` — Next.js 15 (App Router) + TypeScript + Neon/PostgreSQL, **44 routes** et 26 tables. Elle sert la synchronisation de la progression (et tout le reste : cours, quiz, devoirs, ressources, notifications, recherche, statistiques).
+- **Le site** : `web/index.html` — 1 427 Ko, HTML + CSS + JavaScript + images (base64) + extrait vidéo intégré. Aucune dépendance externe (la seule exception est l'iframe YouTube du lecteur vidéo). Il se publie sur n'importe quel hébergeur statique.
+- **L'API** : `api/` — Next.js 15 (App Router) + TypeScript + Neon/PostgreSQL, **50 routes** (dont 7 pour le paiement) et **30 tables**. Elle sert la synchronisation de la progression (et tout le reste : cours, quiz, devoirs, ressources, notifications, recherche, statistiques).
 - **Le tout tient sur une seule adresse** : un seul projet Vercel sert l'application sur `/` et l'API sur `/api/*`
   (Next.js publie `api/public/index.html`, copie du livrable). Voir [`DEPLOIEMENT-GITHUB-VERCEL.md`](DEPLOIEMENT-GITHUB-VERCEL.md).
 
-L'application fonctionne **toute seule** (progression dans le navigateur) : l'API est facultative, mais dès qu'elle est configurée, la progression se retrouve sur tous les appareils.
-
-L'application fonctionne **toute seule** (progression dans le navigateur) : l'API est facultative, mais dès qu'elle est configurée, la progression se retrouve sur tous les appareils.
+L'application fonctionne **toute seule** (navigation, cours, quiz, vidéos, progression dans le navigateur) : l'API est facultative.
+Dès qu'elle est configurée, la progression se retrouve sur tous les appareils et les **cours payants** s'ouvrent après paiement.
 
 ---
 
@@ -20,6 +19,30 @@ L'application fonctionne **toute seule** (progression dans le navigateur) : l'AP
 - **L'identité affichée est celle du compte** : nom, initiales, profil, série de jours, heures de formation, badges et objectif de la semaine viennent du compte connecté (`/api/auth/me` et `/api/stats`). Un compte neuf part de zéro (0 j, 0 h, 0 badge) et « explorer sans compte » s'affiche sous « Invité » — aucun profil de démonstration n'est emprunté.
 - **Temps réel** : l'application interroge une révision légère (`GET /api/sync`, toutes les 4 s, 15 s en arrière-plan) ; dès qu'une action a été faite **ailleurs** (autre appareil, formateur, table d'administration), la progression est rechargée et l'écran se met à jour **sans rechargement**, avec un message et un indicateur « Synchronisé il y a … ». Toute action locale est envoyée aussitôt (`lh:pousse`).
 - **Espace formateur** : un compte créé en *formateur* voit l'entrée **Corrections** dans son profil, y lit les copies déposées par les apprenants (filtres par cours et par statut) et peut **les noter** (`PATCH /api/submissions/{id}`).
+
+---
+
+## Cours payants et abonnements (NOVA Checkout)
+
+- **Tous les cours sont payants** : les leçons, vidéos, ressources, quiz et discussions d'un cours s'ouvrent
+  après l'achat — ou avec un **abonnement**, qui débloque **tous les cours** d'un coup.
+- **Deux façons de payer** : un cours à l'unité (3 000 à 4 500 F, accès définitif) ou une formule
+  d'abonnement (6 000 F les 30 jours, 15 000 F les 90 jours). Les tarifs sont servis par l'API
+  (`GET /api/paiements/catalogue`) : l'application n'invente jamais un prix.
+- **Parcours complet** : l'apprenant touche un contenu fermé → l'application demande une session au serveur
+  (`POST /api/paiements/session`) → redirection vers la page **NOVA Checkout** → retour au site
+  (`/?paiement=retour&session_id=…`) → **vérification côté serveur** (`POST /api/paiements/verifier`, ne se fie
+  pas au navigateur) → l'accès s'ouvre, l'écran se rafraîchit. Le **webhook signé**
+  (`POST /api/webhooks/nova`, HMAC `t.corps`, réponse 2xx en moins de 5 s, idempotent) sert de filet si
+  l'apprenant ferme la page.
+- **Écran « Abonnement & achats »** (profil) : statut de l'abonnement, formules, prix de chaque cours,
+  historique des commandes et conditions.
+- **Rien ne bloque l'application** : solde insuffisant, paiement annulé, session expirée, réseau coupé — chaque
+  cas affiche un message clair et l'apprenant peut reprendre. Les comptes **formateur** et **administrateur**
+  gardent l'accès à tout (ils animent les cours).
+- **Aucun mode test chez NOVA** : la première session ouverte est un **vrai paiement**. Les clés se posent en
+  variables d'environnement (voir [`DEPLOIEMENT-GITHUB-VERCEL.md`](DEPLOIEMENT-GITHUB-VERCEL.md)) — sans elles,
+  le catalogue reste consultable et « Débloquer » répond « paiement indisponible ».
 
 ---
 
@@ -35,7 +58,7 @@ npm run serve          # http://localhost:8000
 cd api
 npm ci
 cp .env.example .env.local     # puis coller la chaîne de connexion Neon dans DATABASE_URL
-npm run db:migrate             # crée les 26 tables
+npm run db:migrate             # crée les 30 tables
 npm run db:seed                # insère les données de démonstration
 npm run dev                    # http://localhost:3000  (GET /api/health pour vérifier)
 
@@ -69,11 +92,12 @@ Depuis la **racine** (raccourcis, aucun paquet à installer à ce niveau) :
 | `npm run api:dev` / `api:build` / `api:typecheck` | API Next.js |
 | `npm run db:migrate` / `db:seed` / `db:check` / `db:reset` | Base Neon |
 | `npm run api:smoke` | 38 vérifications de l'API (santé, auth, lecture, écriture) — accepte une URL d'API déployée |
+| `npm --prefix api run paie:verif` | 23 vérifications du paiement : catalogue, verrous, offre admin, abonnement, webhook signé, rejeu |
 | `npm run api:comptes --silent` | Liste / nettoie les comptes créés par les suites de test (`api/scripts/nettoyer-comptes.js`) |
 | `npm run verifier-tout` | Contrôles du site + types de l'API + état de la base + test de fumée |
 
 Détail par projet : [`web/README.md`](web/README.md) et [`api/README.md`](api/README.md).
-Référence des 44 routes : [`api/API.md`](api/API.md).
+Référence des 50 routes : [`api/API.md`](api/API.md).
 
 ---
 
@@ -92,7 +116,7 @@ cosmetilab/
 │   └── tests/                 serveur.js (aperçu local) + navigateur.js (suite réelle)
 │
 ├── api/                       Le backend Next.js + TypeScript (projet Vercel unique)
-│   ├── src/app/api/**         44 routes (cours, leçons, quiz, devoirs, auth, progression…)
+│   ├── src/app/api/**         50 routes (cours, leçons, quiz, devoirs, auth, progression, paiement…)
 │   ├── src/app/api-doc/       Page de documentation des routes (sur /api-doc)
 │   ├── src/lib/**             db.ts (Neon), auth.ts (scrypt + jetons), http.ts, validation.ts
 │   ├── public/index.html      Copie publiée du site, servie sur / (régénérée, ne pas éditer)
@@ -119,15 +143,15 @@ cosmetilab/
 
 | Contrôle | Résultat |
 |---|---|
-| Assemblage du site (`build.js`) | 10 contrôles d'intégrité · 1 392 Ko |
+| Assemblage du site (`build.js`) | 12 contrôles d'intégrité · 1 427 Ko |
 | Contrôles statiques (`verify.js`) | **15 OK / 0** |
-| Suite navigateur (Chromium mobile) | **37 OK / 0** sans API · **44 OK / 0** en mode « une seule URL » |
-| Suite comptes et temps réel | **22 OK / 0** (écran d'entrée, inscription, données séparées, mise à jour automatique, notation) |
-| API fonctionnelle (44 routes, tous les cas, erreurs incluses) | **38 OK / 0** (test de fumée) |
+| Suite navigateur (Chromium mobile) | **36 OK / 0** sans API · **58 OK / 0** avec l'API (paywall et accès abonné compris) |
+| Suite comptes et temps réel | **26 OK / 0** (écran d'entrée, inscription, données séparées, mise à jour automatique, notation) |
+| Paiement de bout en bout (`npm --prefix api run paie:verif`) | **23 OK / 0** (catalogue, verrous, offre, abonnement, webhook signé, rejeu) |
 | Test de fumée de l'API (`npm run api:smoke`) | **38 OK / 0** |
 | Types de l'API (`tsc --noEmit`) | 0 erreur |
-| Build Next.js | 44 routes `ƒ Dynamic` |
-| Base Neon (`db.js check`) | 26 tables, 6 cours, 59 leçons, 3 comptes |
+| Build Next.js | 50 routes `ƒ Dynamic` |
+| Base Neon (`db.js check`) | 30 tables, 6 cours, 59 leçons, 4 comptes |
 
 La suite navigateur vérifie ce qui doit rester vrai : navigation entre les quatre onglets, ouverture des fiches de cours, **retour** (bouton de l'app *et* bouton du téléphone), quiz, devoirs, **lecture vidéo dans le site** (YouTube en ligne, extrait intégré hors-ligne), thème, persistance, et **synchronisation dans les deux sens** avec l'API.
 

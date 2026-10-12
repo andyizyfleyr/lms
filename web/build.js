@@ -16,6 +16,7 @@
         (tout ce qui précède sa dernière balise </script>)
      5. src/core.js       noyau : état persistant, routeur de pages, tableaux de bord
      6. src/lms.js        pages pédagogiques : cours, quiz, devoirs
+    6b. src/paiement.js  cours payants, abonnements, paiement NOVA Checkout
      7. src/compte.js     comptes, espaces de données séparés, temps réel, corrections
      7. src/app.js (fin)  fermeture </script></body></html>
 
@@ -36,6 +37,7 @@ const app = lire('app.js');
 const core = lire('core.js');
 const lms = lire('lms.js');
 const comptes = lire('compte.js');
+const paiement = lire('paiement.js');
 
 const iFin = app.lastIndexOf('</script>');
 if (iFin < 0) throw new Error('src/app.js : balise </script> introuvable');
@@ -49,6 +51,7 @@ const html =
   '\n/* ==================== NOYAU (état, routeur de pages) ==================== */\n' + core +
   '\n/* ==================== PAGES PÉDAGOGIQUES (cours, quiz, devoirs) ==================== */\n' + lms +
   '\n/* ==================== COMPTES (inscription, espaces séparés, temps réel) ==================== */\n' + comptes +
+  '\n/* ==================== PAIEMENTS (cours payants, abonnements NOVA) ==================== */\n' + paiement +
   '\n' + appApres;
 
 fs.writeFileSync(SORTIE, html);
@@ -57,7 +60,7 @@ const controles = [
   ['structure HTML', /<html[\s>]/i], ['sprite d’icônes', /id="ic-home"/],
   ['images intégrées', /const IMG\s*=/], ['contenu cosmétique', /const COURS\s*=/], ['extrait vidéo intégré', /const CLIP_MP4\s*=/],
   ['noyau applicatif', /window\.APPX\s*=/], ['pages LMS', /PAGES\.quiz\s*=/],
-  ['synchronisation serveur', /window\.LHSYNC\s*=/], ['comptes et temps réel', /window\.LHCOMPTE\s*=/], ['fin de document', /<\/html>\s*$/]
+  ['synchronisation serveur', /window\.LHSYNC\s*=/], ['comptes et temps réel', /window\.LHCOMPTE\s*=/], ['paiements et abonnements', /window\.LHPAIE\s*=/], ['écran abonnement', /PAGES\.abonnement\s*=/], ['fin de document', /<\/html>\s*$/]
 ];
 const manquants = controles.filter(([, motif]) => !motif.test(html)).map(([nom]) => nom);
 const ko = n => Math.round(n / 1024) + ' Ko';

@@ -45,7 +45,7 @@ push(`insert into users (email, password_hash, nom, role, tel, ville, promo, bio
   ('admin@cosmetilab.bj', ${q(HASH_ADMIN)}, 'Administrateur CosmétiLab', 'admin', '', 'Cotonou', '', 'Gère les cours, les comptes et les contenus.', 0)
 on conflict (email) do nothing;`);
 push("-- Les comptes de la version précédente sont retirés.");
-push("delete from users where email like '%@learnhub.bj';");
+push("delete from users where email like '%@cosmetilab.bj';");
 push('');
 
 /* --- cours -------------------------------------------------- */
@@ -263,6 +263,44 @@ push(`with u as (select id from users where email = 'amina@cosmetilab.bj')
 insert into session_reminders (user_id, session_id, actif)
 select u.id, s.id, true from u, (select id from calendar_sessions order by jour_semaine limit 2) s
 on conflict (user_id, session_id) do nothing;`);
+push('');
+
+push('');
+push('-- ---------------------------------------------------------- paiements (démonstration)');
+push(`-- Amina (compte de démonstration) a acheté le cours de savonnerie et possède un
+-- abonnement mensuel en cours : l'application affiche donc à la fois un achat définitif
+-- et un abonnement actif, comme un vrai client.
+with u as (select id from users where email = 'amina@cosmetilab.bj')
+insert into orders (id, user_id, type, course_id, plan_id, amount, description, status, nova_session_id, nova_reference, method, paid_at, created_at)
+select '11111111-1111-4111-8111-111111111111'::uuid, u.id, 'cours', 'c1', null, 3500,
+       'CosmétiLab — cours Savonnerie à froid', 'paid', 'cs_demo_savon', 'NV10000001', 'balance',
+       now() - interval '21 days', now() - interval '21 days'
+from u where not exists (select 1 from orders o where o.id = '11111111-1111-4111-8111-111111111111'::uuid);`);
+push(`with u as (select id from users where email = 'amina@cosmetilab.bj')
+insert into orders (id, user_id, type, course_id, plan_id, amount, description, status, nova_session_id, nova_reference, method, paid_at, created_at)
+select '22222222-2222-4222-8222-222222222222'::uuid, u.id, 'abonnement', null, 'mensuel', 6000,
+       'CosmétiLab — Abonnement mensuel', 'paid', 'cs_demo_abo', 'NV10000002', 'card',
+       now() - interval '7 days', now() - interval '7 days'
+from u where not exists (select 1 from orders o where o.id = '22222222-2222-4222-8222-222222222222'::uuid);`);
+push(`with u as (select id from users where email = 'amina@cosmetilab.bj')
+insert into subscriptions (user_id, plan_id, statut, started_at, current_period_end, order_id, renewed_count)
+select u.id, 'mensuel', 'actif', now() - interval '7 days', now() + interval '23 days',
+       '22222222-2222-4222-8222-222222222222'::uuid, 1 from u
+on conflict (user_id) do update
+  set statut = 'actif',
+      current_period_end = greatest(subscriptions.current_period_end, excluded.current_period_end),
+      order_id = excluded.order_id, updated_at = now();`);
+push(`with u as (select id from users where email = 'amina@cosmetilab.bj')
+insert into course_access (user_id, course_id, source, order_id, expires_at)
+select u.id, c.id, 'abonnement', '22222222-2222-4222-8222-222222222222'::uuid, now() + interval '23 days'
+from u, courses c
+on conflict (user_id, course_id) do update
+  set expires_at = excluded.expires_at,
+      source = case when course_access.source = 'achat' then 'achat' else 'abonnement' end;`);
+push(`with u as (select id from users where email = 'amina@cosmetilab.bj')
+insert into course_access (user_id, course_id, source, order_id, expires_at)
+select u.id, 'c1', 'achat', '11111111-1111-4111-8111-111111111111'::uuid, null from u
+on conflict (user_id, course_id) do update set source = 'achat', expires_at = null, started_at = now();`);
 push('');
 
 fs.writeFileSync('db/seed.sql', L.join('\n') + '\n');

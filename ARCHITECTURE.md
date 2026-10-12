@@ -14,9 +14,9 @@ future reste compatible avec le déploiement (Vercel, Netlify, GitHub Pages) et 
    https://mon-projet.vercel.app/
         │
         ├── /            ──►  l'application CosmétiLab  (api/public/index.html,
-        │                     copie publiée de web/index.html — 770 Ko, autonome)
+        │                     copie publiée de web/index.html — 1 427 Ko, autonome)
         │
-        ├── /api/*       ──►  API Next.js (44 routes) ──► Neon PostgreSQL (26 tables)
+        ├── /api/*       ──►  API Next.js (50 routes) ──► Neon PostgreSQL (30 tables)
         │
         └── /api-doc     ──►  documentation des routes
 ```
@@ -24,7 +24,7 @@ future reste compatible avec le déploiement (Vercel, Netlify, GitHub Pages) et 
 | Chemin servi | D'où il vient | Rôle |
 |---|---|---|
 | `/` et `/index.html` | `api/public/index.html` ← copie de `web/index.html` | l'application (HTML + CSS + JS + images + extrait vidéo) |
-| `/api/*` | `api/src/app/api/**/route.ts` | l'API JSON (44 routes) |
+| `/api/*` | `api/src/app/api/**/route.ts` | l'API JSON (50 routes) |
 | `/api-doc` | `api/src/app/api-doc/page.tsx` | documentation des routes |
 | — | `web/src/**` | sources du fichier unique (assemblées par `web/build.js`) |
 
@@ -153,12 +153,12 @@ sans toucher aux sources, le contrôle échoue.
 
 ```
 api/
-├── src/app/api/**/route.ts     44 routes, toutes en runtime Node.js et `dynamic = force-dynamic`
+├── src/app/api/**/route.ts     50 routes, toutes en runtime Node.js et `dynamic = force-dynamic`
 ├── src/lib/db.ts               client Neon (@neondatabase/serverless) + helpers q / q1 / exec
 ├── src/lib/auth.ts             mots de passe scrypt, jetons signés valables 30 jours
 ├── src/lib/http.ts             ok() / fail() / handler() / OPTIONS() : enveloppe commune
 ├── src/lib/validation.ts       schémas zod (corps de requête)
-├── db/schema.sql               26 tables
+├── db/schema.sql               30 tables
 ├── db/seed.sql                 données de démonstration (générées depuis db/data.json)
 └── scripts/db.js               migrate | seed | check | reset
 ```
@@ -170,7 +170,16 @@ api/
 { "ok": false, "error": { "code": "…", "message": "…", "details": { … } } }
 ```
 
-Autres règles : CORS `*` avec pré-vol `OPTIONS` exporté par les 44 routes ; authentification
+**Paiement (cours payants et abonnements).** Le catalogue est servi par l'API (`/api/paiements/catalogue`) :
+l'application ne fixe jamais un prix. Toucher un contenu fermé demande une session au serveur
+(`POST /api/paiements/session`, `Idempotency-Key: order-<id>`), qui redirige vers **NOVA Checkout** ;
+au retour (`/?paiement=retour&session_id=…`) le serveur **vérifie la session auprès de NOVA** avant d'ouvrir
+l'accès, et le **webhook signé** (`/api/webhooks/nova`, HMAC `t.corps`, idempotent via `payment_events`)
+sert de filet. Quatre tables : `orders`, `course_access`, `subscriptions`, `payment_events` ; un achat est
+définitif, un abonnement ouvre tous les cours jusqu'à `current_period_end`. Les rôles `admin` et `enseignant`
+sont exemptés. Côté application : `web/src/paiement.js` (cadenas, prix, écran « Abonnement & achats »).
+
+Autres règles : CORS `*` avec pré-vol `OPTIONS` exporté par les 50 routes ; authentification
 `Authorization: Bearer <jeton>` ; fichiers envoyés en base64 (≤ 2,5 Mo) ; `runtime = 'nodejs'` (le
 pilote Neon HTTP n'a pas besoin d'un runtime Edge, et Node évite les surprises de compatibilité).
 
@@ -191,8 +200,8 @@ identique en deux commandes (`npm run db:reset`), sans dépendre d'un fichier lo
 | Suite navigateur (mobile 390 × 844) | `cd web && npm run test` | 37 OK / 0 sans API · 42 avec API · 43 en mode « une seule URL » |
 | Types de l'API | `cd api && npm run typecheck` | 0 erreur |
 | Test de fumée de l'API | `cd api && npm run smoke` | 38 OK / 0 |
-| Build Next.js | `cd api && npm run build` | 44 routes |
-| Base | `cd api && npm run db:check` | 26 tables, contenus présents |
+| Build Next.js | `cd api && npm run build` | 50 routes |
+| Base | `cd api && npm run db:check` | 30 tables, contenus présents |
 | Tout d'un coup | `npm run verifier-tout` | vert (site + types + base + API) |
 
 La suite navigateur a besoin de Playwright (`npm i -D playwright-core` puis

@@ -1,6 +1,7 @@
 import { q, q1 } from '@/lib/db';
 import { auth, ok, parseBody, OPTIONS, handler } from '@/lib/http';
 import { message } from '@/lib/validation';
+import { controleAccesPublic, controleAcces } from '@/lib/paiement';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -10,6 +11,8 @@ export { OPTIONS };
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   return handler(async () => {
     const { id } = await params;
+    const acces = await controleAccesPublic(req, id);
+    if (acces) return acces;
     const url = new URL(req.url);
     const limite = Math.min(Number(url.searchParams.get('limite') || 50), 200);
     const rows = await q(
@@ -28,6 +31,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const a = await auth(req);
     if ('error' in a) return a.error;
     const { id } = await params;
+    const acces = await controleAcces(a.session, id);
+    if (acces) return acces;
     const parsed = await parseBody(req, message);
     if ('error' in parsed) return parsed.error;
     const row = await q1(

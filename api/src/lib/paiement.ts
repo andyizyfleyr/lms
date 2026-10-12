@@ -1,0 +1,328 @@
+import crypto from 'node:crypto';
+import { q, q1, exec } from './db';
+import { fail } from './http';
+import { sessionFrom, type Session } from './auth';
+import { PLANS, planParId, prixCours, MONTANT_MIN, MONTANT_MAX, DEVISE } from './catalogue';
+
+/* ============================================================
+   PAIEMENT — NOVA Checkout (https://nova-azure-psi.vercel.app)
+   Le serveur seul connaît la clé marchande : le navigateur ne voit
+   jamais `sk_live_…`. Les montants sont toujours calculés ici, à partir
+   du catalogue, jamais reçus du client.
+   ============================================================ */
+
+export const NOVA_API = (process.env.NOVA_API_URL || 'https://nova-azure-psi.vercel.app').replace(/\/+$/, '');
+const NOVA_CLE = process.env.NOVA_SECRET_KEY || '';
+export const NOVA_WEBHOOK_SECRET = process.env.NOVA_WEBHOOK_SECRET || '';
+export const SITE_URL = (process.env.SITE_URL || 'https://lms-lovat-five.vercel.app').replace(/\/+$/, '');
+export const novaConfigure = () => !!NOVA_CLE;
+
+export type Order = {
+  id: string;
+  user_id: string;
+  type: 'cours' | 'abonnement';
+  course_id: string | null;
+  plan_id: string | null;
+  amount: number;
+  currency: string;
+  description: string;
+  status: 'open' | 'paid' | 'cancelled' | 'expired' | 'failed';
+  nova_session_id: string | null;
+  nova_reference: string | null;
+  method: string | null;
+  paid_at: string | null;
+  expires_at: string | null;
+  created_at: string;
+};
+
+export type Abonnement = {
+  actif: boolean;
+  planId: string | null;
+  planNom: string | null;
+  fin: string | null;
+  joursRestants: number;
+  renouvellements: number;
+};
+
+export type Acces = {
+  abonnement: Abonnement;
+  /** tous les cours sont ouverts (abonnement en cours) */
+  toutPaye: boolean;
+  /** identifiants des cours débloqués définitivement ou pour la période en cours */
+  cours: string[];
+};
+
+const JOUR = 86_400_000;
+export const joursRestants = (date: string | null): number =>
+  date ? Math.max(0, Math.ceil((new Date(date).getTime() - Date.now()) / JOUR)) : 0;
+
+/* ------------------------------------------------------------ NOVA : client HTTP */
+
+type NovaSession = {
+  id: string;
+  status: 'open' | 'paid' | 'cancelled' | 'expired';
+  amount: number;
+  url: string;
+  reference?: string | null;
+  method?: string | null;
+  paid_at?: string | null;
+  expires_at?: string | null;
+};
+
+async function nova(chemin: string, init: RequestInit = {}): Promise<{ ok: boolean; status: number; body: any }> {
+  const r = await fetch(NOVA_API + chemin, {
+    ...init,
+    headers: {
+      Authorization: 'Bearer ' + NOVA_CLE,
+      'Content-Type': 'application/json',
+      ...(init.headers || {})
+    },
+    cache: 'no-store'
+  });
+  let body: any = null;
+  try { body = await r.json(); } catch { body = null; }
+  return { ok: r.ok, status: r.status, body };
+}
+
+/** Message lisible à partir d'une erreur NOVA (`error.message`). */
+const msgNova = (body: any, defaut: string) => (body && body.error && body.error.message) || defaut;
+
+/** Crée une session de paiement. `idempotency` évite les doublons (double-clic, reprise réseau). */
+export async function novaCreerSession(p: {
+  amount: number; description: string; metadata: Record<string, string>; idempotency: string; secondes?: number;
+}): Promise<{ session?: NovaSession; erreur?: string }> {
+  if (!novaConfigure()) return { erreur: 'Paiement non configuré sur le serveur (clé NOVA absente).' };
+  if (!Number.isInteger(p.amount) || p.amount < MONTANT_MIN || p.amount > MONTANT_MAX)
+    return { erreur: `Montant invalide (${MONTANT_MIN} à ${MONTANT_MAX} F CFA).` };
+
+  const r = await nova('/api/v1/checkout/sessions', {
+    method: 'POST',
+    headers: { 'Idempotency-Key': p.idempotency.slice(0, 80) },
+    body: JSON.stringify({
+      amount: p.amount,
+      description: p.description.slice(0, 120),
+      success_url: SITE_URL + '/?paiement=retour',
+      cancel_url: SITE_URL + '/?paiement=annule',
+      expires_in: Math.min(Math.max(p.secondes || 1800, 300), 86_400),
+      metadata: p.metadata
+    })
+  });
+
+  if (!r.ok || !r.body || !r.body.id) {
+    return { erreur: msgNova(r.body, `Paiement indisponible (NOVA ${r.status}).`) };
+  }
+  return { session: r.body as NovaSession };
+}
+
+export async function novaLireSession(id: string): Promise<NovaSession | null> {
+  if (!novaConfigure() || !id) return null;
+  const r = await nova('/api/v1/checkout/sessions/' + encodeURIComponent(id));
+  return r.ok && r.body && r.body.id ? (r.body as NovaSession) : null;
+}
+
+/** Vérifie la signature d'un webhook NOVA (HMAC-SHA256 sur « t.corps brut »). */
+export function verifierSignatureNova(rawBody: string, header: string | null, secret: string, toleranceSec = 300): boolean {
+  if (!header || !secret) return false;
+  const parts: Record<string, string> = {};
+  for (const morceau of header.split(',')) {
+    const i = morceau.indexOf('=');
+    if (i > 0) parts[morceau.slice(0, i).trim()] = morceau.slice(i + 1).trim();
+  }
+  const t = Number(parts.t);
+  if (!Number.isFinite(t) || !parts.v1) return false;
+  if (Math.abs(Date.now() / 1000 - t) > toleranceSec) return false;
+  const attendu = crypto.createHmac('sha256', secret).update(`${t}.${rawBody}`).digest('hex');
+  const a = Buffer.from(attendu), b = Buffer.from(parts.v1);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+/* ------------------------------------------------------------ ACCÈS */
+
+export async function accesDe(uid: string): Promise<Acces> {
+  const ab = await q1<{ plan_id: string; statut: string; current_period_end: string; renewed_count: number }>(
+    'select plan_id, statut, current_period_end, renewed_count from subscriptions where user_id = $1', [uid]);
+  const actif = !!ab && ab.statut === 'actif' && new Date(ab.current_period_end).getTime() > Date.now();
+  const lignes = await q<{ course_id: string; expires_at: string | null }>(
+    'select course_id, expires_at from course_access where user_id = $1', [uid]);
+  const cours = lignes.filter(l => !l.expires_at || new Date(l.expires_at).getTime() > Date.now()).map(l => l.course_id);
+  return {
+    abonnement: {
+      actif,
+      planId: ab ? ab.plan_id : null,
+      planNom: ab ? (planParId(ab.plan_id)?.nom || ab.plan_id) : null,
+      fin: ab ? ab.current_period_end : null,
+      joursRestants: actif ? joursRestants(ab!.current_period_end) : 0,
+      renouvellements: ab ? ab.renewed_count : 0
+    },
+    toutPaye: actif,
+    cours
+  };
+}
+
+export async function aAcces(uid: string, courseId: string): Promise<boolean> {
+  const a = await accesDe(uid);
+  return a.toutPaye || a.cours.includes(courseId);
+}
+
+/** Les enseignants et l'administrateur ne paient pas. */
+export const accesGratuit = (role: string) => role === 'admin' || role === 'enseignant';
+
+/** Refus à renvoyer quand le cours n'est pas débloqué (sinon null). */
+export async function controleAcces(session: Session, courseId: string | null): Promise<Response | null> {
+  if (accesGratuit(session.user.role) || !courseId) return null;
+  if (await aAcces(session.user.id, courseId)) return null;
+  return fail('Ce cours est payant : débloquez-le pour continuer.', 402, 'acces_paye_requis', { courseId });
+}
+
+/** Contrôle d'accès pour une route ouverte : sans compte, le cours payant reste fermé. */
+export async function controleAccesPublic(req: Request, courseId: string | null): Promise<Response | null> {
+  const s = await sessionFrom(req);
+  if (!s) return fail('Ce cours est payant : connectez-vous puis débloquez-le.', 402, 'acces_paye_requis', { courseId });
+  return controleAcces(s, courseId);
+}
+
+const TABLES_RESSOURCE = {
+  lessons: 'lessons',
+  videos: 'videos',
+  quizzes: 'quizzes',
+  assignments: 'assignments',
+  resources: 'resources'
+} as const;
+
+/** Contrôle d'accès à partir d'une ressource (leçon, vidéo, quiz…). */
+export async function controleAccesRessource(
+  session: Session, table: keyof typeof TABLES_RESSOURCE, id: string
+): Promise<Response | null> {
+  if (accesGratuit(session.user.role)) return null;
+  const t = TABLES_RESSOURCE[table];
+  const ligne = await q1<{ course_id: string }>(`select course_id from ${t} where id = $1`, [id]);
+  if (!ligne) return null;               // la route répondra « introuvable »
+  return controleAcces(session, ligne.course_id);
+}
+
+/* ------------------------------------------------------------ COMMANDES */
+
+/** Crée la commande en base et la session de paiement NOVA correspondante. */
+export async function creerCommande(uid: string, p: { type: 'cours' | 'abonnement'; courseId?: string; planId?: string })
+  : Promise<{ ok: true; order: Order; url: string } | { ok: false; error: Response }> {
+  let amount: number, description: string, courseId: string | null = null, planId: string | null = null;
+
+  if (p.type === 'cours') {
+    if (!p.courseId) return { ok: false, error: fail('Cours manquant') };
+    const c = await q1<{ id: string; titre: string }>('select id, titre from courses where id = $1', [p.courseId]);
+    if (!c) return { ok: false, error: fail('Cours introuvable', 404, 'introuvable') };
+    const deja = await aAcces(uid, c.id);
+    if (deja) return { ok: false, error: fail('Ce cours est déjà débloqué sur votre compte.', 409, 'deja_debloque') };
+    amount = prixCours(c.id);
+    courseId = c.id;
+    description = 'CosmétiLab — cours ' + c.titre;
+  } else {
+    const plan = planParId(p.planId || 'mensuel');
+    if (!plan) return { ok: false, error: fail('Formule d’abonnement inconnue') };
+    amount = plan.montant;
+    planId = plan.id;
+    description = 'CosmétiLab — ' + plan.nom;
+  }
+
+  const order = await q1<Order>(
+    `insert into orders (user_id, type, course_id, plan_id, amount, currency, description)
+     values ($1, $2, $3, $4, $5, $6, $7) returning *`,
+    [uid, p.type, courseId, planId, amount, DEVISE.toLowerCase(), description]
+  );
+  if (!order) return { ok: false, error: fail('Commande non enregistrée', 500, 'erreur_serveur') };
+
+  const r = await novaCreerSession({
+    amount,
+    description,
+    metadata: { order_id: order.id, user_id: uid, type: p.type, cours: courseId || '', formule: planId || '' },
+    idempotency: 'order-' + order.id
+  });
+
+  if (!r.session) {
+    await exec(`update orders set status = 'failed', updated_at = now() where id = $1`, [order.id]);
+    return { ok: false, error: fail(r.erreur || 'Paiement indisponible', 502, 'nova_indisponible') };
+  }
+
+  const maj = await q1<Order>(
+    `update orders set nova_session_id = $2, expires_at = $3, updated_at = now()
+      where id = $1 returning *`,
+    [order.id, r.session.id, r.session.expires_at || null]
+  );
+  return { ok: true, order: maj || order, url: r.session.url };
+}
+
+/** Marque une commande payée et ouvre l'accès correspondant (idempotent). */
+export async function marquerPaye(orderId: string, info: { reference?: string | null; method?: string | null; paidAt?: string | null }) {
+  const o = await q1<Order>('select * from orders where id = $1', [orderId]);
+  if (!o) return null;
+  if (o.status !== 'paid') {
+    await exec(
+      `update orders set status = 'paid', nova_reference = coalesce(nullif($2,''), nova_reference),
+              method = coalesce(nullif($3,''), method), paid_at = coalesce($4::timestamptz, now()), updated_at = now()
+        where id = $1`,
+      [o.id, info.reference || '', info.method || '', info.paidAt || null]
+    );
+    await accorderAcces({ ...o, status: 'paid' });
+  }
+  return q1<Order>('select * from orders where id = $1', [orderId]);
+}
+
+/** Ouvre les accès prévus par la commande (cours à l'unité ou période d'abonnement). */
+export async function accorderAcces(o: Order) {
+  if (o.type === 'cours' && o.course_id) {
+    await exec(
+      `insert into course_access (user_id, course_id, source, order_id)
+       values ($1, $2, 'achat', $3)
+       on conflict (user_id, course_id) do update
+         set source = 'achat', order_id = excluded.order_id, expires_at = null, started_at = now()`,
+      [o.user_id, o.course_id, o.id]
+    );
+    return;
+  }
+  if (o.type === 'abonnement') {
+    const plan = planParId(o.plan_id || 'mensuel') || PLANS[0];
+    const courant = await q1<{ current_period_end: string; statut: string; renewed_count: number }>(
+      'select current_period_end, statut, renewed_count from subscriptions where user_id = $1', [o.user_id]);
+    const base = courant && courant.statut === 'actif' && new Date(courant.current_period_end).getTime() > Date.now()
+      ? new Date(courant.current_period_end).getTime() : Date.now();
+    const fin = new Date(base + plan.jours * JOUR).toISOString();
+    await exec(
+      `insert into subscriptions (user_id, plan_id, statut, started_at, current_period_end, order_id, renewed_count)
+       values ($1, $2, 'actif', now(), $3, $4, 1)
+       on conflict (user_id) do update
+         set plan_id = $2, statut = 'actif', current_period_end = $3, order_id = $4,
+             renewed_count = subscriptions.renewed_count + 1, updated_at = now()`,
+      [o.user_id, plan.id, fin, o.id]
+    );
+    const cours = await q<{ id: string }>('select id from courses');
+    for (const c of cours) {
+      await exec(
+        `insert into course_access (user_id, course_id, source, order_id, expires_at)
+         values ($1, $2, 'abonnement', $3, $4)
+         on conflict (user_id, course_id) do update
+           set source = case when course_access.source = 'achat' then 'achat' else 'abonnement' end,
+               order_id = excluded.order_id,
+               expires_at = case when course_access.source = 'achat' then null else excluded.expires_at end`,
+        [o.user_id, c.id, o.id, fin]
+      );
+    }
+  }
+}
+
+/** Offre commerciale (support, geste commercial) — réservé à l'administrateur. */
+export async function offrirAcces(cible: { uid: string; cours: string[]; jours?: number; orderId?: string | null }) {
+  const fin = cible.jours ? new Date(Date.now() + cible.jours * JOUR).toISOString() : null;
+  for (const cid of cible.cours) {
+    await exec(
+      `insert into course_access (user_id, course_id, source, order_id, expires_at)
+       values ($1, $2, 'offre', $3, $4)
+       on conflict (user_id, course_id) do update
+         set source = 'offre', order_id = excluded.order_id, expires_at = excluded.expires_at, started_at = now()`,
+      [cible.uid, cid, cible.orderId || null, fin]
+    );
+  }
+  return { cours: cible.cours.length, fin };
+}
+
+/** Formate un montant en franc CFA. */
+export const fcfa = (n: number) => new Intl.NumberFormat('fr-FR').format(n) + ' F';
