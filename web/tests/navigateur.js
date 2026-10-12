@@ -86,6 +86,8 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
   });
   const page = await contexte.newPage();
 
+  /* hôtes autorisés : le site testé lui-même (origine courante) et le serveur local des tests */
+  const HOTES_LOCAUX = new Set(['127.0.0.1', 'localhost', (() => { try { return new URL(site.url).hostname; } catch (e) { return ''; } })()]);
   const erreurs = [], externes = new Set(), requetes = [];
   page.on('pageerror', e => erreurs.push(String(e.message || e)));
   page.on('console', m => {
@@ -99,7 +101,7 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
     try {
       const u = new URL(r.url());
       requetes.push(r.url());
-      if (u.hostname !== '127.0.0.1' && u.hostname !== 'localhost') externes.add(u.hostname);
+      if (!HOTES_LOCAUX.has(u.hostname)) externes.add(u.hostname);
     } catch (_) {}
   });
 
@@ -116,7 +118,7 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
   test('aucune erreur JavaScript', erreurs.length === 0, erreurs.slice(0, 2).join(' | '));
   const largeur = await page.evaluate(() => document.documentElement.scrollWidth);
   test('pas de débordement horizontal (390 px)', largeur <= 391, 'scrollWidth = ' + largeur + ' px');
-  test('aucun appel réseau externe au chargement', externes.size === 0, Array.from(externes).join(', '));
+  test('aucun appel à un domaine tiers au chargement', externes.size === 0, Array.from(externes).join(', '));
   test('aucune dépendance distante dans le fichier', !/<script[^>]+src=|<link[^>]+href=/i.test(fs.readFileSync(PAGE, 'utf8')));
 
   const pagesMortes = await page.evaluate(() =>
