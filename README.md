@@ -68,6 +68,7 @@ Depuis la **racine** (raccourcis, aucun paquet à installer à ce niveau) :
 | `npm run api:dev` / `api:build` / `api:typecheck` | API Next.js |
 | `npm run db:migrate` / `db:seed` / `db:check` / `db:reset` | Base Neon |
 | `npm run api:smoke` | 38 vérifications de l'API (santé, auth, lecture, écriture) — accepte une URL d'API déployée |
+| `npm run api:comptes --silent` | Liste / nettoie les comptes créés par les suites de test (`api/scripts/nettoyer-comptes.js`) |
 | `npm run verifier-tout` | Contrôles du site + types de l'API + état de la base + test de fumée |
 
 Détail par projet : [`web/README.md`](web/README.md) et [`api/README.md`](api/README.md).

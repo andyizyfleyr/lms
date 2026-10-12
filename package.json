@@ -21,7 +21,8 @@
     "site:sync": "node api/scripts/sync-site.js",
     "site:verifier": "node api/scripts/sync-site.js --verifier",
     "test:comptes": "npm --prefix web run test:comptes",
-    "test:tout": "npm --prefix web run test && npm --prefix web run test:comptes"
+    "test:tout": "npm --prefix web run test && npm --prefix web run test:comptes",
+    "api:comptes": "npm --prefix api run comptes"
   },
   "engines": {
     "node": ">=20"
