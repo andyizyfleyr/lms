@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#7A3355">
+<meta name="theme-color" content="#6750A4">
 <meta name="description" content="Dashboard mobile d'une plateforme LMS — Material Design 3">
 <title>CosmétiLab · Tableau de bord</title>
 <style>
@@ -12,37 +12,37 @@
    ============================================================ */
 :root{
   /* --- Light scheme (M3 baseline) --- */
-  --md-primary:#7A3355;            --md-on-primary:#FFFFFF;
-  --md-primary-container:#FFD9E4;  --md-on-primary-container:#3A0B22;
-  --md-secondary:#7C5665;          --md-on-secondary:#FFFFFF;
-  --md-secondary-container:#F6DFE6;--md-on-secondary-container:#2C1219;
-  --md-tertiary:#8A6A1F;           --md-on-tertiary:#FFFFFF;
-  --md-tertiary-container:#F6E3B4; --md-on-tertiary-container:#2A1E00;
+  --md-primary:#6750A4;            --md-on-primary:#FFFFFF;
+  --md-primary-container:#EADDFF;  --md-on-primary-container:#21005D;
+  --md-secondary:#625B71;          --md-on-secondary:#FFFFFF;
+  --md-secondary-container:#E8DEF8;--md-on-secondary-container:#1D192B;
+  --md-tertiary:#7D5260;           --md-on-tertiary:#FFFFFF;
+  --md-tertiary-container:#FFD8E4; --md-on-tertiary-container:#31111D;
   --md-error:#B3261E;              --md-on-error:#FFFFFF;
   --md-error-container:#F9DEDC;    --md-on-error-container:#410E0B;
-  --md-success:#2E7D5B;            --md-success-container:#C6EFD9;
+  --md-success:#1B6B3A;            --md-success-container:#C4EED0;
 
-  --md-surface:#FFF8F9;            --md-on-surface:#1F1A1C;
-  --md-surface-variant:#EDE0E3;    --md-on-surface-variant:#524345;
-  --md-outline:#857375;            --md-outline-variant:#D8C2C7;
+  --md-surface:#FEF7FF;            --md-on-surface:#1D1B20;
+  --md-surface-variant:#E7E0EC;    --md-on-surface-variant:#49454F;
+  --md-outline:#79747E;            --md-outline-variant:#CAC4D0;
   --md-scrim:rgba(0,0,0,.4);
   --md-shadow:rgba(0,0,0,.15);
   --md-surface-lowest:#FFFFFF;
-  --md-surface-low:#FDF3F5;
-  --md-surface-high:#F3E6E9;
-  --md-surface-highest:#EEE0E3;
-  --md-inverse-surface:#362F32;    --md-inverse-on-surface:#FBEEF0;
-  --md-inverse-primary:#FFB0C9;
+  --md-surface-low:#F7F2FA;
+  --md-surface-high:#ECE6F0;
+  --md-surface-highest:#E6E0E9;
+  --md-inverse-surface:#322F35;    --md-inverse-on-surface:#F5EFF7;
+  --md-inverse-primary:#D0BCFF;
 
   /* --- Accents (palettes tonales) --- */
-  --acc-blue-c:#F6DCE6;   --acc-blue-o:#4A1526;
-  --acc-green-c:#C6EFD9;  --acc-green-o:#12301B;
-  --acc-amber-c:#F6E3B4;  --acc-amber-o:#3A2A00;
-  --acc-purple-c:#FFD9E4; --acc-purple-o:#3A0B22;
-  --acc-pink-c:#F6E3B4;   --acc-pink-o:#2A1E00;
-  --acc-teal-c:#CFE6E1;   --acc-teal-o:#0C2B27;
+  --acc-blue-c:#D3E3FD;   --acc-blue-o:#041E49;
+  --acc-green-c:#C4EED0;  --acc-green-o:#072711;
+  --acc-amber-c:#FFDF9E;  --acc-amber-o:#291800;
+  --acc-purple-c:#EADDFF; --acc-purple-o:#21005D;
+  --acc-pink-c:#FFD8E4;   --acc-pink-o:#31111D;
+  --acc-teal-c:#B8E7E1;   --acc-teal-o:#00201D;
 
-  --hero-grad:linear-gradient(135deg,#7A3355 0%,#A4506E 45%,#D3A15C 100%);
+  --hero-grad:linear-gradient(135deg,#6750A4 0%,#7F67BE 45%,#9A82DB 100%);
   --hero-fg:#FFFFFF;
 
   /* --- Shape --- */
@@ -58,37 +58,37 @@
   --ease-emph:cubic-bezier(.05,.7,.1,1);
 }
 [data-theme="dark"]{
-  --md-primary:#FFB0C9;            --md-on-primary:#5A1130;
-  --md-primary-container:#75294A;  --md-on-primary-container:#FFD9E4;
-  --md-secondary:#E3BDC8;          --md-on-secondary:#42262F;
-  --md-secondary-container:#5A3A44;--md-on-secondary-container:#FFD9E4;
-  --md-tertiary:#E6C77A;           --md-on-tertiary:#3A2A00;
-  --md-tertiary-container:#6E2745; --md-on-tertiary-container:#FFD9E4;
+  --md-primary:#D0BCFF;            --md-on-primary:#381E72;
+  --md-primary-container:#4F378B;  --md-on-primary-container:#EADDFF;
+  --md-secondary:#CCC2DC;          --md-on-secondary:#332D41;
+  --md-secondary-container:#4A4458;--md-on-secondary-container:#E8DEF8;
+  --md-tertiary:#EFB8C8;           --md-on-tertiary:#492532;
+  --md-tertiary-container:#633B48; --md-on-tertiary-container:#FFD8E4;
   --md-error:#F2B8B5;              --md-on-error:#601410;
   --md-error-container:#8C1D18;    --md-on-error-container:#F9DEDC;
-  --md-success:#9EDFC0;            --md-success-container:#10402C;
+  --md-success:#9BE3B4;            --md-success-container:#0F5223;
 
-  --md-surface:#181114;            --md-on-surface:#EDE0E3;
-  --md-surface-variant:#524345;    --md-on-surface-variant:#D8C2C7;
-  --md-outline:#A08C90;            --md-outline-variant:#524345;
+  --md-surface:#141218;            --md-on-surface:#E6E0E9;
+  --md-surface-variant:#49454F;    --md-on-surface-variant:#CAC4D0;
+  --md-outline:#938F99;            --md-outline-variant:#49454F;
   --md-scrim:rgba(0,0,0,.6);
   --md-shadow:rgba(0,0,0,.5);
-  --md-surface-lowest:#120B0E;
-  --md-surface-low:#211A1C;
-  --md-surface-high:#2C2427;
-  --md-surface-highest:#372F32;
-  --md-inverse-surface:#EDE0E3;    --md-inverse-on-surface:#362F32;
-  --md-inverse-primary:#7A3355;
+  --md-surface-lowest:#0F0D13;
+  --md-surface-low:#1D1B20;
+  --md-surface-high:#2B2930;
+  --md-surface-highest:#36343B;
+  --md-inverse-surface:#E6E0E9;    --md-inverse-on-surface:#322F35;
+  --md-inverse-primary:#6750A4;
 
-  --acc-blue-c:#6E2745;   --acc-blue-o:#F6DCE6;
-  --acc-green-c:#10402C;  --acc-green-o:#C4EED0;
-  --acc-amber-c:#574318;  --acc-amber-o:#F6E3B4;
-  --acc-purple-c:#75294A; --acc-purple-o:#FFD9E4;
-  --acc-pink-c:#6E2745;   --acc-pink-o:#FFD9E4;
-  --acc-teal-c:#0F3B36;   --acc-teal-o:#CFE6E1;
+  --acc-blue-c:#0842A0;   --acc-blue-o:#D3E3FD;
+  --acc-green-c:#0F5223;  --acc-green-o:#C4EED0;
+  --acc-amber-c:#5C4200;  --acc-amber-o:#FFDF9E;
+  --acc-purple-c:#4F378B; --acc-purple-o:#EADDFF;
+  --acc-pink-c:#633B48;   --acc-pink-o:#FFD8E4;
+  --acc-teal-c:#00463F;   --acc-teal-o:#B8E7E1;
 
-  --hero-grad:linear-gradient(135deg,#75294A 0%,#5B3F92 45%,#6E4E9B 100%);
-  --hero-fg:#FFD9E4;
+  --hero-grad:linear-gradient(135deg,#4F378B 0%,#5B3F92 45%,#6E4E9B 100%);
+  --hero-fg:#EADDFF;
   --e1:0 1px 2px rgba(0,0,0,.6),0 1px 3px 1px rgba(0,0,0,.35);
   --e2:0 2px 6px 2px rgba(0,0,0,.45);
   --e3:0 4px 10px 3px rgba(0,0,0,.5);
@@ -611,7 +611,7 @@ main::-webkit-scrollbar{display:none}
   background-image:
     linear-gradient(135deg,rgba(41,20,76,.90) 0%,rgba(78,48,134,.74) 55%,rgba(120,86,180,.62) 100%),
     var(--hero-img,none),
-    linear-gradient(135deg,#7A3355 0%,#A4506E 45%,#D3A15C 100%);
+    linear-gradient(135deg,#6750A4 0%,#7F67BE 45%,#9A82DB 100%);
   background-size:cover,cover,auto;
   background-position:center,center,center;
 }
@@ -619,7 +619,7 @@ main::-webkit-scrollbar{display:none}
   background-image:
     linear-gradient(135deg,rgba(24,10,48,.93) 0%,rgba(50,28,92,.82) 55%,rgba(74,48,120,.72) 100%),
     var(--hero-img,none),
-    linear-gradient(135deg,#75294A 0%,#5B3F92 45%,#6E4E9B 100%);
+    linear-gradient(135deg,#4F378B 0%,#5B3F92 45%,#6E4E9B 100%);
 }
 .hcard__thumb{position:relative;height:104px}
 .hcard__thumb::after{display:none}
