@@ -29,7 +29,49 @@ const GROUPES: Array<{ titre: string; emoji: string; routes: Array<[string, stri
     ['GET', '/api/paiements', 'Mes achats, mon abonnement et les accès ouverts'],
     ['GET', '/api/acces', 'Accès de l’apprenant : cours débloqués, abonnement en cours'],
     ['POST', '/api/acces/offrir', 'Offrir un accès à un compte (administrateur)'],
-    ['POST', '/api/webhooks/nova', 'Webhook signé NOVA : checkout.session.paid / checkout.session.expired']
+    ['GET|POST', '/api/nova/webhook', 'Webhook signé NOVA (alias : /api/webhooks/nova) — checkout.session.paid / expired']
+  ] },
+  { titre: 'Boutique des livres PDF (V4)', emoji: '📖', routes: [
+    ['GET', '/api/p4-pdf', 'Catalogue des ouvrages, accès du compte, remise de 10 % dès deux livres'],
+    ['GET', '/api/p4-pdf/{id}', 'Fiche d’un ouvrage : présentation et sommaire — aucun texte avant l’achat'],
+    ['GET', '/api/p4-pdf/{id}/fichier', 'Le PDF (jeton de compte ou lien signé ; 401/403 sans accès, filigrane au nom de l’acheteur)'],
+    ['POST', '/api/p4-pdf/signer', 'Lien de lecture signé, valable 30 minutes'],
+    ['POST', '/api/p4-pdf/verifier', 'Relire le statut NOVA et délivrer l’accès'],
+    ['POST', '/api/nova/webhook', 'Webhook NOVA signé et idempotent (à déclarer dans NOVA)']
+  ] },
+  { titre: 'Production, vente et traçabilité (V4)', emoji: '🧪', routes: [
+    ['POST', '/api/p4-etiquette', 'Étiquette conforme : noms INCI, ordre décroissant, allergènes, mentions obligatoires'],
+    ['POST', '/api/p4-prix', 'Analyse de rentabilité : coût de revient, marge, prix conseillé et prix revendeur'],
+    ['GET|POST', '/api/p4-produits', 'Mes produits vendables (INCI calculé)'],
+    ['GET', '/api/p4-produits/public/{slug}', 'Fiche produit publique, indexable'],
+    ['GET|POST', '/api/p4-clients', 'Carnet de clients : commandes, encaissé, reste à recevoir'],
+    ['GET|POST', '/api/p4-commandes', 'Commandes et devis ; PATCH pour encaisser, relancer, annuler'],
+    ['GET|POST', '/api/p4-lots', 'Lots de fabrication (contrôles qualité) ; /api/p4-lots/{slug} = fiche publique'],
+    ['GET|POST', '/api/p4-kits', 'Kits de démarrage chiffrés ; commander un kit crée une commande']
+  ] },
+  { titre: 'Apprenants, examens et fidélité (V4)', emoji: '🎓', routes: [
+    ['GET', '/api/p4-formateur/apprenants/{id}', 'Fiche apprenant : progression, résultats, assiduité, paiements'],
+    ['POST', '/api/p4-formateur/questions/importer', 'Importer des questions en masse (une par ligne)'],
+    ['GET|POST', '/api/p4-formateur/releve', 'Relevé de revenus par cours et par mois ; noter un versement'],
+    ['GET|POST', '/api/p4-examens', 'Examens blancs ; {id} pour passer et être corrigé tout de suite'],
+    ['GET|POST', '/api/p4-seances/{id}/code', 'Code de séance (25 min) et présences ; /emarger pour pointer'],
+    ['GET|POST', '/api/p4-points', 'Points, rang, récompenses ; /echanger crée un vrai bon de réduction'],
+    ['GET|POST', '/api/p4-defis', 'Défi du mois : avance, classement, +20 points à l’objectif'],
+    ['GET', '/api/p4-abonnement', 'État de l’abonnement, relances, palier de fidélité'],
+    ['GET', '/api/p4-parrainage', 'Codes, filleuls, gains et paliers de parrainage']
+  ] },
+  { titre: 'Communauté et administration (V4)', emoji: '🤝', routes: [
+    ['GET|POST', '/api/p4-commun/forum', 'Entraide par thèmes ; {id} pour répondre, résoudre, épingler, masquer'],
+    ['POST', '/api/p4-commun/reponses/{id}/utile', '« Ça m’a aidé » (+2 points à l’auteur)'],
+    ['GET|POST', '/api/p4-commun/galerie', 'Réalisations partagées (photos compressées) ; /aime pour les j’aime'],
+    ['GET|POST', '/api/p4-commun/ateliers', 'Ateliers et voisinage ; /participer pour s’inscrire'],
+    ['POST', '/api/p4-commun/signaler', 'Signaler un contenu → file de modération'],
+    ['GET', '/api/p4-glossaire', 'Glossaire français (recherche par mot ou famille)'],
+    ['GET|POST', '/api/p4-securite', 'Journal de sécurité, appareils, code de secours'],
+    ['GET', '/api/p4-admin', 'Console : chiffres clés (comptes, ventes, signalements, ouvrages)'],
+    ['PATCH', '/api/p4-admin/utilisateurs/{id}', 'Rôle, modérateur, blocage, mot de passe (journalisé)'],
+    ['GET|POST', '/api/p4-admin/moderation', 'File de signalements : masquer, rétablir, classer'],
+    ['GET|PATCH', '/api/p4-admin/ouvrages', 'Ouvrages PDF : prix, publication, régénération']
   ] },
   { titre: 'Temps réel', emoji: '🔄', routes: [
     ['GET', '/api/sync', 'Révision de l’espace du compte (l’app s’en sert pour se mettre à jour toute seule)']

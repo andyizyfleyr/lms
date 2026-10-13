@@ -94,8 +94,22 @@ const masque = v => v ? v.slice(0, 8) + '…' + v.slice(-4) + ' (' + v.length + 
   const bouclier = await j(API + '/api/lessons/c3-m1-l1/complete', { method: 'POST', headers: H, body: '{}' });
   ok(bouclier.s === 402, 'le cours reste fermé tant que ce n’est pas payé', bouclier.s + ' ' + (bouclier.j.error ? bouclier.j.error.code : ''));
 
+  /* 3b. Boutique des livres PDF : même chaîne, autre catalogue */
+  const sessPdf = await j(API + '/api/paiements/session', { method: 'POST', headers: H, body: JSON.stringify({ type: 'pdf', pdfId: 'livre-c1' }) });
+  const cmdPdf = sessPdf.j && sessPdf.j.data && sessPdf.j.data.commande;
+  ok(sessPdf.s === 201 && cmdPdf && cmdPdf.montant === 3500, 'notre API ouvre une session pour un livre PDF',
+     sessPdf.s + ' · ' + ((cmdPdf && cmdPdf.montant + ' F') || JSON.stringify(sessPdf.j.error)));
+  const pdfFerme = await fetch(API + '/api/p4-pdf/livre-c1/fichier', { headers: { Authorization: 'Bearer ' + T } });
+  ok(pdfFerme.status === 403, 'le livre reste fermé tant que ce n\'est pas payé', 'HTTP ' + pdfFerme.status);
+  const ficheLivre = await j(API + '/api/p4-pdf/livre-c1');
+  const livre = ficheLivre.j && ficheLivre.j.data && ficheLivre.j.data.ouvrage;
+  ok(!!livre && (livre.sommaire || []).length > 0 && livre.extrait === undefined,
+     'la fiche du livre montre le sommaire, jamais le texte',
+     (livre ? (livre.sommaire || []).length + ' titre(s) de chapitre' : 'pas de données'));
+  const idSessionPdf = cmdPdf && cmdPdf.session;
+
   /* 4. On n'annule rien du côté de l'apprenant : on annule les sessions de test */
-  for (const id of [sonde.j.id, idSession]) {
+  for (const id of [sonde.j.id, idSession, idSessionPdf]) {
     if (!id) continue;
     const e = await j(API_NOVA + '/api/v1/checkout/sessions/' + id + '/expire', { method: 'POST', headers: { Authorization: 'Bearer ' + CLE } });
     ok(e.s === 200 || e.s === 400, 'session de test annulée', id + ' → ' + e.s);

@@ -2,6 +2,7 @@
 
 Base d'exemple : `http://localhost:3000` (ou l'URL Vercel).
 Toutes les routes renvoient du JSON. En cas de succès : `{ "ok": true, "data": … }`.
+Un test de fumée couvre l'ensemble, y compris contre l'API déployée : `node api/scripts/smoke.js https://…` (63 contrôles).
 
 Authentification : en-tête `Authorization: Bearer <jeton>` (jeton renvoyé par `login` / `register`).
 
