@@ -23,7 +23,13 @@
     6d. src/sync2.js     notifications, discussions, agenda, téléchargements, notes : tout par compte
     6e. src/prof.js      espace formateur : cours, leçons, ressources, séances, suivi des apprenants
     6f. src/apprendre.js reprise de lecture, historique, attestations, recherche serveur, hors-ligne
-     7. src/compte.js     comptes, espaces de données séparés, temps réel, corrections
+     6g. src/v3-base.js   V3 : socle (API, données par compte, écrans publics, état du service)
+    6h. src/v3-apprendre.js  V3 : parcours, quiz enrichis, flashcards, objectifs, compétences, fiches
+    6i. src/v3-outils.js     V3 : formulation, saponification, convertisseur, réglementaire, recettes, production
+    6j. src/v3-formateur.js  V3 : revenus, création de cours, banque de questions, annonce, notation, séances
+    6k. src/v3-argent.js     V3 : reçus, codes promo, parrainage, panier groupé, relances
+    6l. src/v3-qualite.js    V3 : hors-ligne, économie de données, accessibilité, sauvegarde, PWA
+    7. src/compte.js     comptes, espaces de données séparés, temps réel, corrections
      7. src/app.js (fin)  fermeture </script></body></html>
 
    Utilisation :  node build.js [chemin de sortie]     (défaut : web/index.html)
@@ -47,6 +53,12 @@ const paiement = lire('paiement.js');
 const profil = lire('profil.js');
 const sync2 = lire('sync2.js');
 const prof = lire('prof.js');
+const v3base = lire('v3-base.js');
+const v3apprendre = lire('v3-apprendre.js');
+const v3outils = lire('v3-outils.js');
+const v3formateur = lire('v3-formateur.js');
+const v3argent = lire('v3-argent.js');
+const v3qualite = lire('v3-qualite.js');
 const apprendre = lire('apprendre.js');
 const routes = lire('routes.js');
 const adresses = lire('routes.json').trim();
@@ -69,6 +81,12 @@ const html =
   '\n/* ==================== SYNCHRONISATION COMPLÈTE PAR COMPTE ==================== */\n' + sync2 +
   '\n/* ==================== ESPACE FORMATEUR ==================== */\n' + prof +
   "\n/* ==================== EXPÉRIENCE D'APPRENTISSAGE ==================== */\n" + apprendre +
+  '\n/* ==================== V3 : SOCLE (API, données par compte, écrans publics) ==================== */\n' + v3base +
+  '\n/* ==================== V3 : APPRENDRE (parcours, révision, objectifs, compétences) ==================== */\n' + v3apprendre +
+  '\n/* ==================== V3 : OUTILS (formulation, saponification, conversion, production) ==================== */\n' + v3outils +
+  '\n/* ==================== V3 : FORMATEUR (cours, questions, revenus, notation) ==================== */\n' + v3formateur +
+  '\n/* ==================== V3 : ARGENT (reçus, codes, parrainage, panier) ==================== */\n' + v3argent +
+  '\n/* ==================== V3 : TÉLÉPHONE ET QUALITÉ (hors-ligne, confort, sauvegarde) ==================== */\n' + v3qualite +
   '\n' + appApres;
 
 fs.writeFileSync(SORTIE, html);
@@ -77,7 +95,11 @@ const controles = [
   ['structure HTML', /<html[\s>]/i], ['sprite d’icônes', /id="ic-home"/],
   ['images intégrées', /const IMG\s*=/], ['contenu cosmétique', /const COURS\s*=/], ['extrait vidéo intégré', /const CLIP_MP4\s*=/],
   ['noyau applicatif', /window\.APPX\s*=/], ['adresses des pages', /window\.LHROUTES\s*=/], ['pages LMS', /PAGES\.quiz\s*=/],
-  ['synchronisation serveur', /window\.LHSYNC\s*=/], ['comptes et temps réel', /window\.LHCOMPTE\s*=/], ['paiements et abonnements', /window\.LHPAIE\s*=/], ['profil réel', /window\.LHPROFIL\s*=/], ['synchronisation complète', /window\.LHSYNC2\s*=/], ['espace formateur', /window\.LHPROF\s*=/], ['expérience d\'apprentissage', /window\.LHAPPRENDRE\s*=/], ['écran abonnement', /PAGES\.abonnement\s*=/], ['fin de document', /<\/html>\s*$/]
+  ['synchronisation serveur', /window\.LHSYNC\s*=/], ['comptes et temps réel', /window\.LHCOMPTE\s*=/], ['paiements et abonnements', /window\.LHPAIE\s*=/], ['profil réel', /window\.LHPROFIL\s*=/], ['synchronisation complète', /window\.LHSYNC2\s*=/], ['espace formateur', /window\.LHPROF\s*=/], ['expérience d\'apprentissage', /window\.LHAPPRENDRE\s*=/], ['écran abonnement', /PAGES\.abonnement\s*=/], ['fin de document', /<\/html>\s*$/],
+  ['V3 — socle', /window\.LHV3\s*=/], ['V3 — apprendre', /window\.LHV3APPRENDRE\s*=/],
+  ['V3 — outils', /window\.LHV3OUTILS\s*=/], ['V3 — formateur', /window\.LHV3FORMATEUR\s*=/],
+  ['V3 — argent', /window\.LHV3ARGENT\s*=/], ['V3 — qualité', /window\.LHQUALITE\s*=/],
+  ['V3 — panier groupé', /type: 'panier'/], ['V3 — vérification publique', /PAGES\.verifier\s*=/]
 ];
 const manquants = controles.filter(([, motif]) => !motif.test(html)).map(([nom]) => nom);
 const ko = n => Math.round(n / 1024) + ' Ko';

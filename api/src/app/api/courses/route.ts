@@ -32,7 +32,7 @@ export async function GET(req: Request) {
 
     const rows = await q<Ligne>(
       `select c.id, c.titre, c.categorie, c.prof, c.image_key, c.accent, c.ico, c.statut,
-              c.duree_label, c.total_lecons, c.description,
+              c.duree_label, c.total_lecons, c.description, c.prix, c.publie,
               (select count(*)::int from lessons l
                  join lesson_progress lp on lp.lesson_id = l.id and lp.user_id = $1 and lp.done
                 where l.course_id = c.id) as lecons_faites,
@@ -74,9 +74,10 @@ export async function POST(req: Request) {
     ))!.id;
 
     const row = await q1(
-      `insert into courses (id, titre, categorie, prof, image_key, accent, ico, total_lecons, duree_label, description)
-       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *`,
-      [id, c.titre, c.categorie, c.professeur, c.imageKey, c.accent, c.ico, c.totalLecons, c.dureeLabel, c.description]
+      `insert into courses (id, titre, categorie, prof, image_key, accent, ico, total_lecons, duree_label, description, prix, publie, cree_par)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) returning *`,
+      [id, c.titre, c.categorie, c.professeur, c.imageKey, c.accent, c.ico, c.totalLecons, c.dureeLabel, c.description,
+       c.prix, c.publie, a.session.user.id]
     );
     return ok({ cours: row }, 201);
   });

@@ -1,29 +1,332 @@
 [
-  { "motif": "/",                    "cible": "accueil",              "exemple": "/",                    "titre": "Accueil" },
-  { "motif": "/cours",               "cible": "mes cours",            "exemple": "/cours",               "titre": "Mes cours" },
-  { "motif": "/cours/:id",           "cible": "fiche d'un cours",     "exemple": "/cours/c1",            "titre": "Cours" },
-  { "motif": "/agenda",              "cible": "agenda",               "exemple": "/agenda",              "titre": "Agenda" },
-  { "motif": "/profil",              "cible": "profil",               "exemple": "/profil",              "titre": "Profil" },
-  { "motif": "/profil/modifier",     "cible": "modifier le profil",   "exemple": "/profil/modifier",     "titre": "Modifier le profil" },
-  { "motif": "/notifications",       "cible": "notifications",        "exemple": "/notifications",       "titre": "Notifications" },
-  { "motif": "/recherche",           "cible": "recherche",            "exemple": "/recherche",           "titre": "Recherche" },
-  { "motif": "/videos",              "cible": "bibliothèque vidéo",   "exemple": "/videos",              "titre": "Vidéos" },
-  { "motif": "/video/:yt",           "cible": "lecteur vidéo",        "exemple": "/video/hJwIUUQYSQg",   "titre": "Lecture" },
-  { "motif": "/telechargements",     "cible": "téléchargements",      "exemple": "/telechargements",     "titre": "Téléchargements" },
-  { "motif": "/badges",              "cible": "badges",               "exemple": "/badges",              "titre": "Badges" },
-  { "motif": "/aide",                "cible": "centre d'aide",        "exemple": "/aide",                "titre": "Centre d'aide" },
-  { "motif": "/parametres",          "cible": "paramètres",           "exemple": "/parametres",          "titre": "Paramètres" },
-  { "motif": "/compte",              "cible": "mon compte",           "exemple": "/compte",              "titre": "Mon compte" },
-  { "motif": "/corrections",         "cible": "corrections",          "exemple": "/corrections",         "titre": "Corrections" },
-  { "motif": "/quiz/:id",            "cible": "quiz d'un cours",      "exemple": "/quiz/c1",             "titre": "Quiz" },
-  { "motif": "/devoir/:id",          "cible": "devoir",               "exemple": "/devoir/d1",           "titre": "Devoir" },
-  { "motif": "/abonnement",          "cible": "abonnement",           "exemple": "/abonnement",          "titre": "Abonnement" },
-  { "motif": "/formateur",           "cible": "espace formateur",     "exemple": "/formateur",           "titre": "Espace formateur" },
-  { "motif": "/formateur/:onglet",   "cible": "onglet formateur",     "exemple": "/formateur/apprenants","titre": "Espace formateur" },
-  { "motif": "/tentatives",          "cible": "tentatives de quiz",   "exemple": "/tentatives",          "titre": "Mes tentatives" },
-  { "motif": "/certificats",         "cible": "attestations",         "exemple": "/certificats",         "titre": "Mes attestations" },
-  { "motif": "/hors-ligne",          "cible": "mode hors-ligne",      "exemple": "/hors-ligne",          "titre": "Mode hors-ligne" },
-  { "motif": "/connexion",           "cible": "connexion",            "exemple": "/connexion",           "titre": "Connexion" },
-  { "motif": "/inscription",         "cible": "inscription",          "exemple": "/inscription",         "titre": "Créer un compte" },
-  { "motif": "/invite",              "cible": "explorer sans compte", "exemple": "/invite",              "titre": "Explorer sans compte" }
+  {
+    "motif": "/",
+    "cible": "accueil",
+    "exemple": "/",
+    "titre": "Accueil"
+  },
+  {
+    "motif": "/cours",
+    "cible": "mes cours",
+    "exemple": "/cours",
+    "titre": "Mes cours"
+  },
+  {
+    "motif": "/cours/:id",
+    "cible": "fiche d'un cours",
+    "exemple": "/cours/c1",
+    "titre": "Cours"
+  },
+  {
+    "motif": "/agenda",
+    "cible": "agenda",
+    "exemple": "/agenda",
+    "titre": "Agenda"
+  },
+  {
+    "motif": "/profil",
+    "cible": "profil",
+    "exemple": "/profil",
+    "titre": "Profil"
+  },
+  {
+    "motif": "/profil/modifier",
+    "cible": "modifier le profil",
+    "exemple": "/profil/modifier",
+    "titre": "Modifier le profil"
+  },
+  {
+    "motif": "/notifications",
+    "cible": "notifications",
+    "exemple": "/notifications",
+    "titre": "Notifications"
+  },
+  {
+    "motif": "/recherche",
+    "cible": "recherche",
+    "exemple": "/recherche",
+    "titre": "Recherche"
+  },
+  {
+    "motif": "/videos",
+    "cible": "bibliothèque vidéo",
+    "exemple": "/videos",
+    "titre": "Vidéos"
+  },
+  {
+    "motif": "/video/:yt",
+    "cible": "lecteur vidéo",
+    "exemple": "/video/hJwIUUQYSQg",
+    "titre": "Lecture"
+  },
+  {
+    "motif": "/telechargements",
+    "cible": "téléchargements",
+    "exemple": "/telechargements",
+    "titre": "Téléchargements"
+  },
+  {
+    "motif": "/badges",
+    "cible": "badges",
+    "exemple": "/badges",
+    "titre": "Badges"
+  },
+  {
+    "motif": "/aide",
+    "cible": "centre d'aide",
+    "exemple": "/aide",
+    "titre": "Centre d'aide"
+  },
+  {
+    "motif": "/parametres",
+    "cible": "paramètres",
+    "exemple": "/parametres",
+    "titre": "Paramètres"
+  },
+  {
+    "motif": "/compte",
+    "cible": "mon compte",
+    "exemple": "/compte",
+    "titre": "Mon compte"
+  },
+  {
+    "motif": "/corrections",
+    "cible": "corrections",
+    "exemple": "/corrections",
+    "titre": "Corrections"
+  },
+  {
+    "motif": "/quiz/:id",
+    "cible": "quiz d'un cours",
+    "exemple": "/quiz/c1",
+    "titre": "Quiz"
+  },
+  {
+    "motif": "/devoir/:id",
+    "cible": "devoir",
+    "exemple": "/devoir/d1",
+    "titre": "Devoir"
+  },
+  {
+    "motif": "/abonnement",
+    "cible": "abonnement",
+    "exemple": "/abonnement",
+    "titre": "Abonnement"
+  },
+  {
+    "motif": "/formateur",
+    "cible": "espace formateur",
+    "exemple": "/formateur",
+    "titre": "Espace formateur"
+  },
+  {
+    "motif": "/formateur/:onglet",
+    "cible": "onglet formateur",
+    "exemple": "/formateur/apprenants",
+    "titre": "Espace formateur"
+  },
+  {
+    "motif": "/tentatives",
+    "cible": "tentatives de quiz",
+    "exemple": "/tentatives",
+    "titre": "Mes tentatives"
+  },
+  {
+    "motif": "/certificats",
+    "cible": "attestations",
+    "exemple": "/certificats",
+    "titre": "Mes attestations"
+  },
+  {
+    "motif": "/hors-ligne",
+    "cible": "mode hors-ligne",
+    "exemple": "/hors-ligne",
+    "titre": "Mode hors-ligne"
+  },
+  {
+    "motif": "/connexion",
+    "cible": "connexion",
+    "exemple": "/connexion",
+    "titre": "Connexion"
+  },
+  {
+    "motif": "/inscription",
+    "cible": "inscription",
+    "exemple": "/inscription",
+    "titre": "Créer un compte"
+  },
+  {
+    "motif": "/invite",
+    "cible": "explorer sans compte",
+    "exemple": "/invite",
+    "titre": "Explorer sans compte"
+  },
+  {
+    "motif": "/parcours",
+    "cible": "parcours guidés",
+    "exemple": "/parcours",
+    "titre": "Parcours guidés"
+  },
+  {
+    "motif": "/parcours/:id",
+    "cible": "détail d'un parcours",
+    "exemple": "/parcours/debutante",
+    "titre": "Parcours"
+  },
+  {
+    "motif": "/revision",
+    "cible": "révision par cartes",
+    "exemple": "/revision",
+    "titre": "Révision"
+  },
+  {
+    "motif": "/objectifs",
+    "cible": "objectifs et séries",
+    "exemple": "/objectifs",
+    "titre": "Objectifs"
+  },
+  {
+    "motif": "/competences",
+    "cible": "compétences par thème",
+    "exemple": "/competences",
+    "titre": "Mes compétences"
+  },
+  {
+    "motif": "/fiche/:id",
+    "cible": "fiche de révision imprimable",
+    "exemple": "/fiche/c1",
+    "titre": "Fiche de révision"
+  },
+  {
+    "motif": "/outils",
+    "cible": "outils de l'artisan",
+    "exemple": "/outils",
+    "titre": "Outils"
+  },
+  {
+    "motif": "/outils/formulation",
+    "cible": "calculateur de formulation",
+    "exemple": "/outils/formulation",
+    "titre": "Formulation"
+  },
+  {
+    "motif": "/outils/saponification",
+    "cible": "assistant saponification",
+    "exemple": "/outils/saponification",
+    "titre": "Saponification"
+  },
+  {
+    "motif": "/outils/convertisseur",
+    "cible": "convertisseur et tables",
+    "exemple": "/outils/convertisseur",
+    "titre": "Convertisseur"
+  },
+  {
+    "motif": "/outils/reglementaire",
+    "cible": "réglementaire et étiquetage",
+    "exemple": "/outils/reglementaire",
+    "titre": "Réglementaire"
+  },
+  {
+    "motif": "/recettes",
+    "cible": "mes recettes",
+    "exemple": "/recettes",
+    "titre": "Mes recettes"
+  },
+  {
+    "motif": "/production",
+    "cible": "carnet de production",
+    "exemple": "/production",
+    "titre": "Carnet de production"
+  },
+  {
+    "motif": "/paiements",
+    "cible": "mes paiements et reçus",
+    "exemple": "/paiements",
+    "titre": "Mes paiements"
+  },
+  {
+    "motif": "/codes",
+    "cible": "codes promo",
+    "exemple": "/codes",
+    "titre": "Codes promo"
+  },
+  {
+    "motif": "/parrainage",
+    "cible": "parrainage",
+    "exemple": "/parrainage",
+    "titre": "Parrainage"
+  },
+  {
+    "motif": "/verifier",
+    "cible": "vérifier une attestation (public)",
+    "exemple": "/verifier",
+    "titre": "Vérifier une attestation"
+  },
+  {
+    "motif": "/verifier/:numero",
+    "cible": "résultat de vérification (public)",
+    "exemple": "/verifier/CL-C1-ABCD",
+    "titre": "Attestation vérifiée"
+  },
+  {
+    "motif": "/etat",
+    "cible": "état du service (public)",
+    "exemple": "/etat",
+    "titre": "État du service"
+  },
+  {
+    "motif": "/sauvegarde",
+    "cible": "sauvegarde et restauration",
+    "exemple": "/sauvegarde",
+    "titre": "Sauvegarde"
+  },
+  {
+    "motif": "/accessibilite",
+    "cible": "confort de lecture",
+    "exemple": "/accessibilite",
+    "titre": "Confort de lecture"
+  },
+  {
+    "motif": "/formateur/revenus",
+    "cible": "revenus du formateur",
+    "exemple": "/formateur/revenus",
+    "titre": "Revenus"
+  },
+  {
+    "motif": "/formateur/creer",
+    "cible": "créer un cours",
+    "exemple": "/formateur/creer",
+    "titre": "Créer un cours"
+  },
+  {
+    "motif": "/formateur/creer/:id",
+    "cible": "modifier un cours",
+    "exemple": "/formateur/creer/c1",
+    "titre": "Modifier un cours"
+  },
+  {
+    "motif": "/formateur/questions",
+    "cible": "banque de questions",
+    "exemple": "/formateur/questions",
+    "titre": "Banque de questions"
+  },
+  {
+    "motif": "/formateur/annonce",
+    "cible": "annonce aux élèves",
+    "exemple": "/formateur/annonce",
+    "titre": "Annonce"
+  },
+  {
+    "motif": "/formateur/notation",
+    "cible": "notation assistée",
+    "exemple": "/formateur/notation",
+    "titre": "Notation"
+  },
+  {
+    "motif": "/formateur/seances",
+    "cible": "séances en direct",
+    "exemple": "/formateur/seances",
+    "titre": "Séances en direct"
+  }
 ]

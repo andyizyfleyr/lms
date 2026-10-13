@@ -1,5 +1,6 @@
 import { q, q1 } from '@/lib/db';
 import { auth, ok, OPTIONS, handler } from '@/lib/http';
+import { numeroDe } from '@/lib/attestation';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -47,23 +48,12 @@ export async function GET(req: Request) {
       [uid, cours]
     );
 
-    const sous = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    const empreinte = (txt: string) => {
-      /* petite empreinte lisible : stable pour un couple (utilisateur, cours) */
-      let h1 = 0x811c9dc5, h2 = 0x1000193;
-      for (let i = 0; i < txt.length; i++){
-        h1 = (h1 ^ txt.charCodeAt(i)) * 16777619 >>> 0;
-        h2 = (h2 + txt.charCodeAt(i) * (i + 7)) >>> 0;
-      }
-      const mot = (n: number) => { let s = ''; for (let i = 0; i < 4; i++){ s += sous[n % sous.length]; n = Math.floor(n / sous.length); } return s.toUpperCase(); };
-      return mot(h1) + '-' + mot(h2);
-    };
-
     const liste = rows.map(r => ({
       ...r,
       pourcent: r.lecons_total ? Math.round(r.lecons_faites / r.lecons_total * 100) : 0,
       termine: r.lecons_total > 0 && r.lecons_faites >= r.lecons_total,
-      numero: empreinte(uid + '/' + r.course_id),
+      numero: numeroDe(uid, r.course_id),
+      verifiable: '/verifier/' + numeroDe(uid, r.course_id),
       apprenant: a.session.user.nom
     }));
 

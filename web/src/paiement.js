@@ -205,7 +205,14 @@ async function acheter(type, options){
 
 /* ---------- retour de la page de paiement ---------- */
 function nettoyerURL(){
-  try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}
+  /* on retire seulement ce qui vient du retour NOVA : les autres paramètres
+     d'adresse (code d'ami, code promo, mode) doivent survivre au nettoyage. */
+  try {
+    const q = new URLSearchParams(location.search || '');
+    ['paiement', 'session_id', 'paiement_session'].forEach(k => q.delete(k));
+    const reste = q.toString();
+    history.replaceState(null, '', location.pathname + (reste ? '?' + reste : '') + location.hash);
+  } catch (e) {}
 }
 async function verifierRetour(){
   const q = new URLSearchParams(location.search || '');

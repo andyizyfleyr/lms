@@ -1,0 +1,23 @@
+{
+  "name": "CosmétiLab — cosmétique artisanale",
+  "short_name": "CosmétiLab",
+  "description": "Cours, quiz, devoirs et outils de formulation pour créer ses savons, gels douche, crèmes et laits corporels.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FEF7FF",
+  "theme_color": "#6750A4",
+  "lang": "fr",
+  "categories": ["education", "productivity"],
+  "icons": [
+    { "src": "/icone-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Mes cours", "url": "/cours" },
+    { "name": "Réviser", "url": "/revision" },
+    { "name": "Outils", "url": "/outils" }
+  ]
+}

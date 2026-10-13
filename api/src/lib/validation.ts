@@ -72,7 +72,9 @@ export const cours = z.object({
   ico: z.string().trim().max(30).default('code'),
   totalLecons: z.number().int().min(0).max(500).default(0),
   dureeLabel: z.string().trim().max(30).default(''),
-  description: z.string().trim().max(2000).default('')
+  description: z.string().trim().max(2000).default(''),
+  prix: z.number().int().min(0).max(500000).default(0),
+  publie: z.boolean().default(true)
 });
 
 export const lecon = z.object({

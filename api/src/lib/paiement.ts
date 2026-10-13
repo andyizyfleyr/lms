@@ -20,13 +20,14 @@ export const novaConfigure = () => !!NOVA_CLE;
 export type Order = {
   id: string;
   user_id: string;
-  type: 'cours' | 'abonnement';
+  type: 'cours' | 'abonnement' | 'panier';
   course_id: string | null;
   plan_id: string | null;
   amount: number;
   currency: string;
   description: string;
   status: 'open' | 'paid' | 'cancelled' | 'expired' | 'failed';
+  meta: { courseIds?: string[]; code?: string; reduction?: number; pack?: number } | null;
   nova_session_id: string | null;
   nova_reference: string | null;
   method: string | null;
@@ -203,11 +204,35 @@ export async function controleAccesRessource(
 /* ------------------------------------------------------------ COMMANDES */
 
 /** Crée la commande en base et la session de paiement NOVA correspondante. */
-export async function creerCommande(uid: string, p: { type: 'cours' | 'abonnement'; courseId?: string; planId?: string })
-  : Promise<{ ok: true; order: Order; url: string } | { ok: false; error: Response }> {
+export async function creerCommande(
+  uid: string,
+  p: { type: 'cours' | 'abonnement' | 'panier'; courseId?: string; planId?: string; courseIds?: string[]; code?: string }
+): Promise<{ ok: true; order: Order; url: string } | { ok: false; error: Response }> {
   let amount: number, description: string, courseId: string | null = null, planId: string | null = null;
+  const meta: { courseIds?: string[]; code?: string; reduction?: number; pack?: number } = {};
 
-  if (p.type === 'cours') {
+  if (p.type === 'panier') {
+    const ids = Array.from(new Set((p.courseIds || []).filter(Boolean))).slice(0, 20);
+    if (ids.length < 2) return { ok: false, error: fail('Choisissez au moins deux cours pour payer en une fois') };
+    const choix = await q<{ id: string; titre: string }>(`select id, titre from courses where id = any($1::text[])`, [ids]);
+    if (choix.length !== ids.length) return { ok: false, error: fail('Un des cours choisis est introuvable', 404, 'introuvable') };
+    let brut = 0;
+    for (const c of choix) {
+      if (await aAcces(uid, c.id)) return { ok: false, error: fail('Le cours « ' + c.titre + ' » est déjà débloqué sur votre compte.', 409, 'deja_debloque') };
+      brut += prixCours(c.id);
+    }
+    meta.pack = Math.round(brut * 0.1);                       // 10 % de remise dès deux cours
+    let total = brut - meta.pack;
+    if (p.code) {
+      const cv = await validerCode(p.code, uid);
+      if (cv) { meta.code = cv.code; meta.reduction = Math.round(total * cv.valeur / 100); total -= meta.reduction; }
+    }
+    if (total < MONTANT_MIN) total = MONTANT_MIN;
+    if (total > MONTANT_MAX) return { ok: false, error: fail('Montant hors des limites du paiement', 400) };
+    meta.courseIds = choix.map(c => c.id);
+    amount = total;
+    description = ('CosmétiLab — ' + choix.length + ' cours : ' + choix.map(c => c.titre).join(', ')).slice(0, 120);
+  } else if (p.type === 'cours') {
     if (!p.courseId) return { ok: false, error: fail('Cours manquant') };
     const c = await q1<{ id: string; titre: string }>('select id, titre from courses where id = $1', [p.courseId]);
     if (!c) return { ok: false, error: fail('Cours introuvable', 404, 'introuvable') };
@@ -216,6 +241,10 @@ export async function creerCommande(uid: string, p: { type: 'cours' | 'abonnemen
     amount = prixCours(c.id);
     courseId = c.id;
     description = 'CosmétiLab — cours ' + c.titre;
+    if (p.code) {
+      const cv = await validerCode(p.code, uid);
+      if (cv) { meta.code = cv.code; meta.reduction = Math.round(amount * cv.valeur / 100); amount -= meta.reduction; }
+    }
   } else {
     const plan = planParId(p.planId || 'mensuel');
     if (!plan) return { ok: false, error: fail('Formule d’abonnement inconnue') };
@@ -225,16 +254,16 @@ export async function creerCommande(uid: string, p: { type: 'cours' | 'abonnemen
   }
 
   const order = await q1<Order>(
-    `insert into orders (user_id, type, course_id, plan_id, amount, currency, description)
-     values ($1, $2, $3, $4, $5, $6, $7) returning *`,
-    [uid, p.type, courseId, planId, amount, DEVISE.toLowerCase(), description]
+    `insert into orders (user_id, type, course_id, plan_id, amount, currency, description, meta)
+     values ($1, $2, $3, $4, $5, $6, $7, $8::jsonb) returning *`,
+    [uid, p.type, courseId, planId, amount, DEVISE.toLowerCase(), description, JSON.stringify(meta)]
   );
   if (!order) return { ok: false, error: fail('Commande non enregistrée', 500, 'erreur_serveur') };
 
   const r = await novaCreerSession({
     amount,
     description,
-    metadata: { order_id: order.id, user_id: uid, type: p.type, cours: courseId || '', formule: planId || '' },
+    metadata: { order_id: order.id, user_id: uid, type: p.type, cours: courseId || (meta.courseIds || []).join(','), formule: planId || '' },
     idempotency: 'order-' + order.id
   });
 
@@ -276,8 +305,67 @@ export async function marquerPaye(orderId: string, info: { reference?: string | 
   return q1<Order>('select * from orders where id = $1', [orderId]);
 }
 
-/** Ouvre les accès prévus par la commande (cours à l'unité ou période d'abonnement). */
+/* ------------------------------------------------- commandes et remises */
+
+export type CodeValide = { code: string; valeur: number; genre: string; courseId: string | null };
+
+/**
+ * Valide un code promo de réduction pour un compte donné (0 % si inutilisable).
+ * Le code n'est consommé qu'au paiement confirmé : `utiliserCode`.
+ */
+export async function validerCode(code: string, uid: string): Promise<CodeValide | null> {
+  const c = await q1<{ code: string; genre: string; valeur: number; course_id: string | null;
+                       utilisations: number; utilisations_max: number; expire_le: string | null; actif: boolean }>(
+    `select * from codes_promo where code = $1`, [String(code || '').trim().toUpperCase()]
+  );
+  if (!c || !c.actif || c.genre !== 'reduction' || c.valeur <= 0) return null;
+  if (c.expire_le && new Date(c.expire_le).getTime() < Date.now()) return null;
+  if (c.utilisations_max > 0 && c.utilisations >= c.utilisations_max) return null;
+  const deja = await q1<{ n: number }>(`select count(*)::int as n from code_utilisations where code = $1 and user_id = $2`, [c.code, uid]);
+  if (deja && deja.n) return null;
+  return { code: c.code, valeur: c.valeur, genre: c.genre, courseId: c.course_id };
+}
+
+/** Consomme un code (au paiement confirmé) et remercie le parrain s'il s'agit d'un parrainage. */
+export async function utiliserCode(code: string, uid: string, orderId: string) {
+  const c = await q1<{ code: string; parrain: string | null; libelle: string; valeur: number; genre: string }>(
+    `select code, parrain, libelle, valeur, genre from codes_promo where code = $1`, [code]
+  );
+  if (!c) return;
+  await exec(`insert into code_utilisations (code, user_id, order_id) values ($1, $2, $3) on conflict do nothing`,
+             [c.code, uid, orderId]);
+  await exec(`update codes_promo set utilisations = utilisations + 1 where code = $1`, [c.code]);
+  if (c.parrain && c.parrain !== uid) {
+    await exec(
+      `insert into notifications (user_id, titre, texte, ico, kind) values ($1, $2, $3, 'star', 'parrainage')`,
+      [c.parrain, 'Votre parrainage a servi 🎉',
+       'Un filleul a utilisé votre code ' + c.code + '. Merci ! Votre réduction de 30 % vous attend dans « Codes promo ».']
+    );
+    /* récompense du parrain : un code de réduction personnel */
+    const rw = 'MERCI-' + c.code;
+    await exec(
+      `insert into codes_promo (code, libelle, genre, valeur, utilisations_max, parrain, cree_par)
+       values ($1, $2, 'reduction', 30, 1, $3, $3) on conflict (code) do nothing`,
+      [rw, 'Récompense de parrainage', c.parrain]
+    );
+  }
+}
+
+/** Ouvre les accès prévus par la commande (cours à l'unité, panier ou période d'abonnement). */
 export async function accorderAcces(o: Order) {
+  if (o.type === 'panier' && o.meta && Array.isArray(o.meta.courseIds)) {
+    for (const cid of o.meta.courseIds) {
+      await exec(
+        `insert into course_access (user_id, course_id, source, order_id)
+         values ($1, $2, 'achat', $3)
+         on conflict (user_id, course_id) do update
+           set source = 'achat', order_id = excluded.order_id, expires_at = null, started_at = now()`,
+        [o.user_id, cid, o.id]
+      );
+    }
+    if (o.meta.code) await utiliserCode(o.meta.code, o.user_id, o.id);
+    return;
+  }
   if (o.type === 'cours' && o.course_id) {
     await exec(
       `insert into course_access (user_id, course_id, source, order_id)
@@ -286,6 +374,7 @@ export async function accorderAcces(o: Order) {
          set source = 'achat', order_id = excluded.order_id, expires_at = null, started_at = now()`,
       [o.user_id, o.course_id, o.id]
     );
+    if (o.meta && o.meta.code) await utiliserCode(o.meta.code, o.user_id, o.id);
     return;
   }
   if (o.type === 'abonnement') {

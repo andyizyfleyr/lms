@@ -33,13 +33,25 @@ const TITRES = {
   'profil-edit': 'Modifier le profil', quiz: 'Quiz', devoir: 'Devoir',
   abonnement: 'Abonnement', 'espace-formateur': 'Espace formateur',
   tentatives: 'Mes tentatives', certificats: 'Mes attestations', 'hors-ligne': 'Mode hors-ligne',
-  connexion: 'Connexion', inscription: 'Créer un compte', invite: 'Explorer sans compte'
+  connexion: 'Connexion', inscription: 'Créer un compte', invite: 'Explorer sans compte',
+  /* V3 */
+  parcours: 'Parcours guidés', parcoursdetail: 'Parcours', revision: 'Révision',
+  objectifs: 'Objectifs', competences: 'Mes compétences', fiche: 'Fiche de révision',
+  outils: "Outils de l'artisan", formulation: 'Formulation', saponification: 'Saponification',
+  convertisseur: 'Convertisseur', reglementaire: 'Réglementaire', recettes: 'Mes recettes',
+  production: 'Carnet de production', paiements: 'Mes paiements', codes: 'Codes promo',
+  parrainage: 'Parrainage', verifier: 'Vérifier une attestation', etat: 'État du service',
+  sauvegarde: 'Sauvegarde', accessibilite: 'Confort de lecture', revenus: 'Revenus',
+  creercours: 'Créer un cours', questions: 'Banque de questions', annonce: 'Annonce',
+  notation: 'Notation assistée', seances: 'Séances en direct'
 };
 
 /* onglets de la fiche cours */
 const ONGLETS_COURS = ['programme', 'ressources', 'discussion', 'notes', 'quiz', 'devoirs'];
 /* onglets de l'espace formateur */
 const ONGLETS_FORMATEUR = ['cours', 'lecons', 'ressources', 'seances', 'apprenants'];
+/* écrans du formateur qui ont leur propre adresse (V3) */
+const ECRANS_FORMATEUR = ['revenus', 'questions', 'annonce', 'notation', 'seances'];
 
 const ech = t => encodeURIComponent(String(t === null || t === undefined ? '' : t));
 
@@ -53,7 +65,7 @@ function cheminDe(id, params){
     case 'accueil': case '': return '/';
     case 'cours': if (!cle) return '/cours';
       return '/cours/' + ech(cle) + (params.tab && params.tab !== 'programme' ? '?onglet=' + ech(params.tab) : '');
-    case 'quiz':   return '/quiz/' + ech(cle || params.id);
+    case 'quiz':   return '/quiz/' + ech(cle || params.id) + (params.mode === 'entrainement' ? '?mode=entrainement' : '');
     case 'devoir': return '/devoir/' + ech(cle);
     case 'profil-edit': return '/profil/modifier';
     case 'espace-formateur': {
@@ -61,6 +73,10 @@ function cheminDe(id, params){
       return '/formateur' + (onglet && onglet !== 'cours' ? '/' + ech(onglet) : '');
     }
     case 'video': return '/video/' + ech(params.yt || cle);
+    case 'fiche': return '/fiche/' + ech(cle);
+    case 'parcoursdetail': return '/parcours/' + ech(params.id || cle);
+    case 'creercours': return '/formateur/creer' + (params.id ? '/' + ech(params.id) : '');
+    case 'verifier': return '/verifier' + (params.numero ? '/' + ech(params.numero) : '');
     default: return '/' + (LIEUX[id] || id);
   }
 }
@@ -70,7 +86,15 @@ const LIEUX = {
   agenda:'agenda', profil:'profil', notifications:'notifications', recherche:'recherche',
   videos:'videos', telechargements:'telechargements', badges:'badges', aide:'aide',
   parametres:'parametres', compte:'compte', corrections:'corrections', abonnement:'abonnement',
-  tentatives:'tentatives', certificats:'certificats', 'hors-ligne':'hors-ligne'
+  tentatives:'tentatives', certificats:'certificats', 'hors-ligne':'hors-ligne',
+  /* V3 */
+  parcours:'parcours', revision:'revision', objectifs:'objectifs', competences:'competences',
+  outils:'outils', formulation:'outils/formulation', saponification:'outils/saponification',
+  convertisseur:'outils/convertisseur', reglementaire:'outils/reglementaire',
+  recettes:'recettes', production:'production', paiements:'paiements', codes:'codes',
+  parrainage:'parrainage', etat:'etat', sauvegarde:'sauvegarde', accessibilite:'accessibilite',
+  revenus:'formateur/revenus', questions:'formateur/questions', annonce:'formateur/annonce',
+  notation:'formateur/notation', seances:'formateur/seances'
 };
 
 /* adresse de l'écran précédent logique (ouverture directe d'une adresse) */
@@ -79,6 +103,16 @@ function parentDe(id, params){
   if (id === 'quiz' || id === 'devoir') return '/cours/' + ech(params.id || params.quiz || '');
   if (id === 'video') return '/videos';
   if (id === 'profil-edit') return '/profil';
+  if (id === 'parcoursdetail') return '/parcours';
+  if (id === 'fiche') return '/cours/' + ech(params.id || '');
+  if (['formulation', 'saponification', 'convertisseur', 'reglementaire'].indexOf(id) >= 0) return '/outils';
+  if (['revenus', 'creercours', 'questions', 'annonce', 'notation', 'seances'].indexOf(id) >= 0) return '/formateur';
+  if (id === 'revision') return '/objectifs';
+  if (id === 'codes') return '/paiements';
+  if (id === 'parrainage') return '/codes';
+  if (id === 'recettes' || id === 'production') return '/outils';
+  if (id === 'objectifs' || id === 'competences') return '/profil';
+  if (id === 'sauvegarde' || id === 'accessibilite') return '/parametres';
   if (id === 'corrections' || id === 'tentatives' || id === 'certificats' || id === 'hors-ligne' || id === 'compte') return '/profil';
   if (id === 'abonnement') return '/profil';
   if (id === 'espace-formateur') return '/compte';
@@ -100,11 +134,29 @@ function analyser(chemin, recherche){
     case 'cours':
       if (!seg[1]) return { vue: 'cours' };
       return { id: 'cours', params: { id: seg[1], tab: onglet && ONGLETS_COURS.indexOf(onglet) >= 0 ? onglet : 'programme' } };
-    case 'quiz':   return seg[1] ? { id: 'quiz', params: { id: seg[1], quiz: seg[1] } } : { inconnu: true };
+    case 'quiz':
+      if (!seg[1]) return { inconnu: true };
+      return { id: 'quiz', params: { id: seg[1], quiz: seg[1], mode: q.get('mode') === 'entrainement' ? 'entrainement' : '' } };
     case 'devoir': return seg[1] ? { id: 'devoir', params: { id: seg[1] } } : { inconnu: true };
     case 'video':  return seg[1] ? { id: 'video', params: { yt: seg[1] } } : { inconnu: true };
     case 'formateur':
+      if (seg[1] === 'creer') return { id: 'creercours', params: { id: seg[2] || '' } };
+      if (seg[1] && ECRANS_FORMATEUR.indexOf(seg[1]) >= 0) return { id: seg[1], params: {} };
       return { id: 'espace-formateur', params: { onglet: seg[1] && ONGLETS_FORMATEUR.indexOf(seg[1]) >= 0 ? seg[1] : 'cours' } };
+    case 'parcours':
+      if (seg.length === 1) return { id: 'parcours', params: {} };
+      return seg[2] ? { inconnu: true } : { id: 'parcoursdetail', params: { id: seg[1] } };
+    case 'fiche':
+      return seg[1] && !seg[2] ? { id: 'fiche', params: { id: seg[1] } } : { inconnu: true };
+    case 'outils':
+      if (seg.length === 1) return { id: 'outils', params: {} };
+      return ['formulation', 'saponification', 'convertisseur', 'reglementaire'].indexOf(seg[1]) >= 0 && !seg[2]
+        ? { id: seg[1], params: {} } : { inconnu: true };
+    case 'verifier':
+      return seg[2] ? { inconnu: true } : { id: 'verifier', params: { numero: seg[1] || '' } };
+    case 'revision': case 'objectifs': case 'competences': case 'recettes': case 'production':
+    case 'paiements': case 'codes': case 'parrainage': case 'etat': case 'sauvegarde': case 'accessibilite':
+      return seg.length === 1 ? { id: seg[0], params: {} } : { inconnu: true };
     case 'profil':
       if (seg[1] === 'modifier') return { id: 'profil-edit', params: {} };
       if (!seg[1]) return { vue: 'profil' };

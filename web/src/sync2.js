@@ -84,7 +84,12 @@ async function tirerNotifications(){
   persist();
   A.updateNotifBadge ? A.updateNotifBadge() : 0;
   const pageNotifs = $('.page[data-page="notifications"]');
-  if (pageNotifs && A.PAGES && A.PAGES.notifications){ pageNotifs.innerHTML = A.PAGES.notifications.render(); }
+  if (pageNotifs && A.PAGES && A.PAGES.notifications){
+    pageNotifs.innerHTML = A.PAGES.notifications.render();
+    /* la liste doit être repeinte tout de suite : sinon l'écran paraît vide */
+    if (A.PAGES.notifications.refresh) A.PAGES.notifications.refresh(pageNotifs);
+    else if (A.PAGES.notifications.mount) A.PAGES.notifications.mount(pageNotifs, {});
+  }
   tableau.majNotifs(serveur.length + locales.length);
 }
 async function pousserNotification(entree){

@@ -7,12 +7,14 @@ export const dynamic = 'force-dynamic';
 export { OPTIONS };
 
 const corps = z.object({
-  type: z.enum(['cours', 'abonnement']),
+  type: z.enum(['cours', 'abonnement', 'panier']),
   courseId: z.string().min(1).max(40).optional(),
-  planId: z.string().min(1).max(40).optional()
+  planId: z.string().min(1).max(40).optional(),
+  courseIds: z.array(z.string().min(1).max(40)).max(20).optional(),
+  code: z.string().min(2).max(40).optional()
 });
 
-/** POST /api/paiements/session — ouvre une session de paiement NOVA pour un cours ou un abonnement. */
+/** POST /api/paiements/session — ouvre une session NOVA : un cours, un panier de cours, ou un abonnement. */
 export async function POST(req: Request) {
   return handler(async () => {
     const a = await auth(req);
@@ -28,7 +30,8 @@ export async function POST(req: Request) {
         montant: r.order.amount, devise: r.order.currency, description: r.order.description,
         statut: r.order.status, session: r.order.nova_session_id
       },
-      url: r.url
+      url: r.url,
+      meta: r.order.meta || {}
     }, 201);
   });
 }

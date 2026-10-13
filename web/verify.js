@@ -21,7 +21,13 @@ const test = (nom, condition, detail = '') => {
 };
 
 console.log('=== Contenu du livrable ===');
-test('fichier unique et autonome', !/<script[^>]+src=|<link[^>]+href=/i.test(html), 'aucun script ni feuille externe');
+/* Le livrable reste un fichier unique : aucun script ni feuille de style externe.
+   Seules les déclarations PWA (manifest, icônes, lien canonique) pointent vers
+   des fichiers du même site — elles n'ajoutent aucune dépendance pour lire l'app. */
+const externes = (html.match(/<script[^>]+src=|<link[^>]+href="(?!#)[^"]*/gi) || [])
+  .filter(x => !/manifest\.webmanifest|apple-touch-icon|rel="icon"|rel="canonical"/i.test(x));
+test('fichier unique et autonome', externes.length === 0,
+     externes.length ? externes.slice(0, 3).join(' · ') : 'aucun script ni feuille externe');
 test('aucune dépendance CDN', !/https?:\/\/(unpkg|cdn|jsdelivr)/i.test(html));
  test('contenu cosmétique', /const COURS\s*=\s*\[/.test(html) && /Savonnerie à froid/.test(html));
  test('comptes séparés et temps réel', /lh:u:/.test(html) && /\/api\/sync/.test(html));

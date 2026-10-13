@@ -163,6 +163,7 @@ function histReset(){
    se recharge, et le bouton retour du téléphone suit l'historique.
    ------------------------------------------------------------ */
 function montrerEntree(nom){
+  sortirPublic();
   const C = window.LHCOMPTE;
   if (!C || !C.ouvrirEntree) return false;
   C.ouvrirEntree();
@@ -219,6 +220,8 @@ window.addEventListener('popstate', e => {
   const st = e.state || {};
   const haut = () => pageStack[pageStack.length - 1];
   if (window.LHPLAYER && window.LHPLAYER.ouvert()) window.LHPLAYER.fermer();   // retour depuis une vidéo
+  if (PUBLICS.test(location.pathname)) entrerPublic();
+  else if (window.APPX && document.body.classList.contains('est-public') && !S.logged) sortirPublic();
   histRestoring = true;
   try {
     if (st.lh){
@@ -253,8 +256,28 @@ function gererAncienHash(){
   poserAdresse(chemin, null, true);
   return allerVers(chemin, true);
 }
+/* Écrans publics (/verifier, /etat) : lisibles sans compte — c'est le but
+   d'une vérification d'attestation. On masque l'écran d'entrée le temps de
+   la visite, et il revient dès qu'on sort de ces adresses. */
+const PUBLICS = /^\/(verifier|etat)(\/|$)/;
+function entrerPublic(){
+  const l = $('#loginScreen');
+  if (l) l.style.display = 'none';
+  document.body.classList.add('est-public');
+}
+function sortirPublic(){
+  const l = $('#loginScreen');
+  if (l) l.style.display = '';
+  document.body.classList.remove('est-public');
+}
 /* Écran d'ouverture : on lit l'adresse. */
 function ouvrirAdresse(){
+  if (PUBLICS.test(location.pathname)){
+    entrerPublic();
+    const ouvert = allerVers(adresse(), true);
+    histDepth = 0;
+    return ouvert;
+  }
   if (gererAncienHash()) { setTimeout(() => { if (!pageStack.length) allerVers(location.pathname + location.search, true); }, 60); return true; }
   const cible = ROUTES().analyser(location.pathname, location.search);
   const connecte = !!(S.logged && !$('#loginScreen'));
@@ -625,11 +648,20 @@ PAGES.notifications = {
     const paint = mode => {
       const list = S.notifs.filter(n => mode === 'all' || !n.lu)
         .slice().sort((a,b) => a.min - b.min);
-      $('.n-list', el).innerHTML = list.length ? list.map(notifRowHTML).join('')
+      const zone = $('.n-list', el); if (!zone) return;
+      zone.innerHTML = list.length ? list.map(notifRowHTML).join('')
         : emptyBox('bell', 'Aucune notification', 'Vous êtes à jour 👌');
       hydrate(el);
+      /* les compteurs d'onglets suivent la liste */
+      const onglets = $$('.n-tabs .tab', el);
+      if (onglets[0]) onglets[0].textContent = 'Toutes (' + S.notifs.length + ')';
+      if (onglets[1]) onglets[1].textContent = 'Non lues (' + notifsNonLues() + ')';
     };
-    paint('all');
+    const actif = ($('.n-tabs .tab.is-active', el) || { dataset: {} }).dataset.ntab || 'all';
+    paint(actif);
+    /* une seule écoute par page : les rafraîchissements en direct repassent par le rendu */
+    if (el.dataset.nbranche === '1') return;
+    el.dataset.nbranche = '1';
     el.addEventListener('click', e => {
       const tab = e.target.closest('[data-ntab]');
       if (tab){
@@ -1811,7 +1843,8 @@ PAGES.introuvable = {
 };
 
 window.APPX = {
-  svg: svg, IC: IC, PAGES: PAGES, pushPage: pushPage, popPage: popPage, topPage: topPage,
+  svg: svg, esc: esc, toast: toast, $: $, $$: $$, coursById: coursById, COURS: COURS,
+  IC: IC, PAGES: PAGES, pushPage: pushPage, popPage: popPage, topPage: topPage,
   ouvrirAdresse: ouvrirAdresse, allerVers: allerVers, setVue: setVue, adresse: adresse, ROUTES: ROUTES,
   dialog: dialog, openSheet: openSheet, closeSheet: closeSheet, barPage: barPage, emptyBox: emptyBox,
   S: S, persist: persist, refreshUI: refreshUI, refreshPages: refreshPages,

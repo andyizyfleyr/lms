@@ -363,3 +363,78 @@ create table if not exists payment_events (
   payload     jsonb,
   received_at timestamptz not null default now()
 );
+
+
+-- ============================================================
+-- V3 : données par compte, codes promo, séances en direct
+-- (idempotent : peut être relancé sans casser la base)
+-- ============================================================
+
+-- Données libres et propres à chaque compte (recettes, lots de production,
+-- révision espacée, objectifs, parcours, file hors-ligne…). Une ligne par
+-- clé, valeur JSON : un seul point de passage, aucune table à multiplier.
+create table if not exists user_data (
+  user_id    uuid not null references users(id) on delete cascade,
+  cle        text not null,
+  valeur     jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, cle)
+);
+
+-- Codes promo / accès offerts créés par un formateur ou un administrateur.
+create table if not exists codes_promo (
+  code            text primary key,
+  libelle         text not null default '',
+  genre           text not null default 'reduction',   -- reduction | acces
+  valeur          int  not null default 0,             -- % de réduction
+  course_id       text references courses(id) on delete cascade,
+  utilisations_max int not null default 0,             -- 0 = illimité
+  utilisations    int  not null default 0,
+  expire_le       timestamptz,
+  actif           boolean not null default true,
+  cree_par        uuid references users(id) on delete set null,
+  created_at      timestamptz not null default now()
+);
+
+create table if not exists code_utilisations (
+  code       text not null references codes_promo(code) on delete cascade,
+  user_id    uuid not null references users(id) on delete cascade,
+  order_id   uuid,
+  created_at timestamptz not null default now(),
+  primary key (code, user_id)
+);
+
+-- Cours : prix affiché, brouillon/publié, auteur (création par un formateur).
+alter table courses add column if not exists prix int not null default 0;
+alter table courses add column if not exists publie boolean not null default true;
+alter table courses add column if not exists cree_par uuid references users(id) on delete set null;
+alter table courses add column if not exists updated_at timestamptz not null default now();
+
+-- Commandes : contenu de la commande (cours du panier, code promo appliqué, réduction).
+alter table orders add column if not exists meta jsonb not null default '{}'::jsonb;
+
+-- Codes de parrainage : qui a créé le code (pour le remercier quand il sert).
+alter table codes_promo add column if not exists parrain uuid references users(id) on delete set null;
+
+-- Banque de questions : les questions écrites par les formateurs, réutilisables
+-- dans les quiz (tirage aléatoire, entraînement) et dans les fiches de révision.
+create table if not exists question_bank (
+  id         uuid primary key default gen_random_uuid(),
+  course_id  text references courses(id) on delete cascade,
+  theme      text not null default '',
+  type       text not null default 'simple',        -- simple | multiple | vraifaux
+  question   text not null,
+  options    jsonb not null default '[]'::jsonb,
+  bonnes     jsonb not null default '[]'::jsonb,    -- indices des bonnes réponses
+  explication text not null default '',
+  difficulte int not null default 2,                -- 1 facile → 3 difficile
+  cree_par   uuid references users(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+-- Séances en direct : lien de visioconférence et émargement.
+alter table calendar_sessions add column if not exists lien text not null default '';
+alter table calendar_sessions add column if not exists enligne boolean not null default false;
+
+-- Notation assistée : commentaire type laissé avec la note.
+alter table submissions add column if not exists commentaire_type text not null default '';

@@ -68,10 +68,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       `update courses set titre = coalesce($2, titre), categorie = coalesce($3, categorie),
               prof = coalesce($4, prof), image_key = coalesce($5, image_key), accent = coalesce($6, accent),
               ico = coalesce($7, ico), total_lecons = coalesce($8, total_lecons),
-              duree_label = coalesce($9, duree_label), description = coalesce($10, description)
+              duree_label = coalesce($9, duree_label), description = coalesce($10, description),
+              prix = coalesce($11, prix), publie = coalesce($12, publie), updated_at = now()
         where id = $1 returning *`,
       [id, c.titre ?? null, c.categorie ?? null, c.professeur ?? null, c.imageKey ?? null, c.accent ?? null,
-       c.ico ?? null, c.totalLecons ?? null, c.dureeLabel ?? null, c.description ?? null]
+       c.ico ?? null, c.totalLecons ?? null, c.dureeLabel ?? null, c.description ?? null,
+       c.prix ?? null, c.publie ?? null]
     );
     if (!row) return notFound('Cours');
     return ok({ cours: row });
