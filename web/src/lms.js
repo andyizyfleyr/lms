@@ -76,6 +76,10 @@ PAGES.cours = {
       const row = e.target.closest('[data-lesson]');
       if (row){
         const l = LESSONS[c.id][+row.dataset.lesson];
+        /* Une leçon « quiz » porte l'identifiant du cours dans `v` : on la
+           traite AVANT la vidéo, sinon elle ne s'ouvrait jamais (et se
+           terminait toute seule au bout de 2,5 s). */
+        if (l.k === 'quiz'){ pushPage('quiz', {quiz:c.id, id:c.id}); return; }
         if (l.v){ openVideoId(l.v, c.id, +row.dataset.lesson); return; }
         openSheet(`<h3 class="title-medium">${esc(l.t)}</h3>
           <p class="body-small muted" style="padding:0 6px 14px">${lessonLabel(l.k)} · ${esc(l.d)} · ${esc(l.module)}</p>
@@ -297,8 +301,8 @@ const ACTIONS = {
     const cur = curLessonIdx(coursId);
     if (cur === -1){ toast('Ce cours est déjà terminé 🎉'); return; }
     const l = LESSONS[coursId][cur];
-    if (l.v){ openVideoId(l.v, coursId, cur); return; }
     if (l.k === 'quiz'){ pushPage('quiz', {quiz:coursId, id:coursId}); return; }
+    if (l.v){ openVideoId(l.v, coursId, cur); return; }
     const onCours = pg && pg.dataset.page === 'cours';
     const el = onCours ? pg : pushPage('cours', {id:coursId, tab:'programme'});
     focusLesson(el, coursId);

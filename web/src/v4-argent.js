@@ -401,8 +401,12 @@ async function pointsCharger(){
   const zone = document.getElementById('poCorps');
   if (!zone) return;
   const [rp, rd] = await Promise.all([V3.lire('/api/p4-points'), V3.lire('/api/p4-defis')]);
-  const p = (rp.ok && rp.data) ? rp.data : { solde: 0, journal: [], recompenses: [], comment: [] };
-  const d = (rd.ok && rd.data) ? rd.data : { defi: null };
+  /* Chaque champ a sa valeur de repli : la page s'affiche entièrement même
+     sans compte connecté (et jamais une case ne manque à l'appel). */
+  const p = Object.assign({ solde: 0, rang: 0, participants: 0, gagnes: 0, depenses: 0,
+                            journal: [], recompenses: [], comment: [], echanges: [] },
+                          (rp.ok && rp.data) || {});
+  const d = Object.assign({ defi: null, avance: 0, classement: [] }, (rd.ok && rd.data) || {});
   const cible = d.defi ? (d.defi.cible || 1) : 0;
   const pct = cible ? Math.min(100, Math.round((d.avance / cible) * 100)) : 0;
   zone.innerHTML = `

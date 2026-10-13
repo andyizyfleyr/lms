@@ -6165,7 +6165,9 @@ window.APPX = {
   definirProfil: definirProfil, appliquerUtilisateur: appliquerUtilisateur,
   rafraichirStats: rafraichirStats, updateStats: updateStats, stats: () => STATS,
   conteneurDefilable: conteneurDefilable, defilerVers: defilerVers, remettreEnPlace: remettreEnPlace,
-  openVideo: openVideo, vstate: vstate, store: store
+  openVideo: openVideo, vstate: vstate, store: store,
+  /* les actions du noyau et celles des modules vivent dans le même registre */
+  ACTIONS: ACTIONS
 };
 })();
 
@@ -6248,6 +6250,10 @@ PAGES.cours = {
       const row = e.target.closest('[data-lesson]');
       if (row){
         const l = LESSONS[c.id][+row.dataset.lesson];
+        /* Une leçon « quiz » porte l'identifiant du cours dans `v` : on la
+           traite AVANT la vidéo, sinon elle ne s'ouvrait jamais (et se
+           terminait toute seule au bout de 2,5 s). */
+        if (l.k === 'quiz'){ pushPage('quiz', {quiz:c.id, id:c.id}); return; }
         if (l.v){ openVideoId(l.v, c.id, +row.dataset.lesson); return; }
         openSheet(`<h3 class="title-medium">${esc(l.t)}</h3>
           <p class="body-small muted" style="padding:0 6px 14px">${lessonLabel(l.k)} · ${esc(l.d)} · ${esc(l.module)}</p>
@@ -6469,8 +6475,8 @@ const ACTIONS = {
     const cur = curLessonIdx(coursId);
     if (cur === -1){ toast('Ce cours est déjà terminé 🎉'); return; }
     const l = LESSONS[coursId][cur];
-    if (l.v){ openVideoId(l.v, coursId, cur); return; }
     if (l.k === 'quiz'){ pushPage('quiz', {quiz:coursId, id:coursId}); return; }
+    if (l.v){ openVideoId(l.v, coursId, cur); return; }
     const onCours = pg && pg.dataset.page === 'cours';
     const el = onCours ? pg : pushPage('cours', {id:coursId, tab:'programme'});
     focusLesson(el, coursId);
@@ -10818,7 +10824,7 @@ function formulationPeindre(zone){
         const ing = INGREDIENTS.find(x => x.id === l.ing) || { nom: l.ing, prix: 0 };
         const g = (l.pct || 0) / 100 * (FORM.lot || 0);
         return `<div class="v3-tr">
-          <select data-fl="${i}" class="v3-select">${INGREDIENTS.map(x => `<option value="${x.id}"${x.id === l.ing ? ' selected' : ''}>${esc(x.nom)}</option>`).join('')}</select>
+          <select data-fl="${i}" class="v3-select" aria-label="Ingrédient de la ligne ${i + 1}">${INGREDIENTS.map(x => `<option value="${x.id}"${x.id === l.ing ? ' selected' : ''}>${esc(x.nom)}</option>`).join('')}</select>
           <input type="number" min="0" max="100" step="0.5" value="${l.pct}" data-fp="${i}" class="v3-input-sm">
           <span class="v3-td">${g.toFixed(1)} g</span>
           <span class="v3-td muted">${fcfa(coutIngredient(l))}</span>
@@ -10832,7 +10838,7 @@ function formulationPeindre(zone){
         <button class="btn btn--filled ripple" data-act="formEnregistrer">${svg('jar', 'icon icon--18')} Ranger dans mes recettes</button>
         <button class="btn btn--outlined ripple" data-act="formVider">${svg('refresh', 'icon icon--18')} Remettre à zéro</button>
       </div>`, { ico: 'layers' })}
-    ${V3.info('Nom du produit : <input id="fmNom" class="v3-input-sm" style="width:150px" value="' + esc(FORM.nom || '') + '"> — il sera enregistré avec la recette.', 'edit')}
+    ${V3.info('Nom du produit : <input id="fmNom" class="v3-input-sm" style="width:150px" aria-label="Nom du produit" value="' + esc(FORM.nom || '') + '"> — il sera enregistré avec la recette.', 'edit')}
     ${carte('Méthode rapide', `<ol class="v3-points v3-points--simples">
       <li>Désinfectez le plan de travail, le matériel et vos mains.</li>
       <li>Pesez les <b>phases</b> : aqueuse (eau, glycérine) et grasse (huiles, beurres, émulsifiant).</li>
@@ -10905,7 +10911,7 @@ function saponificationPeindre(zone){
       <div class="v3-table">${SAPO.lignes.map((l, i) => {
         const h = HUILES.find(x => x.id === l.h) || { nom: l.h, max: 100 };
         return `<div class="v3-tr">
-          <select data-sl="${i}" class="v3-select">${HUILES.map(x => `<option value="${x.id}"${x.id === l.h ? ' selected' : ''}>${esc(x.nom)}</option>`).join('')}</select>
+          <select data-sl="${i}" class="v3-select" aria-label="Huile de la ligne ${i + 1}">${HUILES.map(x => `<option value="${x.id}"${x.id === l.h ? ' selected' : ''}>${esc(x.nom)}</option>`).join('')}</select>
           <input type="number" min="0" max="100" step="1" value="${l.pct}" data-sp="${i}" class="v3-input-sm">
           <span class="v3-td">${((+l.pct || 0) * (c.poids / (c.total || 1))).toFixed(0)} g</span>
           <button class="icon-btn ripple" data-sdel="${i}" aria-label="Retirer">${svg('close', 'icon icon--18')}</button>
@@ -13657,8 +13663,12 @@ async function pointsCharger(){
   const zone = document.getElementById('poCorps');
   if (!zone) return;
   const [rp, rd] = await Promise.all([V3.lire('/api/p4-points'), V3.lire('/api/p4-defis')]);
-  const p = (rp.ok && rp.data) ? rp.data : { solde: 0, journal: [], recompenses: [], comment: [] };
-  const d = (rd.ok && rd.data) ? rd.data : { defi: null };
+  /* Chaque champ a sa valeur de repli : la page s'affiche entièrement même
+     sans compte connecté (et jamais une case ne manque à l'appel). */
+  const p = Object.assign({ solde: 0, rang: 0, participants: 0, gagnes: 0, depenses: 0,
+                            journal: [], recompenses: [], comment: [], echanges: [] },
+                          (rp.ok && rp.data) || {});
+  const d = Object.assign({ defi: null, avance: 0, classement: [] }, (rd.ok && rd.data) || {});
   const cible = d.defi ? (d.defi.cible || 1) : 0;
   const pct = cible ? Math.min(100, Math.round((d.avance / cible) * 100)) : 0;
   zone.innerHTML = `

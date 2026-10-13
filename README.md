@@ -188,15 +188,17 @@ cosmetilab/
 |---|---|
 | Assemblage du site (`build.js`) | **33 contrôles d'intégrité** · 1 645 Ko |
 | Contrôles statiques (`verify.js`) | **15 OK / 0** |
-| Suite navigateur (Chromium mobile) | **54 OK / 0** sans API · **104 OK / 0** avec l'API (paywall, avatar, appareils, synchronisation par compte, espace formateur, reprise de lecture, attestations, audit qualité) |
+| Suite navigateur (Chromium mobile) | **54 OK / 0** sans API · **108 OK / 0** avec l'API (paywall, avatar, appareils, synchronisation par compte, espace formateur, reprise de lecture, attestations, audit qualité) |
 | Suite comptes et temps réel | **26 OK / 0** (écran d'entrée, inscription, données séparées, mise à jour automatique, notation) |
 | Paiement de bout en bout (`npm --prefix api run paie:verif`) | **23 OK / 0** (catalogue, verrous, offre, abonnement, webhook signé, rejeu) |
-| Test de fumée de l'API (`npm run api:smoke`) | **38 OK / 0** |
+| Test de fumée de l'API (`npm run api:smoke`) | **63 OK / 0** |
 | Types de l'API (`tsc --noEmit`) | 0 erreur |
 | Build Next.js | 56 routes `ƒ Dynamic` |
 | Base Neon (`db.js check`) | **60 tables**, 6 cours, 60 leçons, 8 ouvrages PDF |
 | Adresses servies (v4) | **86/86 en 200**, adresse inconnue = vrai 404 |
 | Parcours réel des écrans v4 (Chromium mobile) | **31 OK / 1** (le seul écart est une assertion trop stricte du script de test) |
+| Leçon « Quiz » (correctif v4.1) | leçon ouverte depuis la fiche **et** par « Continuer » → page du quiz ; la leçon ne se coche plus toute seule au bout de 2,5 s |
+| Page Points sans compte (correctif v4.1) | replis complets : **0 erreur JavaScript** sur les 76 pages, connecté ou non |
 | Chaîne de paiement (webhook → accès → lecture) | commande créée → webhook signé → payée → livre dans la bibliothèque → PDF servi (82 172 o) → rejeu idempotent |
 
 La suite navigateur vérifie ce qui doit rester vrai : navigation entre les quatre onglets, ouverture des fiches de cours, **retour** (bouton de l'app *et* bouton du téléphone), quiz, devoirs, **lecture vidéo dans le site** (YouTube en ligne, extrait intégré hors-ligne), thème, persistance, et **synchronisation dans les deux sens** avec l'API.

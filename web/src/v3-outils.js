@@ -127,7 +127,7 @@ function formulationPeindre(zone){
         const ing = INGREDIENTS.find(x => x.id === l.ing) || { nom: l.ing, prix: 0 };
         const g = (l.pct || 0) / 100 * (FORM.lot || 0);
         return `<div class="v3-tr">
-          <select data-fl="${i}" class="v3-select">${INGREDIENTS.map(x => `<option value="${x.id}"${x.id === l.ing ? ' selected' : ''}>${esc(x.nom)}</option>`).join('')}</select>
+          <select data-fl="${i}" class="v3-select" aria-label="Ingrédient de la ligne ${i + 1}">${INGREDIENTS.map(x => `<option value="${x.id}"${x.id === l.ing ? ' selected' : ''}>${esc(x.nom)}</option>`).join('')}</select>
           <input type="number" min="0" max="100" step="0.5" value="${l.pct}" data-fp="${i}" class="v3-input-sm">
           <span class="v3-td">${g.toFixed(1)} g</span>
           <span class="v3-td muted">${fcfa(coutIngredient(l))}</span>
@@ -141,7 +141,7 @@ function formulationPeindre(zone){
         <button class="btn btn--filled ripple" data-act="formEnregistrer">${svg('jar', 'icon icon--18')} Ranger dans mes recettes</button>
         <button class="btn btn--outlined ripple" data-act="formVider">${svg('refresh', 'icon icon--18')} Remettre à zéro</button>
       </div>`, { ico: 'layers' })}
-    ${V3.info('Nom du produit : <input id="fmNom" class="v3-input-sm" style="width:150px" value="' + esc(FORM.nom || '') + '"> — il sera enregistré avec la recette.', 'edit')}
+    ${V3.info('Nom du produit : <input id="fmNom" class="v3-input-sm" style="width:150px" aria-label="Nom du produit" value="' + esc(FORM.nom || '') + '"> — il sera enregistré avec la recette.', 'edit')}
     ${carte('Méthode rapide', `<ol class="v3-points v3-points--simples">
       <li>Désinfectez le plan de travail, le matériel et vos mains.</li>
       <li>Pesez les <b>phases</b> : aqueuse (eau, glycérine) et grasse (huiles, beurres, émulsifiant).</li>
@@ -214,7 +214,7 @@ function saponificationPeindre(zone){
       <div class="v3-table">${SAPO.lignes.map((l, i) => {
         const h = HUILES.find(x => x.id === l.h) || { nom: l.h, max: 100 };
         return `<div class="v3-tr">
-          <select data-sl="${i}" class="v3-select">${HUILES.map(x => `<option value="${x.id}"${x.id === l.h ? ' selected' : ''}>${esc(x.nom)}</option>`).join('')}</select>
+          <select data-sl="${i}" class="v3-select" aria-label="Huile de la ligne ${i + 1}">${HUILES.map(x => `<option value="${x.id}"${x.id === l.h ? ' selected' : ''}>${esc(x.nom)}</option>`).join('')}</select>
           <input type="number" min="0" max="100" step="1" value="${l.pct}" data-sp="${i}" class="v3-input-sm">
           <span class="v3-td">${((+l.pct || 0) * (c.poids / (c.total || 1))).toFixed(0)} g</span>
           <button class="icon-btn ripple" data-sdel="${i}" aria-label="Retirer">${svg('close', 'icon icon--18')}</button>

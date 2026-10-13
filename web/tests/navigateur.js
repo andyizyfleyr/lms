@@ -374,6 +374,38 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
     await taper(page, '#view-cours [data-course="' + coursOuvert + '"]', { delai: 1000 });
     await page.evaluate(() => { window.APPX.closeSheet(); });
 
+    /* Le compte de test garde ses leçons terminées d'un passage à l'autre.
+       Pour que « Continuer » ait toujours une leçon à ramener à l'écran, on
+       remet ce cours dans un état net — tout terminé sauf la dernière leçon
+       ORDINAIRE (ni vidéo, ni quiz : « Continuer » reste alors sur la fiche),
+       qui devient « la leçon en cours » — en n'utilisant que le contrôle
+       « terminée » de chaque leçon. L'état de départ est noté, puis remis en
+       place à la fin des contrôles de défilement. */
+    const roles = await page.evaluate((cid) => {
+      const ls = (window.APPX.LESSONS && window.APPX.LESSONS[cid]) || [];
+      return {
+        ordinaire: ls.map((l, i) => ({ l, i })).filter(x => !x.l.v && x.l.k !== 'quiz').map(x => x.i).pop(),
+        quiz: ls.findIndex(l => l.k === 'quiz')
+      };
+    }, coursOuvert);
+    const etatLecons = await page.evaluate(() => {
+      const p = document.querySelector('section.page[data-page="cours"]');
+      return p ? Array.from(p.querySelectorAll('.lesson')).map(r => r.classList.contains('is-done')) : [];
+    });
+    for (let i = 0; i < 26 && roles.ordinaire !== undefined; i++) {
+      const action = await page.evaluate((cible) => {
+        const p = document.querySelector('section.page[data-page="cours"]');
+        if (!p) return 'fin';
+        const rows = Array.from(p.querySelectorAll('.lesson'));
+        const aTerminer = rows.findIndex((r, i) => i !== cible && !r.classList.contains('is-done'));
+        if (aTerminer > -1) { rows[aTerminer].querySelector('[data-lesson-done]').click(); return 'termine'; }
+        if (rows[cible] && rows[cible].classList.contains('is-done')){ rows[cible].querySelector('[data-lesson-done]').click(); return 'rouvre'; }
+        return 'fin';
+      }, roles.ordinaire);
+      if (action === 'fin') break;
+      await dormir(450);
+    }
+
     /* « Continuer » amène la leçon en cours à l'écran sans déplacer l'appli */
     await taper(page, 'section.page[data-page="cours"] [data-act="continue"]', { delai: 1300 });
     r = await racines();
@@ -417,6 +449,68 @@ const textePage = page => page.evaluate(() => (document.querySelector('#main') |
          'bas = ' + descendu.cScroll + ' px → haut = ' + remonte.cScroll + ' px (course ' + remonte.cMax + ' px)');
     test('aucune racine défilée après les gestes', remonte.app === 0 && remonte.html === 0 && remonte.win === 0,
          'app = ' + remonte.app + ' · html = ' + remonte.html + ' · fenêtre = ' + remonte.win);
+
+    /* Une leçon « Quiz » ouvre le quiz du cours — et ne se coche jamais
+       toute seule (l'ancien défaut la terminait au bout de 2,5 s). */
+    const avantQuiz = await page.evaluate((iQuiz) => {
+      const p = document.querySelector('section.page[data-page="cours"]');
+      const rows = p ? Array.from(p.querySelectorAll('.lesson')) : [];
+      if (!rows[iQuiz]) return null;
+      const faites = rows.filter(x => x.classList.contains('is-done')).length;
+      rows[iQuiz].click();
+      return { faites };
+    }, roles.quiz);
+    if (avantQuiz) {
+      await dormir(900);
+      const ouvert = await page.evaluate(() => ({ chemin: location.pathname, quiz: !!document.querySelector('section.page[data-page="quiz"]') }));
+      test('la leçon « Quiz » ouvre le quiz du cours', ouvert.quiz && ouvert.chemin.indexOf('/quiz/') === 0, ouvert.chemin);
+      await dormir(2300);                      /* délai qu'il fallait à l'ancien défaut pour cocher la leçon */
+      const apresQuiz = await page.evaluate(() => {
+        const p = document.querySelector('section.page[data-page="cours"]');
+        return p ? Array.from(p.querySelectorAll('.lesson')).filter(x => x.classList.contains('is-done')).length : -1;
+      });
+      test('ouvrir un quiz ne coche pas la leçon tout seul', apresQuiz === avantQuiz.faites,
+           apresQuiz + ' terminée(s), avant : ' + avantQuiz.faites);
+      await page.evaluate(() => { if (document.querySelector('section.page[data-page="quiz"]')) window.APPX.popPage(); });
+      await dormir(600);
+    } else {
+      test('la leçon « Quiz » ouvre le quiz du cours', false, 'aucune leçon « Quiz » sur la fiche');
+    }
+
+    /* « Continuer » sur une leçon quiz ouvre le quiz, jamais le lecteur vidéo */
+    for (let i = 0; i < 26 && roles.quiz > -1; i++) {
+      const action = await page.evaluate((iQuiz) => {
+        const p = document.querySelector('section.page[data-page="cours"]');
+        if (!p) return 'fin';
+        const rows = Array.from(p.querySelectorAll('.lesson'));
+        const aTerminer = rows.findIndex((r, i) => i !== iQuiz && !r.classList.contains('is-done'));
+        if (aTerminer > -1) { rows[aTerminer].querySelector('[data-lesson-done]').click(); return 'termine'; }
+        if (rows[iQuiz].classList.contains('is-done')) { rows[iQuiz].querySelector('[data-lesson-done]').click(); return 'rouvre'; }
+        return 'fin';
+      }, roles.quiz);
+      if (action === 'fin') break;
+      await dormir(450);
+    }
+    await taper(page, 'section.page[data-page="cours"] [data-act="continue"]', { delai: 1400 });
+    const continueQuiz = await page.evaluate(() => ({ chemin: location.pathname, quiz: !!document.querySelector('section.page[data-page="quiz"]') }));
+    test('« Continuer » sur une leçon quiz ouvre le quiz', continueQuiz.quiz && continueQuiz.chemin.indexOf('/quiz/') === 0, continueQuiz.chemin);
+    await page.evaluate(() => { while (window.APPX.topPage()) window.APPX.popPage(); });
+    await dormir(600);
+
+    /* on remet les leçons du compte exactement comme elles étaient au départ */
+    for (let i = 0; i < 26; i++) {
+      const change = await page.evaluate((etat) => {
+        const p = document.querySelector('section.page[data-page="cours"]');
+        if (!p) return 0;
+        const rows = Array.from(p.querySelectorAll('.lesson'));
+        const idx = rows.findIndex((r, i) => etat[i] !== undefined && r.classList.contains('is-done') !== etat[i]);
+        if (idx < 0) return 0;
+        rows[idx].querySelector('[data-lesson-done]').click();
+        return 1;
+      }, etatLecons);
+      if (!change) break;
+      await dormir(450);
+    }
   } else {
     console.log('  ⏭️  fiche débloquée : contrôles de défilement ignorés (accès payant requis)');
   }

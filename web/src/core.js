@@ -1868,6 +1868,8 @@ window.APPX = {
   definirProfil: definirProfil, appliquerUtilisateur: appliquerUtilisateur,
   rafraichirStats: rafraichirStats, updateStats: updateStats, stats: () => STATS,
   conteneurDefilable: conteneurDefilable, defilerVers: defilerVers, remettreEnPlace: remettreEnPlace,
-  openVideo: openVideo, vstate: vstate, store: store
+  openVideo: openVideo, vstate: vstate, store: store,
+  /* les actions du noyau et celles des modules vivent dans le même registre */
+  ACTIONS: ACTIONS
 };
 })();
