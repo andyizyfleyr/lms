@@ -43,7 +43,17 @@ const TITRES = {
   parrainage: 'Parrainage', verifier: 'Vérifier une attestation', etat: 'État du service',
   sauvegarde: 'Sauvegarde', accessibilite: 'Confort de lecture', revenus: 'Revenus',
   creercours: 'Créer un cours', questions: 'Banque de questions', annonce: 'Annonce',
-  notation: 'Notation assistée', seances: 'Séances en direct'
+  notation: 'Notation assistée', seances: 'Séances en direct',
+  /* V4 */
+  boutique: 'Boutique PDF', boutiqueDetail: 'Ouvrage', biblio: 'Ma bibliothèque',
+  communaute: 'Entraide', sujet: 'Question', galerie: 'Réalisations', galerieDetail: 'Réalisation',
+  ateliers: 'Ateliers', etiquette: 'Étiquette conforme', produits: 'Mes produits', produitDetail: 'Produit',
+  clients: 'Clients', commandes: 'Commandes', commandeDetail: 'Commande', lots: 'Lots de fabrication',
+  lotPublic: 'Fiche de lot', kits: 'Kits de démarrage', points: 'Points & défis', releve: 'Relevé de revenus',
+  console: 'Console', securite: 'Sécurité', glossaire: 'Glossaire', examens: 'Examens blancs',
+  examenDetail: 'Examen blanc', emargement: 'Émargement', ecoute: 'Écoute',
+  atelierPratique: 'Atelier pas-à-pas', apprenant: 'Fiche apprenant', equipe: 'Équipe du cours',
+  produitPublic: 'Fiche produit', prix: 'Analyse de rentabilité'
 };
 
 /* onglets de la fiche cours */
@@ -51,7 +61,7 @@ const ONGLETS_COURS = ['programme', 'ressources', 'discussion', 'notes', 'quiz',
 /* onglets de l'espace formateur */
 const ONGLETS_FORMATEUR = ['cours', 'lecons', 'ressources', 'seances', 'apprenants'];
 /* écrans du formateur qui ont leur propre adresse (V3) */
-const ECRANS_FORMATEUR = ['revenus', 'questions', 'annonce', 'notation', 'seances'];
+const ECRANS_FORMATEUR = ['revenus', 'questions', 'annonce', 'notation', 'seances', 'releve', 'equipe'];
 
 const ech = t => encodeURIComponent(String(t === null || t === undefined ? '' : t));
 
@@ -77,6 +87,18 @@ function cheminDe(id, params){
     case 'parcoursdetail': return '/parcours/' + ech(params.id || cle);
     case 'creercours': return '/formateur/creer' + (params.id ? '/' + ech(params.id) : '');
     case 'verifier': return '/verifier' + (params.numero ? '/' + ech(params.numero) : '');
+    /* V4 */
+    case 'boutiqueDetail': return '/boutique/' + ech(params.id || cle);
+    case 'sujet': return '/communaute/' + ech(params.id || cle);
+    case 'galerieDetail': return '/galerie/' + ech(params.id || cle);
+    case 'produitDetail': return '/produits/' + ech(params.id || cle);
+    case 'commandeDetail': return '/commandes/' + ech(params.id || cle);
+    case 'lotPublic': return '/l/' + ech(params.slug || params.id || cle);
+    case 'produitPublic': return '/p/' + ech(params.slug || params.id || cle);
+    case 'examenDetail': return '/examens/' + ech(params.id || cle);
+    case 'ecoute': return '/ecoute/' + ech(params.id || cle);
+    case 'atelierPratique': return '/atelier-pratique/' + ech(params.id || cle);
+    case 'apprenant': return '/formateur/apprenants/' + ech(params.id || cle);
     default: return '/' + (LIEUX[id] || id);
   }
 }
@@ -94,7 +116,13 @@ const LIEUX = {
   recettes:'recettes', production:'production', paiements:'paiements', codes:'codes',
   parrainage:'parrainage', etat:'etat', sauvegarde:'sauvegarde', accessibilite:'accessibilite',
   revenus:'formateur/revenus', questions:'formateur/questions', annonce:'formateur/annonce',
-  notation:'formateur/notation', seances:'formateur/seances'
+  notation:'formateur/notation', seances:'formateur/seances',
+  /* V4 */
+  boutique:'boutique', biblio:'biblio', communaute:'communaute', galerie:'galerie', ateliers:'ateliers',
+  etiquette:'etiquette', produits:'produits', clients:'clients', commandes:'commandes',
+  lots:'lots', kits:'kits', points:'points', releve:'formateur/releve', equipe:'formateur/equipe',
+  console:'console', securite:'securite', glossaire:'glossaire', examens:'examens', emargement:'emargement',
+  prix:'outils/prix'
 };
 
 /* adresse de l'écran précédent logique (ouverture directe d'une adresse) */
@@ -115,6 +143,25 @@ function parentDe(id, params){
   if (id === 'sauvegarde' || id === 'accessibilite') return '/parametres';
   if (id === 'corrections' || id === 'tentatives' || id === 'certificats' || id === 'hors-ligne' || id === 'compte') return '/profil';
   if (id === 'abonnement') return '/profil';
+  /* V4 */
+  if (id === 'boutiqueDetail') return '/boutique';
+  if (id === 'sujet') return '/communaute';
+  if (id === 'galerieDetail') return '/galerie';
+  if (id === 'produitDetail') return '/produits';
+  if (id === 'commandeDetail') return '/commandes';
+  if (id === 'lotPublic') return '/lots';
+  if (id === 'produitPublic') return '/produits';
+  if (id === 'prix') return '/outils';
+  if (id === 'examenDetail') return '/examens';
+  if (id === 'ecoute') return '/cours/' + ech(params.id || '');
+  if (id === 'atelierPratique') return '/outils';
+  if (id === 'apprenant') return '/formateur/apprenants';
+  if (id === 'biblio') return '/boutique';
+  if (id === 'releve' || id === 'equipe') return '/formateur';
+  if (['etiquette', 'produits', 'clients', 'commandes', 'lots', 'kits', 'glossaire'].indexOf(id) >= 0) return '/outils';
+  if (id === 'points' || id === 'console') return '/profil';
+  if (id === 'securite') return '/parametres';
+  if (id === 'examens' || id === 'emargement') return '/cours';
   if (id === 'espace-formateur') return '/compte';
   return '/';
 }
@@ -141,6 +188,7 @@ function analyser(chemin, recherche){
     case 'video':  return seg[1] ? { id: 'video', params: { yt: seg[1] } } : { inconnu: true };
     case 'formateur':
       if (seg[1] === 'creer') return { id: 'creercours', params: { id: seg[2] || '' } };
+      if (seg[1] === 'apprenants') return seg[2] && !seg[3] ? { id: 'apprenant', params: { id: seg[2] } } : { inconnu: true };
       if (seg[1] && ECRANS_FORMATEUR.indexOf(seg[1]) >= 0) return { id: seg[1], params: {} };
       return { id: 'espace-formateur', params: { onglet: seg[1] && ONGLETS_FORMATEUR.indexOf(seg[1]) >= 0 ? seg[1] : 'cours' } };
     case 'parcours':
@@ -150,6 +198,7 @@ function analyser(chemin, recherche){
       return seg[1] && !seg[2] ? { id: 'fiche', params: { id: seg[1] } } : { inconnu: true };
     case 'outils':
       if (seg.length === 1) return { id: 'outils', params: {} };
+      if (seg[1] === 'prix') return seg[2] ? { inconnu: true } : { id: 'prix', params: {} };
       return ['formulation', 'saponification', 'convertisseur', 'reglementaire'].indexOf(seg[1]) >= 0 && !seg[2]
         ? { id: seg[1], params: {} } : { inconnu: true };
     case 'verifier':
@@ -162,6 +211,38 @@ function analyser(chemin, recherche){
       if (!seg[1]) return { vue: 'profil' };
       return { inconnu: true };
     case 'agenda': return seg.length === 1 ? { vue: 'agenda' } : { inconnu: true };
+    /* V4 — boutique des livres, communauté, production, console */
+    case 'boutique':
+      if (!seg[1]) return { id: 'boutique', params: {} };
+      return seg[2] ? { inconnu: true } : { id: 'boutiqueDetail', params: { id: seg[1] } };
+    case 'communaute':
+      if (!seg[1]) return { id: 'communaute', params: {} };
+      return seg[2] ? { inconnu: true } : { id: 'sujet', params: { id: seg[1] } };
+    case 'galerie':
+      if (!seg[1]) return { id: 'galerie', params: {} };
+      return seg[2] ? { inconnu: true } : { id: 'galerieDetail', params: { id: seg[1] } };
+    case 'produits':
+      if (!seg[1]) return { id: 'produits', params: {} };
+      return seg[2] ? { inconnu: true } : { id: 'produitDetail', params: { id: seg[1] } };
+    case 'commandes':
+      if (!seg[1]) return { id: 'commandes', params: {} };
+      return seg[2] ? { inconnu: true } : { id: 'commandeDetail', params: { id: seg[1] } };
+    case 'lots':
+      return seg.length === 1 ? { id: 'lots', params: {} } : { inconnu: true };
+    case 'l':
+      return seg[1] && !seg[2] ? { id: 'lotPublic', params: { slug: seg[1] } } : { inconnu: true };
+    case 'p':
+      return seg[1] && !seg[2] ? { id: 'produitPublic', params: { slug: seg[1] } } : { inconnu: true };
+    case 'examens':
+      if (!seg[1]) return { id: 'examens', params: {} };
+      return seg[2] ? { inconnu: true } : { id: 'examenDetail', params: { id: seg[1] } };
+    case 'ecoute':
+      return seg[1] && !seg[2] ? { id: 'ecoute', params: { id: seg[1] } } : { inconnu: true };
+    case 'atelier-pratique':
+      return seg[1] && !seg[2] ? { id: 'atelierPratique', params: { id: seg[1] } } : { inconnu: true };
+    case 'biblio': case 'ateliers': case 'etiquette': case 'clients': case 'kits':
+    case 'points': case 'console': case 'securite': case 'glossaire': case 'emargement':
+      return seg.length === 1 ? { id: seg[0], params: {} } : { inconnu: true };
     case 'connexion':   return { entree: 'connexion' };
     case 'inscription': return { entree: 'inscription' };
     case 'invite':      return { entree: 'invite' };

@@ -438,3 +438,364 @@ alter table calendar_sessions add column if not exists enligne boolean not null 
 
 -- Notation assistée : commentaire type laissé avec la note.
 alter table submissions add column if not exists commentaire_type text not null default '';
+
+/* ============================================================
+   V4 — communauté · produit vendu · enseignement · fidélité ·
+   exploitation · boutique PDF
+   Ces tables existaient déjà en base (brouillon V4) : elles sont
+   recréées ici à l'identique pour qu'une base neuve soit complète,
+   puis complétées de ce qui manquait. Tout est idempotent.
+   ============================================================ */
+
+-- ---------- G1 forum d'entraide ----------
+create table if not exists forum_sujets (
+  id         uuid primary key default gen_random_uuid(),
+  course_id  text,
+  theme      text not null default '',
+  titre      text not null,
+  question   text not null default '',
+  auteur     uuid,
+  epingle    boolean not null default false,
+  resolu     boolean not null default false,
+  vues       int not null default 0,
+  masque     boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists forum_sujets_idx on forum_sujets(masque, created_at desc);
+
+create table if not exists forum_reponses (
+  id         uuid primary key default gen_random_uuid(),
+  sujet_id   uuid not null,
+  auteur     uuid,
+  texte      text not null,
+  utils      int not null default 0,
+  masque     boolean not null default false,
+  created_at timestamptz not null default now()
+);
+create index if not exists forum_reponses_sujet_idx on forum_reponses(sujet_id, created_at);
+
+create table if not exists forum_votes (
+  reponse_id uuid not null,
+  user_id    uuid not null,
+  created_at timestamptz not null default now(),
+  primary key (reponse_id, user_id)
+);
+
+-- ---------- G2 galerie des réalisations ----------
+create table if not exists galerie (
+  id         uuid primary key default gen_random_uuid(),
+  auteur     uuid,
+  cours_id   text,
+  titre      text not null,
+  legende    text not null default '',
+  photo      text not null default '',        -- image compressée (data URI)
+  likes      int not null default 0,
+  masque     boolean not null default false,
+  created_at timestamptz not null default now()
+);
+create index if not exists galerie_idx on galerie(masque, created_at desc);
+
+create table if not exists galerie_likes (
+  photo_id   uuid not null,
+  user_id    uuid not null,
+  created_at timestamptz not null default now(),
+  primary key (photo_id, user_id)
+);
+
+-- ---------- G3 ateliers & voisinage ----------
+create table if not exists ateliers (
+  id         uuid primary key default gen_random_uuid(),
+  auteur     uuid,
+  ville      text not null default '',
+  titre      text not null,
+  texte      text not null default '',
+  quand      timestamptz,
+  contact    text not null default '',
+  masque     boolean not null default false,
+  created_at timestamptz not null default now()
+);
+create table if not exists atelier_participants (
+  atelier    uuid not null,
+  user_id    uuid not null,
+  created_at timestamptz not null default now(),
+  primary key (atelier, user_id)
+);
+
+-- ---------- G4 signalements & modération ----------
+create table if not exists signalements (
+  id         uuid primary key default gen_random_uuid(),
+  cible      text not null,                    -- sujet | reponse | photo | produit | utilisateur
+  cible_id   text not null,
+  motif      text not null default '',
+  details    text not null default '',
+  par        uuid,
+  etat       text not null default 'nouveau',  -- nouveau | traite | rejete
+  traite_par uuid,
+  traite_le  timestamptz,
+  created_at timestamptz not null default now()
+);
+create index if not exists signalements_idx on signalements(etat, created_at desc);
+
+-- ---------- H1 produits vendus par l'élève ----------
+create table if not exists produits (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid not null,
+  recette     text not null default '',
+  nom         text not null,
+  categorie   text not null default '',
+  prix        int not null default 0,
+  contenance  text not null default '',
+  lot         text not null default '',
+  pao         text not null default '',
+  responsable text not null default '',
+  ingredients jsonb not null default '[]'::jsonb,
+  inci        text not null default '',
+  precautions text not null default '',
+  photo       text not null default '',
+  slug        text,
+  publie      boolean not null default false,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+create unique index if not exists produits_slug_idx on produits(slug) where slug is not null;
+
+-- ---------- H3 clients & commandes ----------
+create table if not exists clients (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null,
+  nom        text not null,
+  tel        text not null default '',
+  ville      text not null default '',
+  note       text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create table if not exists commandes (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null,
+  client_id  uuid,
+  lignes     jsonb not null default '[]'::jsonb,
+  statut     text not null default 'devis',    -- devis | envoye | paye | annule
+  total      int not null default 0,
+  devise     text not null default 'xof',
+  echeance   date,
+  note       text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists commandes_idx on commandes(user_id, created_at desc);
+
+-- ---------- I3 examens blancs ----------
+create table if not exists examens (
+  id           uuid primary key default gen_random_uuid(),
+  course_id    text,
+  titre        text not null,
+  duree        int not null default 20,
+  nb_questions int not null default 10,
+  seuil        int not null default 60,
+  cree_par     uuid,
+  publie       boolean not null default true,
+  created_at   timestamptz not null default now()
+);
+create table if not exists examen_tentatives (
+  id         uuid primary key default gen_random_uuid(),
+  examen_id  uuid not null,
+  user_id    uuid not null,
+  note       int not null default 0,
+  sur        int not null default 20,
+  detail     jsonb not null default '[]'::jsonb,
+  duree_s    int not null default 0,
+  created_at timestamptz not null default now()
+);
+create index if not exists examen_tentatives_idx on examen_tentatives(examen_id, created_at desc);
+
+-- ---------- I4 émargement par code ----------
+create table if not exists codes_seance (
+  session_id text not null,
+  code       text not null,
+  expire_le  timestamptz not null,
+  cree_par   uuid,
+  created_at timestamptz not null default now(),
+  primary key (session_id, code)
+);
+create table if not exists presences (
+  id         uuid primary key default gen_random_uuid(),
+  session_id text not null,
+  user_id    uuid not null,
+  cours_id   text default '',
+  code       text default '',
+  created_at timestamptz not null default now()
+);
+create unique index if not exists presences_idx on presences(session_id, user_id);
+
+-- ---------- I6 co-formateurs ----------
+create table if not exists co_formateurs (
+  course_id  text not null,
+  user_id    uuid not null,
+  part       int not null default 50,
+  created_at timestamptz not null default now(),
+  primary key (course_id, user_id)
+);
+
+-- ---------- J1 points & J2 défis ----------
+create table if not exists points (
+  user_id uuid primary key,
+  total   int not null default 0,
+  maj     timestamptz not null default now()
+);
+create table if not exists points_journal (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null,
+  points     int not null,
+  motif      text not null default '',
+  ref        text not null default '',
+  created_at timestamptz not null default now()
+);
+create table if not exists defis (
+  id         uuid primary key default gen_random_uuid(),
+  mois       text not null,
+  titre      text not null,
+  texte      text not null default '',
+  cible      int not null default 20,
+  unite      text not null default 'photos',
+  created_at timestamptz not null default now()
+);
+create table if not exists defis_participations (
+  defi_id  uuid not null,
+  user_id  uuid not null,
+  avance   int not null default 0,
+  maj      timestamptz not null default now(),
+  primary key (defi_id, user_id)
+);
+
+-- ---------- K2 code de secours & K3 journal de sécurité ----------
+create table if not exists codes_secours (
+  user_id    uuid primary key,
+  empreinte  text not null,
+  essais     int not null default 0,
+  cree_le    timestamptz not null default now(),
+  utilise_le timestamptz
+);
+create table if not exists journal_securite (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid,
+  type       text not null,
+  detail     text not null default '',
+  appareil   text not null default '',
+  created_at timestamptz not null default now()
+);
+create index if not exists journal_securite_idx on journal_securite(user_id, created_at desc);
+
+-- ---------- K4 lots (traçabilité) ----------
+create table if not exists lots (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null,
+  produit_id uuid,
+  numero     text not null,
+  recette    text not null default '',
+  quantite   int not null default 0,
+  date_fab   date,
+  controles  jsonb not null default '[]'::jsonb,
+  observation text not null default '',
+  slug       text,
+  publie     boolean not null default false,
+  created_at timestamptz not null default now()
+);
+create unique index if not exists lots_slug_idx on lots(slug) where slug is not null;
+
+-- ---------- K5 kits d'installation ----------
+create table if not exists kits (
+  id          uuid primary key default gen_random_uuid(),
+  nom         text not null,
+  description text not null default '',
+  contenu     jsonb not null default '{}'::jsonb,
+  cree_par    uuid,
+  created_at  timestamptz not null default now()
+);
+
+-- ---------- Boutique : PDF de cours ----------
+create table if not exists pdfs (
+  id         text primary key,
+  titre      text not null,
+  sous_titre text not null default '',
+  description text not null default '',
+  sommaire   jsonb not null default '[]'::jsonb,
+  pages      int not null default 12,
+  prix       int not null default 0,
+  gratuit    boolean not null default false,
+  accent     text not null default 'purple',
+  ico        text not null default 'book',
+  couverture text not null default '',
+  fichier    text not null default '',
+  extrait    text not null default '',
+  niv        text not null default 'Débutant',
+  publie     boolean not null default true,
+  ordre      int not null default 0,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists pdf_acces (
+  user_id  uuid not null,
+  pdf_id   text not null,
+  order_id uuid,
+  source   text not null default 'achat',
+  created_at timestamptz not null default now(),
+  primary key (user_id, pdf_id)
+);
+
+-- ---------- compléments ----------
+alter table users      add column if not exists moderateur boolean not null default false;
+alter table users      add column if not exists bloque     boolean not null default false;
+alter table ateliers   add column if not exists lieu       text not null default '';
+alter table ateliers   add column if not exists places     int  not null default 6;
+alter table ateliers   add column if not exists ferme      boolean not null default false;
+alter table commandes  add column if not exists paye       int  not null default 0;
+alter table commandes  add column if not exists moyen      text not null default '';
+alter table lots       add column if not exists statut     text not null default 'ok';
+alter table lots       add column if not exists prochain_controle date;
+alter table pdfs       add column if not exists source     text not null default '';
+alter table pdfs       add column if not exists genre      text not null default 'cours';
+
+-- Le catalogue des PDF : modifiable ensuite depuis la console d'administration.
+insert into pdfs (id, titre, sous_titre, description, sommaire, pages, prix, gratuit, accent, ico, couverture, extrait, niv, ordre, source, genre) values
+  ('livre-c1', 'Savonnerie à froid', 'Le guide complet, du calcul de la soude à la découpe',
+   'Le cours Savonnerie à froid mis en pages pour être imprimé : matière grasse, indice de saponification, surgraissage, trace, cure, découpe, erreurs de débutant et leurs solutions.',
+   '["Pourquoi la saponification à froid","Choisir ses huiles et son beurre de karité","Calculer la soude : méthode pas à pas","Surgraissage : pourquoi et combien","La trace : reconnaître le bon moment","Moule, cure et découpe","Les 8 erreurs du débutant","Fiche recette de base"]'::jsonb,
+   44, 3500, false, 'purple', 'flask', 'savon', 'Fabriquer un savon qui tient, sans se tromper de soude : le chapitre 3 détaille le calcul à partir de l''indice de saponification, avec un exemple complet à 1 kg d''huile d''olive.', 'Débutant', 1, 'c1', 'cours'),
+  ('livre-c2', 'Gels douche & shampoings doux', 'Formuler des tensioactifs respectueux du cuir chevelu',
+   'Le cours Gel douche mis en pages : choisir ses tensioactifs, viser le bon pH, épaissir sans casser, conserver, tester.',
+   '["Les familles de tensioactifs","Le pH de la peau et du cheveu","Construire une base lavante","Épaissir : les bons couples","Conservation et sécurité","Tests d''usage et corrections"]'::jsonb,
+   38, 3500, false, 'teal', 'droplet', 'gel', 'Un gel douche doux se joue sur deux choses : la douceur du tensioactif principal et un pH entre 4,5 et 5,5. Le chapitre 2 explique comment le mesurer et le corriger.', 'Intermédiaire', 2, 'c2', 'cours'),
+  ('livre-c3', 'Crèmes de visage', 'Émulsions et actifs : réussir du premier coup',
+   'Le cours Crème de visage mis en pages : phases, émulsifiants, actifs, texture, stabilité dans le temps.',
+   '["Comprendre une émulsion","Phase aqueuse : hydrolats et gélifiants","Phase huileuse : huiles et beurres","Choisir son émulsifiant","Actifs : dosages utiles","Texture et toucher","Stabilité : tests simples"]'::jsonb,
+   42, 3500, false, 'rose', 'flower', 'creme', 'Une émulsion qui se sépare vient presque toujours de la même cause : la phase grasse ajoutée trop vite, à la mauvaise température. Le chapitre 1 montre comment l''éviter.', 'Intermédiaire', 3, 'c3', 'cours'),
+  ('livre-c4', 'Laits corporels & baumes au karité', 'Le karité au cœur de vos formules',
+   'Le cours Lait corporel mis en pages, avec les fiches de baumes et tous les dosages utiles.',
+   '["Le beurre de karité : qualité et dosage","Lait corporel fluide","Baume nourrissant","Huiles de massage","Parfumer sans irriter","Conservation"]'::jsonb,
+   36, 3500, false, 'amber', 'leaf', 'karite', 'Un lait corporel réussi tient à deux chiffres : la part de phase grasse et le taux d''émulsifiant. Le chapitre 2 donne les repères, du plus fluide au plus riche.', 'Débutant', 4, 'c4', 'cours'),
+  ('livre-c5', 'Cosmétique africaine', 'Karité, argiles, huiles : les matières du continent',
+   'Le cours Cosmétique africaine mis en pages : argiles, huiles, poudres, synergies et précautions.',
+   '["Les argiles et leurs usages","Huiles de baobab, dattier, moringa","Poudres et plantes","Dosages et synergies","Précautions et contre-indications","Trois formules signature"]'::jsonb,
+   40, 3500, false, 'green', 'leaf', 'argile', 'Chaque argile a son usage : la verte pour les peaux grasses, la blanche pour les peaux réactives. Le chapitre 1 les classe et donne les dosages par type de peau.', 'Débutant', 5, 'c5', 'cours'),
+  ('livre-c6', 'Étiquetage, sécurité & vente', 'Ce qu''une étiquette doit porter, ce que la loi demande',
+   'Le cours Étiquetage mis en pages : mentions obligatoires, INCI, PAO, tests de stabilité et mise en vente.',
+   '["Les mentions obligatoires","La liste INCI sans se tromper","PAO et date de fabrication","Tests de stabilité","Allégations : ce qu''il ne faut pas écrire","Mettre son produit en vente"]'::jsonb,
+   34, 3000, false, 'indigo', 'tag', 'etiquette', 'Une étiquette conforme se vérifie en dix points. Le chapitre 1 les liste dans l''ordre, avec un exemple d''étiquette complète commentée.', 'Débutant', 6, 'c6', 'cours'),
+  ('recueil-recettes', 'Recueil de recettes', '24 formules complètes, prêtes à refaire',
+   'Toutes les recettes du site réunies : savons, crèmes, gels, baumes, masques à l''argile — pourcentages, mode opératoire, coût et prix conseillé.',
+   '["Savons (6 recettes)","Crèmes et laits (5)","Gels douche et shampoings (4)","Baumes et huiles (4)","Masques et argiles (3)","Conservation et étiquetage","Tableau des coûts"]'::jsonb,
+   52, 4500, false, 'purple', 'book', 'recettes', 'Chaque recette est donnée en pourcentages pour pouvoir la refaire à n''importe quelle quantité, avec le calcul du coût unitaire déjà fait.', 'Tous niveaux', 7, 'recettes', 'recueil'),
+  ('guide-prix', 'Fixer ses prix et gagner de l''argent', 'Coût de revient, marge et prix juste en francs CFA',
+   'Le guide du calcul : ingrédients, emballage, étiquette, main d''œuvre, électricité, pertes, frais de vente, seuil de rentabilité — exemples chiffrés en F CFA.',
+   '["Ce qu''on oublie toujours de compter","Coût matière par unité","Emballage et étiquette","Main d''œuvre et temps réel","Pertes et ratés","Charges fixes par unité","Marge et prix de vente","Seuil de rentabilité"]'::jsonb,
+   26, 2500, false, 'amber', 'card', 'prix', 'Neuf produits sur dix sont vendus à perte parce que trois postes ne sont jamais comptés : l''emballage, l''étiquette et le temps. Le chapitre 1 les remet dans le calcul.', 'Tous niveaux', 8, 'guide-prix', 'guide')
+on conflict (id) do nothing;
+
+-- Défi du mois en cours (s'il n'existe pas encore pour ce mois).
+insert into defis (mois, titre, texte, cible, unite)
+select to_char(now(), 'YYYY-MM'), 'Le défi du mois : 20 réalisations',
+       'Fabriquez et partagez 20 réalisations dans la galerie ce mois-ci. Chaque photo compte, même imparfaite : c''est comme ça qu''on progresse.',
+       20, 'photos'
+where not exists (select 1 from defis where mois = to_char(now(), 'YYYY-MM'));

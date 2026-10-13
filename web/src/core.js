@@ -1322,6 +1322,15 @@ document.addEventListener('click', e => {
     const ext = window.APPX && window.APPX.ACTIONS && window.APPX.ACTIONS[act.dataset.act];
     if (ext) return;
   }
+  /* lien interne (data-lien posé par le routeur ou écrit à la main) : navigation instantanée,
+     le serveur répond quand même à l'adresse si elle est ouverte directement */
+  const lien = e.target.closest('a[data-lien][href]');
+  if (lien && String(lien.getAttribute('href')).charAt(0) === '/'){
+    if (allerParLien(e, lien)) return;
+    const href = lien.getAttribute('href');
+    if (!allerVers(href)) location.assign(href);
+    return;
+  }
   const go = e.target.closest('[data-page]:not(.page)');
   if (go){
     if (go.dataset.act) return;

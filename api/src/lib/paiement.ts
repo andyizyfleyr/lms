@@ -20,14 +20,14 @@ export const novaConfigure = () => !!NOVA_CLE;
 export type Order = {
   id: string;
   user_id: string;
-  type: 'cours' | 'abonnement' | 'panier';
+  type: 'cours' | 'abonnement' | 'panier' | 'pdf' | 'pdfs';
   course_id: string | null;
   plan_id: string | null;
   amount: number;
   currency: string;
   description: string;
   status: 'open' | 'paid' | 'cancelled' | 'expired' | 'failed';
-  meta: { courseIds?: string[]; code?: string; reduction?: number; pack?: number } | null;
+  meta: { courseIds?: string[]; pdfIds?: string[]; code?: string; reduction?: number; pack?: number } | null;
   nova_session_id: string | null;
   nova_reference: string | null;
   method: string | null;
@@ -206,12 +206,35 @@ export async function controleAccesRessource(
 /** Crée la commande en base et la session de paiement NOVA correspondante. */
 export async function creerCommande(
   uid: string,
-  p: { type: 'cours' | 'abonnement' | 'panier'; courseId?: string; planId?: string; courseIds?: string[]; code?: string }
+  p: { type: 'cours' | 'abonnement' | 'panier' | 'pdf' | 'pdfs'; courseId?: string; planId?: string;
+       courseIds?: string[]; pdfId?: string; pdfIds?: string[]; code?: string }
 ): Promise<{ ok: true; order: Order; url: string } | { ok: false; error: Response }> {
   let amount: number, description: string, courseId: string | null = null, planId: string | null = null;
-  const meta: { courseIds?: string[]; code?: string; reduction?: number; pack?: number } = {};
+  const meta: { courseIds?: string[]; pdfIds?: string[]; code?: string; reduction?: number; pack?: number } = {};
 
-  if (p.type === 'panier') {
+  if (p.type === 'pdf' || p.type === 'pdfs') {
+    const ids = Array.from(new Set((p.type === 'pdf' ? [p.pdfId] : (p.pdfIds || [])).filter(Boolean))).slice(0, 20) as string[];
+    if (!ids.length) return { ok: false, error: fail('Aucun document choisi') };
+    const choix = await q<{ id: string; titre: string; prix: number; gratuit: boolean }>(
+      `select id, titre, prix, gratuit from pdfs where id = any($1::text[]) and publie`, [ids]);
+    if (choix.length !== ids.length) return { ok: false, error: fail('Un des documents choisis est introuvable', 404, 'introuvable') };
+    const possede = await q<{ pdf_id: string }>(`select pdf_id from pdf_acces where user_id = $1 and pdf_id = any($2::text[])`, [uid, ids]);
+    if (possede.length) return { ok: false, error: fail('Ce document est déjà dans votre bibliothèque.', 409, 'deja_debloque') };
+    if (choix.some(c => c.gratuit)) return { ok: false, error: fail('Un des documents est gratuit : prenez-le directement, sans payer') };
+    let brut = choix.reduce((n, c) => n + c.prix, 0);
+    if (choix.length > 1) meta.pack = Math.round(brut * 0.1);       // 10 % dès deux documents
+    let total = brut - (meta.pack || 0);
+    if (p.code) {
+      const cv = await validerCode(p.code, uid);
+      if (cv) { meta.code = cv.code; meta.reduction = Math.round(total * cv.valeur / 100); total -= meta.reduction; }
+    }
+    if (total < MONTANT_MIN) total = MONTANT_MIN;
+    if (total > MONTANT_MAX) return { ok: false, error: fail('Montant hors des limites du paiement', 400) };
+    meta.pdfIds = choix.map(c => c.id);
+    amount = total;
+    description = ('CosmétiLab — ' + (choix.length > 1 ? choix.length + ' ouvrages PDF : ' : 'PDF : ')
+                   + choix.map(c => c.titre).join(', ')).slice(0, 120);
+  } else if (p.type === 'panier') {
     const ids = Array.from(new Set((p.courseIds || []).filter(Boolean))).slice(0, 20);
     if (ids.length < 2) return { ok: false, error: fail('Choisissez au moins deux cours pour payer en une fois') };
     const choix = await q<{ id: string; titre: string }>(`select id, titre from courses where id = any($1::text[])`, [ids]);
@@ -263,7 +286,9 @@ export async function creerCommande(
   const r = await novaCreerSession({
     amount,
     description,
-    metadata: { order_id: order.id, user_id: uid, type: p.type, cours: courseId || (meta.courseIds || []).join(','), formule: planId || '' },
+    metadata: { order_id: order.id, user_id: uid, type: p.type,
+                cours: courseId || (meta.courseIds || []).join(','),
+                pdf: (meta.pdfIds || []).join(','), formule: planId || '' },
     idempotency: 'order-' + order.id
   });
 
@@ -353,6 +378,17 @@ export async function utiliserCode(code: string, uid: string, orderId: string) {
 
 /** Ouvre les accès prévus par la commande (cours à l'unité, panier ou période d'abonnement). */
 export async function accorderAcces(o: Order) {
+  if ((o.type === 'pdf' || o.type === 'pdfs') && o.meta && Array.isArray(o.meta.pdfIds)) {
+    for (const id of o.meta.pdfIds) {
+      await exec(
+        `insert into pdf_acces (user_id, pdf_id, order_id, source) values ($1, $2, $3, 'achat')
+         on conflict (user_id, pdf_id) do nothing`,
+        [o.user_id, id, o.id]
+      );
+    }
+    if (o.meta.code) await utiliserCode(o.meta.code, o.user_id, o.id);
+    return;
+  }
   if (o.type === 'panier' && o.meta && Array.isArray(o.meta.courseIds)) {
     for (const cid of o.meta.courseIds) {
       await exec(

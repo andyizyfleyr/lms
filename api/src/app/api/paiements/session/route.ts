@@ -7,10 +7,12 @@ export const dynamic = 'force-dynamic';
 export { OPTIONS };
 
 const corps = z.object({
-  type: z.enum(['cours', 'abonnement', 'panier']),
+  type: z.enum(['cours', 'abonnement', 'panier', 'pdf', 'pdfs']),
   courseId: z.string().min(1).max(40).optional(),
   planId: z.string().min(1).max(40).optional(),
   courseIds: z.array(z.string().min(1).max(40)).max(20).optional(),
+  pdfId: z.string().min(1).max(40).optional(),
+  pdfIds: z.array(z.string().min(1).max(40)).max(20).optional(),
   code: z.string().min(2).max(40).optional()
 });
 

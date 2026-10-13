@@ -34,7 +34,15 @@ export type User = {
   promo: string;
   bio: string;
   objectif_semaine_h: number;
+  /** modérateur : peut masquer un contenu signalé sans être administrateur */
+  moderateur?: boolean;
+  /** compte bloqué : la session ne vaut plus rien */
+  bloque?: boolean;
 };
+
+/** Peut modérer le contenu (admin, formateur de l'équipe, ou modérateur nommé). */
+export const peutModerer = (u: User | null | undefined): boolean =>
+  !!u && (u.role === 'admin' || u.role === 'enseignant' || u.moderateur === true);
 
 export type Session = { token: string; user: User };
 
@@ -56,12 +64,18 @@ export async function sessionFrom(req: Request): Promise<Session | null> {
   const token = header.toLowerCase().startsWith('bearer ') ? header.slice(7).trim() : '';
   if (!token) return null;
   const row = await q1<User & { token: string }>(
-    `select u.id, u.email, u.nom, u.role, u.tel, u.ville, u.promo, u.bio, u.objectif_semaine_h, t.token
+    `select u.id, u.email, u.nom, u.role, u.tel, u.ville, u.promo, u.bio, u.objectif_semaine_h,
+            u.moderateur, u.bloque, t.token
        from auth_tokens t join users u on u.id = t.user_id
       where t.token = $1 and t.expires_at > now()`,
     [token]
   );
   if (!row) return null;
+  /* un compte bloqué par l'administration perd immédiatement ses sessions */
+  if (row.bloque) {
+    await exec('delete from auth_tokens where token = $1', [token]);
+    return null;
+  }
   const { token: t, ...user } = row;
   return { token: t, user: user as User };
 }

@@ -111,7 +111,36 @@ Détail par projet : [`web/README.md`](web/README.md) et [`api/README.md`](api/R
 | Qualité | 18 pages vérifiées, aucun contrôle mort, accessibilité contrôlée, images WebP (−18 % de poids : 1 254 Ko au total) |
 | Adresses | **une adresse par écran** : `/cours/c1`, `/notifications`, `/quiz/c1`, `/certificats`, `/formateur/apprenants`… servies par le serveur, partageables et rechargeables ; adresse inconnue = vrai 404 |
 
-Référence des 56 routes : [`api/API.md`](api/API.md).
+Référence des routes : [`api/API.md`](api/API.md).
+
+**Webhook NOVA** : adresse à déclarer dans NOVA Checkout → `https://lms-lovat-five.vercel.app/api/nova/webhook`
+(signature `NOVA-Signature` vérifiée sur le corps brut, idempotent).
+
+
+### Ce que la v3 apporte
+
+| Domaine | Ce qui a changé |
+| --- | --- |
+| Parcours et révision | Parcours guidés, révision espacée, objectifs et séries, compétences, fiches A4 imprimables |
+| Outils de l'artisan | Formulation, saponification (soude exacte), convertisseur, réglementaire, recettes, carnet de production |
+| Espace formateur | Revenus, création de cours, banque de questions, annonces, notation assistée, séances en direct |
+| Argent | Reçus, codes promo, parrainage, panier groupé, relances de paiement |
+| Fiabilité | Hors-ligne annoncé, économie de données, confort de lecture, sauvegarde, PWA installable |
+| Attestations | Vérification publique par numéro (`/verifier`), état du service (`/etat`) |
+
+### Ce que la v4 apporte
+
+| Bloc | Ce qui a été livré | Adresses |
+| --- | --- | --- |
+| G — Communauté | Entraide par thèmes (répondre, « ça m'a aidé », résolu, épinglé), galerie des réalisations (photos compressées à ~200 Ko, stockées dans Neon), ateliers et voisinage, signalement avec file de modération | `/communaute(/:id)`, `/galerie(/:id)`, `/ateliers` |
+| H — Produire et vendre | Étiquette conforme avec **noms INCI**, ordre décroissant et allergènes ; produits et fiche publique indexable ; carnet de clients ; devis, commandes, encaissements et relances ; **analyse de rentabilité intégrée à `/outils/prix`** (coût de revient, marge, prix conseillé, prix revendeur, conseils) | `/etiquette`, `/produits(/:id)`, `/p/:slug`, `/clients`, `/commandes(/:id)`, `/outils/prix` |
+| I — Suivre les apprenants | Fiche apprenant complète (progression, résultats, présences, paiements, messages), import de questions en masse, examens blancs chronométrés corrigés tout de suite, émargement par code de séance, relevé de revenus mensuel, co-formateurs à part convenue | `/formateur/apprenants/:id`, `/formateur/questions`, `/examens(/:id)`, `/emargement`, `/formateur/releve`, `/formateur/equipe` |
+| J — Fidéliser | Points (entraide, assiduité, pratique) échangeables contre de vrais bons de réduction, défi du mois avec classement, réabonnement avec palier de fidélité, paliers de parrainage | `/points`, `/abonnement`, `/parrainage` |
+| K — Piloter | Console d'administration (chiffres clés, comptes, rôles, modération, paiements, ouvrages PDF), code de secours et journal de sécurité, lots de fabrication avec **fiche publique de traçabilité**, kits de démarrage chiffrés et commandables | `/console`, `/securite`, `/lots`, `/l/:slug`, `/kits` |
+| L — Apprendre autrement | Écoute des leçons par la voix du téléphone (hors ligne), **mode atelier** pas-à-pas avec minuteurs et signal sonore, glossaire français de 50 termes, **mode texte seul** | `/ecoute/:id`, `/atelier-pratique/:id`, `/glossaire`, `/accessibilite` |
+| M — Boutique PDF | Page de vente des 8 livres (six cours, recueil de recettes, guide « Fixer ses prix »), panier avec −10 % dès deux ouvrages, codes promo, paiement NOVA, lecture à l'écran par lien signé 30 min, téléchargement, bibliothèque personnelle. **Aucun texte du livre n'est visible avant l'achat** (l'API ne renvoie ni aperçu ni extrait ; le fichier répond 401/403 sans accès) | `/boutique(/:id)`, `/biblio` |
+
+Le fichier reste **unique et autonome** (1 645 Ko, images et extrait vidéo inclus) — la seule exception, déjà validée, est la PWA (`manifest.webmanifest`, `sw.js`, icônes).
 
 ---
 
@@ -157,15 +186,18 @@ cosmetilab/
 
 | Contrôle | Résultat |
 |---|---|
-| Assemblage du site (`build.js`) | 12 contrôles d'intégrité · 1 427 Ko |
+| Assemblage du site (`build.js`) | **33 contrôles d'intégrité** · 1 645 Ko |
 | Contrôles statiques (`verify.js`) | **15 OK / 0** |
-| Suite navigateur (Chromium mobile) | **53 OK / 0** sans API · **104 OK / 0** avec l'API (paywall, avatar, appareils, synchronisation par compte, espace formateur, reprise de lecture, attestations, audit qualité) |
+| Suite navigateur (Chromium mobile) | **54 OK / 0** sans API · **104 OK / 0** avec l'API (paywall, avatar, appareils, synchronisation par compte, espace formateur, reprise de lecture, attestations, audit qualité) |
 | Suite comptes et temps réel | **26 OK / 0** (écran d'entrée, inscription, données séparées, mise à jour automatique, notation) |
 | Paiement de bout en bout (`npm --prefix api run paie:verif`) | **23 OK / 0** (catalogue, verrous, offre, abonnement, webhook signé, rejeu) |
 | Test de fumée de l'API (`npm run api:smoke`) | **38 OK / 0** |
 | Types de l'API (`tsc --noEmit`) | 0 erreur |
 | Build Next.js | 56 routes `ƒ Dynamic` |
-| Base Neon (`db.js check`) | 30 tables, 6 cours, 59 leçons, 4 comptes |
+| Base Neon (`db.js check`) | **60 tables**, 6 cours, 60 leçons, 8 ouvrages PDF |
+| Adresses servies (v4) | **86/86 en 200**, adresse inconnue = vrai 404 |
+| Parcours réel des écrans v4 (Chromium mobile) | **31 OK / 1** (le seul écart est une assertion trop stricte du script de test) |
+| Chaîne de paiement (webhook → accès → lecture) | commande créée → webhook signé → payée → livre dans la bibliothèque → PDF servi (82 172 o) → rejeu idempotent |
 
 La suite navigateur vérifie ce qui doit rester vrai : navigation entre les quatre onglets, ouverture des fiches de cours, **retour** (bouton de l'app *et* bouton du téléphone), quiz, devoirs, **lecture vidéo dans le site** (YouTube en ligne, extrait intégré hors-ligne), thème, persistance, et **synchronisation dans les deux sens** avec l'API.
 

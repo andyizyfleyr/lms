@@ -29,6 +29,11 @@
     6j. src/v3-formateur.js  V3 : revenus, création de cours, banque de questions, annonce, notation, séances
     6k. src/v3-argent.js     V3 : reçus, codes promo, parrainage, panier groupé, relances
     6l. src/v3-qualite.js    V3 : hors-ligne, économie de données, accessibilité, sauvegarde, PWA
+    6m. src/v4-boutique.js   V4 : boutique des livres PDF, panier, bibliothèque, lecture signée
+    6n. src/v4-commun.js     V4 : entraide, galerie des réalisations, ateliers, signalement
+    6o. src/v4-argent.js     V4 : produits et étiquettes INCI, clients, commandes, lots, kits, points, relevé
+    6p. src/v4-apprendre.js  V4 : examens blancs, émargement par code, écoute, mode atelier, glossaire
+    6q. src/v4-admin.js      V4 : console d'administration, sécurité, fiche apprenant, co-formateurs
     7. src/compte.js     comptes, espaces de données séparés, temps réel, corrections
      7. src/app.js (fin)  fermeture </script></body></html>
 
@@ -59,6 +64,11 @@ const v3outils = lire('v3-outils.js');
 const v3formateur = lire('v3-formateur.js');
 const v3argent = lire('v3-argent.js');
 const v3qualite = lire('v3-qualite.js');
+const v4boutique = lire('v4-boutique.js');
+const v4commun = lire('v4-commun.js');
+const v4argent = lire('v4-argent.js');
+const v4apprendre = lire('v4-apprendre.js');
+const v4admin = lire('v4-admin.js');
 const apprendre = lire('apprendre.js');
 const routes = lire('routes.js');
 const adresses = lire('routes.json').trim();
@@ -87,6 +97,11 @@ const html =
   '\n/* ==================== V3 : FORMATEUR (cours, questions, revenus, notation) ==================== */\n' + v3formateur +
   '\n/* ==================== V3 : ARGENT (reçus, codes, parrainage, panier) ==================== */\n' + v3argent +
   '\n/* ==================== V3 : TÉLÉPHONE ET QUALITÉ (hors-ligne, confort, sauvegarde) ==================== */\n' + v3qualite +
+  '\n/* ==================== V4 : BOUTIQUE DES LIVRES PDF ==================== */\n' + v4boutique +
+  '\n/* ==================== V4 : COMMUNAUTÉ (entraide, galerie, ateliers) ==================== */\n' + v4commun +
+  '\n/* ==================== V4 : PRODUCTION ET VENTE (produits, clients, commandes, lots, kits) ==================== */\n' + v4argent +
+  '\n/* ==================== V4 : EXAMENS, ÉMARGEMENT, ÉCOUTE, ATELIER, GLOSSAIRE ==================== */\n' + v4apprendre +
+  '\n/* ==================== V4 : CONSOLE, SÉCURITÉ, ÉQUIPE ==================== */\n' + v4admin +
   '\n' + appApres;
 
 fs.writeFileSync(SORTIE, html);
@@ -99,7 +114,11 @@ const controles = [
   ['V3 — socle', /window\.LHV3\s*=/], ['V3 — apprendre', /window\.LHV3APPRENDRE\s*=/],
   ['V3 — outils', /window\.LHV3OUTILS\s*=/], ['V3 — formateur', /window\.LHV3FORMATEUR\s*=/],
   ['V3 — argent', /window\.LHV3ARGENT\s*=/], ['V3 — qualité', /window\.LHQUALITE\s*=/],
-  ['V3 — panier groupé', /type: 'panier'/], ['V3 — vérification publique', /PAGES\.verifier\s*=/]
+  ['V3 — panier groupé', /type: 'panier'/], ['V3 — vérification publique', /PAGES\.verifier\s*=/],
+  ['V4 — boutique PDF', /window\.LHV4BOUTIQUE\s*=/], ['V4 — communauté', /window\.LHV4COMMUN\s*=/],
+  ['V4 — production et vente', /window\.LHV4ARGENT\s*=/], ['V4 — examens et atelier', /window\.LHV4APPRENDRE\s*=/],
+  ['V4 — console', /window\.LHV4ADMIN\s*=/], ['V4 — analyse de rentabilité', /Analyse de rentabilité/],
+  ['V4 — glossaire', /PAGES\.glossaire\s*=/], ['V4 — fiches publiques', /case 'l':|case 'p':/]
 ];
 const manquants = controles.filter(([, motif]) => !motif.test(html)).map(([nom]) => nom);
 const ko = n => Math.round(n / 1024) + ' Ko';
